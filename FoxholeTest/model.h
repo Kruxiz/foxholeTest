@@ -9,14 +9,19 @@
 using namespace std;
 // GL Includes
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm.hpp>
+#include <gtc\matrix_transform.hpp>
+
 #include <SOIL.h>
+#pragma comment(lib, "assimp.lib")
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+
 #include "Mesh.h"
+
 
 GLint TextureFromFile(const char* path, string directory);
 
@@ -31,7 +36,7 @@ public:
 	}
 
 	// Draws the model, and thus all its meshes
-	void Draw(Shader shader)
+	void Draw(GLuint shader)
 	{
 		for (GLuint i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].Draw(shader);
