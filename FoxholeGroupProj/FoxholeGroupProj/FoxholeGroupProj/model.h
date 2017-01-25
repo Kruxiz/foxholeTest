@@ -13,7 +13,7 @@ using namespace std;
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <SOIL.h>
-#pragma comment(lib, "assimp.lib")
+//#pragma comment(lib, "assimp.lib")
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

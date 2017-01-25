@@ -1,10 +1,15 @@
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "WorldManager.h"
 #include "Model.h"
 #include "rt3d.h"
 
 typedef stack<glm::mat4> mvstack;
 
-namespace WorldManager {
+#define DEG_TO_RADIAN 0.017453293
+
+//namespace WorldManager {
 
 	GLuint shaderProgram;
 	GLuint textureProgram;
@@ -13,7 +18,7 @@ namespace WorldManager {
 	const char *cubeTexFiles[6] = {
 		"Town-skybox/Town_bk.bmp", "Town-skybox/Town_ft.bmp", "Town-skybox/Town_rt.bmp", "Town-skybox/Town_lf.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_dn.bmp"
 	};
-	loadCubeMap(cubeTexFiles, &skybox[0]);
+	//loadCubeMap(cubeTexFiles, &skybox[0]);
 
 	// Load models
 	Model *foxModel;
@@ -50,11 +55,11 @@ namespace WorldManager {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d) {
+	glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d, GLfloat r) {
 		return glm::vec3(pos.x + d*std::sin(r*DEG_TO_RADIAN), pos.y, pos.z - d*std::cos(r*DEG_TO_RADIAN));
 	}
 
-	glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d) {
+	glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d, GLfloat r) {
 		return glm::vec3(pos.x + d*std::cos(r*DEG_TO_RADIAN), pos.y, pos.z + d*std::sin(r*DEG_TO_RADIAN));
 	}
-}
+//}
