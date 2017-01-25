@@ -1,10 +1,10 @@
-#include "SceneManager.h"
+#include "WorldManager.h"
 #include "Model.h"
 #include "rt3d.h"
 
 typedef stack<glm::mat4> mvstack;
 
-namespace SceneManager {
+namespace WorldManager {
 
 	GLuint shaderProgram;
 	GLuint textureProgram;
@@ -38,10 +38,7 @@ namespace SceneManager {
 		{ 0.0f, 0.1f, 0.0f, 1.0f }, // specular
 		2.0f  // shininess
 	};
-
-	void initaliseObjects() {
-
-	}
+	
 	void init(void) {
 		shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
 		textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
