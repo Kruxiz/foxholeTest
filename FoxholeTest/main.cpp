@@ -14,14 +14,13 @@ int main(int argc, char *argv[]) {
 	// Required on Windows *only* init GLEW to access OpenGL beyond 1.1
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
-
-
+	 
 	if (GLEW_OK != err) { // glewInit failed, something is seriously wrong
 		std::cout << "glewInit failed, aborting." << endl;
 		exit(1);
 	}
 	cout << glGetString(GL_VERSION) << endl;
-	SceneManager::init();
+	WorldManager::initialise();
 
 	bool running = true; // set running to true
 	SDL_Event sdlEvent;  // variable to detect SDL events
@@ -30,8 +29,8 @@ int main(int argc, char *argv[]) {
 			if (sdlEvent.type == SDL_QUIT)
 				running = false;
 		}
-		SceneManager::update(hWindow, sdlEvent);	// update function
-		SceneManager::draw(hWindow, 0); // draw function
+		WorldManager::update(hWindow, sdlEvent);	// update function
+		WorldManager::draw(hWindow, 0); // draw function
 
 	}
 
