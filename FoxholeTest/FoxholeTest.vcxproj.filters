@@ -35,9 +35,6 @@
     <ClInclude Include="SDLController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rt3dObjLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>

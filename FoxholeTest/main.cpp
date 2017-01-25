@@ -1,7 +1,17 @@
-#include "main.h"
+//#include "main.h"
 #if _DEBUG
 #pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
 #endif
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <SDL.h>
+#include <iostream>
+#include "WorldManager.h"
+#include "SDLController.h"
+
+
 
 // Program entry point - SDL manages the actual WinMain entry point for us
 int main(int argc, char *argv[]) {
@@ -16,10 +26,10 @@ int main(int argc, char *argv[]) {
 	GLenum err = glewInit();
 	 
 	if (GLEW_OK != err) { // glewInit failed, something is seriously wrong
-		std::cout << "glewInit failed, aborting." << endl;
+		std::cout << "glewInit failed, aborting." << std::endl;
 		exit(1);
 	}
-	cout << glGetString(GL_VERSION) << endl;
+	std::cout << glGetString(GL_VERSION) << std::endl;
 	WorldManager::initialise();
 
 	bool running = true; // set running to true
