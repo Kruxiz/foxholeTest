@@ -1,5 +1,5 @@
-#ifndef SCENEMANAGER
-#define SCENEMANAGER
+#ifndef WORLDMANAGER
+#define WORLDMANAGER
 
 #include "SDL.h"
 #include <stack>
