@@ -108,7 +108,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>C:\dev\SDL2 plugins\include;C:\dev\SDL2-2.0.5\include;C:\dev\glm-0.9.8.3\glm;C:\dev\glew-2.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\SDL2 plugins\include;C:\dev\SDL2-2.0.5\include;C:\dev\glm-0.9.8.0\glm;C:\dev\glew-2.0.0\lib\Release\Win32;C:\dev\glew-2.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
