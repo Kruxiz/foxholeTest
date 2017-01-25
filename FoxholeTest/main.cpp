@@ -1,3 +1,8 @@
+#include <SDL.h>
+#include <iostream>
+#include "SDLController.h"
+#include "WorldManager.h"
+#include <math.h>
 #include "main.h"
 #if _DEBUG
 #pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
