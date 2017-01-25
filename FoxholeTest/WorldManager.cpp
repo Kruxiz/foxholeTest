@@ -13,7 +13,7 @@ namespace WorldManager {
 	const char *cubeTexFiles[6] = {
 		"Town-skybox/Town_bk.bmp", "Town-skybox/Town_ft.bmp", "Town-skybox/Town_rt.bmp", "Town-skybox/Town_lf.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_dn.bmp"
 	};
-	//loadCubeMap(cubeTexFiles, &skybox[0]);
+	loadCubeMap(cubeTexFiles, &skybox[0]);
 
 	// Load models
 	Model *foxModel;
