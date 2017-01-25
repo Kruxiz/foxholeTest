@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	cout << glGetString(GL_VERSION) << endl;
-	SceneManager::init();
+	WorldManager::initialise();
 
 	bool running = true; // set running to true
 	SDL_Event sdlEvent;  // variable to detect SDL events
@@ -30,8 +30,8 @@ int main(int argc, char *argv[]) {
 			if (sdlEvent.type == SDL_QUIT)
 				running = false;
 		}
-		SceneManager::update(hWindow, sdlEvent);	// update function
-		SceneManager::draw(hWindow, 0); // draw function
+		WorldManager::update(hWindow, sdlEvent);	// update function
+		WorldManager::draw(hWindow, 0); // draw function
 
 	}
 
