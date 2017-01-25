@@ -39,10 +39,10 @@ namespace WorldManager {
 		2.0f  // shininess
 	};
 	
-	void init(void) {
+	void initialise(void) {
 		shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
 		textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
-		modelProgram = rt3d::initShaders("modelLoading,vert, "modelLoading.frag");
+		modelProgram = rt3d::initShaders("modelLoading.vert, "modelLoading.frag");
 		foxModel = new Model("Nanosuit/nanosuit.obj");
 
 		glEnable(GL_DEPTH_TEST);
