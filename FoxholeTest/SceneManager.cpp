@@ -16,8 +16,7 @@ namespace SceneManager {
 	//loadCubeMap(cubeTexFiles, &skybox[0]);
 
 	// Load models
-	Model *ourModel;
-	Model *ourModel2;
+	Model *foxModel;
 
 	mvstack mvStack;
 
@@ -47,7 +46,7 @@ namespace SceneManager {
 		shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
 		textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
 		modelProgram = rt3d::initShaders("modelLoading,vert, "modelLoading.frag");
-		ourModel = new Model("Nanosuit/nanosuit.obj");
+		foxModel = new Model("Nanosuit/nanosuit.obj");
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
