@@ -1,3 +1,5 @@
+//this is absolute minimum needed
+
 #include "rt3d.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
