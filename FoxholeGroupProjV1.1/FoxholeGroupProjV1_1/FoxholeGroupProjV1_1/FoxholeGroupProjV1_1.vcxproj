@@ -149,11 +149,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GLEWManager.cpp" />
+    <ClCompile Include="Initialise.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rt3d.cpp" />
+    <ClCompile Include="SDLManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GLEWManager.h" />
+    <ClInclude Include="Initialise.h" />
     <ClInclude Include="rt3d.h" />
+    <ClInclude Include="SDLManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="minimal.frag" />
