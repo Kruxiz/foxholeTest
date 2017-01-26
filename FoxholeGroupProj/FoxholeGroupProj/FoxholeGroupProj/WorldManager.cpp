@@ -44,15 +44,23 @@ typedef stack<glm::mat4> mvstack;
 		2.0f  // shininess
 	};
 	
-	void initialise(void) {
+	void WorldManager::initialise(void) {
 		shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
 		textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
 		modelProgram = rt3d::initShaders("modelLoading.vert", "modelLoading.frag");
-		foxModel = new Model("Nanosuit/nanosuit.obj");
+		//foxModel = new Model("nanosuit.obj");
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	void WorldManager::update(SDL_Window * window, SDL_Event sdlEvent)
+	{
+	}
+
+	void WorldManager::draw(SDL_Window * window, float fps)
+	{
 	}
 
 	glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d, GLfloat r) {

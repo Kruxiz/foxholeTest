@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	std::cout << glGetString(GL_VERSION) << std::endl;
+
 	WorldManager::initialise();
 
 	bool running = true; // set running to true

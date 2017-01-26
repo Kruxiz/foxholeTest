@@ -5,13 +5,13 @@
 #include <SDL.h>
 #include <iostream>
 
-namespace SDLController {
-
+class SDLController {
+public:
 	// Something went wrong - print error message and quit
-	void exitFatalError(char *message);
-	SDL_Window * setupRC(SDL_GLContext &context);
+	static void exitFatalError(char *message);
+	static SDL_Window * setupRC(SDL_GLContext &context);
 
 
-}
+};
 
 #endif
