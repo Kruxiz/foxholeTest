@@ -89,13 +89,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\dev\assimp-3.3.1\include;C:\dev\SDL2 plugins\include;C:\dev\glew-2.0.0\lib\Release\Win32;C:\dev\glew-2.0.0\include\GL;C:\dev\glm-0.9.8.0\glm;C:\dev\SDL2-2.0.5\include;C:\dev\Simple OpenGL Image Library\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\assimp-3.3.1\include;C:\dev\SDL2 plugins\include;C:\dev\glew-2.0.0\include\GL;C:\dev\glm-0.9.8.0\glm;C:\dev\SDL2-2.0.5\include;C:\dev\Simple OpenGL Image Library\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Simple OpenGL Image Library\lib;C:\dev\SDL2-2.0.5\lib\x86;C:\dev\SDL2 plugins\lib\x86;C:\dev\glew-2.0.0\include\GL;C:\dev\glew-2.0.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;opengl32.lib;glew32.lib;kernel32.lib;user32.lib;SOIL.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -110,6 +111,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
