@@ -2,6 +2,7 @@
 #define SDLMANAGER_H
 
 #include <SDL.h>
+#include <gl/glew.h>
 
 class SDLManager {
 private:
@@ -14,6 +15,7 @@ public:
 	void SDLInit(void);
 	void SDLEnd(void);
 	void SDLRun(void);
+	static GLuint loadCubeMap(const char *fname[6], GLuint *texID);
 };
 
 #endif

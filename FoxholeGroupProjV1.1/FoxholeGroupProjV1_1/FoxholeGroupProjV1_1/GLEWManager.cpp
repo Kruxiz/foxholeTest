@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <iostream>
 
-namespace GLEWManager{
+
 	void GLEWManager::GLEWInitialise(void)
 	{
 		// Required on Windows *only* init GLEW to access OpenGL beyond 1.1
@@ -15,4 +15,4 @@ namespace GLEWManager{
 		}
 		std::cout << glGetString(GL_VERSION) << std::endl;
 	}
-}
+

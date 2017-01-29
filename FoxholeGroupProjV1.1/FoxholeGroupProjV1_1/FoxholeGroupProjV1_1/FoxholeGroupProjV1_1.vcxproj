@@ -162,8 +162,14 @@
     <ClInclude Include="SDLManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cubeMap.frag" />
+    <None Include="cubeMap.vert" />
     <None Include="minimal.frag" />
     <None Include="minimal.vert" />
+    <None Include="phong-tex.frag" />
+    <None Include="phong-tex.vert" />
+    <None Include="textured.frag" />
+    <None Include="textured.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
