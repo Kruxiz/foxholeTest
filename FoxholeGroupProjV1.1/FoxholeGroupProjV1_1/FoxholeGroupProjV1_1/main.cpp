@@ -8,10 +8,10 @@
 int main(int argc, char *argv[]) {
 
 	SDLManager manager;
-
+	Initialise init;
 	manager.SDLInit();
 	GLEWManager::GLEWInitialise();
-	Initialise::init();
+	init.init();
 	manager.SDLRun();
 	manager.SDLEnd();
 

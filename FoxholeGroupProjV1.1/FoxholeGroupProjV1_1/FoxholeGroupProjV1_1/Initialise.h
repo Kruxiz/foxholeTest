@@ -1,15 +1,20 @@
 #ifndef INITIALISE_H
 #define INITIALISE_H
 
+#include "rt3d.h"
+#include <vector>
+
 class Initialise {
 public:
-	/*GLuint getMeshIndexCount() { return meshIndexCount; }
+	GLuint getMeshIndexCount() { return meshIndexCount; }
 	GLuint* getSkyBox() { return skybox; }
 	GLuint getSkyBoxProg() { return skyboxProgram; }
 	rt3d::lightStruct getLight0() { return light0; }
-	rt3d::materialStruct getMaterial0() { return material0; }*/
-	static void init(void);
+	rt3d::materialStruct getMaterial0() { return material0; }
+	void init(void);
 private:
+	std::vector<GLuint> textures;
+	std::vector<GLuint> meshObjects;
 	GLuint meshIndexCount = 0;
 	GLuint skybox[5];
 	rt3d::lightStruct light0 = {

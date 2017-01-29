@@ -30,6 +30,9 @@
     <ClCompile Include="Initialise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rt3dObjLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rt3d.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Initialise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rt3dObjLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

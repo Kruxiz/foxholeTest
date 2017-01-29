@@ -2,13 +2,14 @@
 #include <vector>
 #include "SDLManager.h"
 #include "rt3d.h"
+#include "rt3dObjLoader.h"
 #include <GL/glew.h>
 
 void Initialise::init(void)
 {
 	GLuint shaderProg = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
-	rt3d::setLight(shaderProg, getLight0());
-	rt3d::setMaterial(shaderProg, getMaterial0());
+	rt3d::setLight(shaderProg, light0);
+	rt3d::setMaterial(shaderProg, material0);
 
 	//matching textureUnits
 	GLuint uniformIndex = glGetUniformLocation(shaderProg, "textureUnit0");
@@ -19,7 +20,7 @@ void Initialise::init(void)
 	glUniform1i(uniformIndex, 2);
 
 	//skybox program needed in draw method
-	GLuint skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
+	//GLuint skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
 
 	//doesn't appear to be used anywhere else question mark question mark question mark
 	GLuint textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
@@ -28,15 +29,21 @@ void Initialise::init(void)
 		"Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp"
 	};
 
-	SDLManager::loadCubeMap(cubeTexFiles, getSkyBox());
+	SDLManager::loadCubeMap(cubeTexFiles, skybox);
 
-	vector<GLfloat> verts;
-	vector<GLfloat> norms;
-	vector<GLfloat> tex_coords;
-	vector<GLuint> indices;
+	std::vector<GLfloat> verts;
+	std::vector<GLfloat> norms;
+	std::vector<GLfloat> tex_coords;
+	std::vector<GLuint> indices;
 	rt3d::loadObj("cube.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 
+	textures.push_back(SDLManager::loadBitmap("fabric.bmp"));
+
+	meshObjects.push_back(rt3d::createMesh(verts.size() / 3, 
+		verts.data(), nullptr, norms.data(), 
+		tex_coords.data(), meshIndexCount, 
+		indices.data()));
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -44,7 +51,7 @@ void Initialise::init(void)
 }
 
 //all these should be in some other class/file
-
+/*
 GLuint getMeshIndexCount() {
 	GLuint meshIndexCount = 0;
 	return meshIndexCount;
@@ -81,4 +88,4 @@ rt3d::materialStruct getMaterial0() {
 GLuint getSkyBoxProg() {
 	GLuint skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
 	return skyboxProgram;
-}
+}*/
