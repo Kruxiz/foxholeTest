@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GLEWManager.cpp" />
+    <ClCompile Include="LoadMaps.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="rt3d.cpp" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLEWManager.h" />
+    <ClInclude Include="LoadMaps.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="rt3d.h" />
     <ClInclude Include="rt3dObjLoader.h" />

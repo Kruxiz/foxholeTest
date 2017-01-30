@@ -27,10 +27,13 @@
     <ClCompile Include="GLEWManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Initialise.cpp">
+    <ClCompile Include="rt3dObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rt3dObjLoader.cpp">
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,10 +47,13 @@
     <ClInclude Include="GLEWManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Initialise.h">
+    <ClInclude Include="rt3dObjLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rt3dObjLoader.h">
+    <ClInclude Include="Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

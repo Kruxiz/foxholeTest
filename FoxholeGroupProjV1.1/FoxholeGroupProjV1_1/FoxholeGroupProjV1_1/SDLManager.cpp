@@ -1,19 +1,16 @@
+
 #include "SDLManager.h"
-#include "rt3d.h"
 
 /*#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>*/
 
-#define DEG_TO_RADIAN 0.017453293
+//#define DEG_TO_RADIAN 0.017453293
 
 SDLManager::SDLManager() {
 	window = nullptr;
 	context = 0;
-	eye = glm::vec3(0.0f, 1.0f, 0.0f);
-	at = glm::vec3(0.0f, 1.0f, -1.0f);
-	up = glm::vec3(0.0f, 1.0f, 0.0f);
-	position = glm::vec3(1.0f, -0.1f, -1.0f);
+	//scene = new SceneManager();
 };
 
 void SDLManager::SDLInit()
@@ -44,6 +41,12 @@ void SDLManager::SDLInit()
 	context = SDL_GL_CreateContext(window); // Create opengl context and attach to window
 	SDL_GL_SetSwapInterval(1); // set swap buffers to sync with monitor's vertical refresh rate
 	//return window;
+
+	GLEWManager::GLEWInitialise();
+
+	scene = new SceneManager();
+
+	scene->init();
 }
 
 void SDLManager::SDLEnd(void)
@@ -151,62 +154,33 @@ GLuint SDLManager::loadBitmap(char * fname)
 	return texID;	// return value of texture ID
 }
 
-glm::vec3 SDLManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d, GLfloat r)
-{
-	return glm::vec3(pos.x + d*std::sin(r*DEG_TO_RADIAN), pos.y, pos.z - d*std::cos(r*DEG_TO_RADIAN));
-}
-
-glm::vec3 SDLManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d, GLfloat r)
-{
-	return glm::vec3(pos.x + d*std::cos(r*DEG_TO_RADIAN), pos.y, pos.z + d*std::sin(r*DEG_TO_RADIAN));
-}
-
 void SDLManager::SDLDraw()
 {
+	//call scene manager
 
-}
+	scene->clearScreen();
 
-void SDLManager::renderSkyBox() {
-	// skybox as single cube using cube map
-	glUseProgram(Initialise::getSkyBoxProg());
-	rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
-	glDepthMask(GL_FALSE); // make sure writing to update depth test is off
-	glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
-	mvStack.push(glm::mat4(mvRotOnlyMat3));
-	glCullFace(GL_FRONT); // drawing inside of cube!
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
-	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
-	rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-	mvStack.pop();
-	glCullFace(GL_BACK); // drawing inside of cube!
-						 // back to remainder of rendering
-	glDepthMask(GL_TRUE); // make sure depth test is on
+	glm::mat4 projection = scene->initRendering();
+
+	scene->renderSkybox(projection);
+
+	scene->setShaderProjection(projection);
+
+	//set lights
+	scene->setLights();
+
+	//render objects
+	scene->renderObjects();
+
+	scene->popMatrixStack();
+
+	glDepthMask(GL_TRUE);
+
+	SDL_GL_SwapWindow(window); // swap buffers
 }
 
 void SDLManager::SDLUpdate()
 {
-	glEnable(GL_CULL_FACE);
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glm::mat4 projection(1.0);
-	projection = glm::perspective(float(60.0f*DEG_TO_RADIAN), 
-		800.0f / 600.0f, 1.0f, 150.0f);
-
-	GLfloat scale(1.0f); // just to allow easy scaling of complete scene
-
-	glm::mat4 modelview(1.0); // set base position for scene
-	mvStack.push(modelview);
-
-	at = position;
-	eye = moveForward(at, r, -8.0f, r);
-	eye.y += 6.0;
-	mvStack.top() = glm::lookAt(eye, at, up);
 
 
-}
-
-void SDLManager::renderSkyBox()
-{
 }
