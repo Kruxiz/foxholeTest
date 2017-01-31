@@ -10,7 +10,6 @@
 #include "rt3d.h"
 #include "rt3dObjLoader.h"
 #include "SDLManager.h"
-//#include "LoadMaps.h"
 #include "Player.h"
 
 class SceneManager {
@@ -36,6 +35,8 @@ private:
 
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
+	void initCamera();
+	void renderObject();
 public:
 	SceneManager();
 	void renderSkybox(glm::mat4 projection);
@@ -46,6 +47,7 @@ public:
 	void setShaderProjection(glm::mat4 projection);
 	void setLights();
 	void renderObjects();
+	void updatePlayerR(GLfloat deltaR);
 };
 
 #endif

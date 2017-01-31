@@ -1,21 +1,13 @@
 
 #include "SDLManager.h"
 
-/*#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>*/
-
-//#define DEG_TO_RADIAN 0.017453293
-
 SDLManager::SDLManager() {
 	window = nullptr;
 	context = 0;
-	//scene = new SceneManager();
 };
 
 void SDLManager::SDLInit()
 {
-	//return nullptr;
 	//SDL_Window * window;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) // Initialize video
 		rt3d::exitFatalError("Unable to initialize SDL");
@@ -40,7 +32,6 @@ void SDLManager::SDLInit()
 
 	context = SDL_GL_CreateContext(window); // Create opengl context and attach to window
 	SDL_GL_SetSwapInterval(1); // set swap buffers to sync with monitor's vertical refresh rate
-	//return window;
 
 	GLEWManager::GLEWInitialise();
 
@@ -65,10 +56,7 @@ void SDLManager::SDLRun(void)
 			if (sdlEvent.type == SDL_QUIT)
 				running = false;
 		}
-		//update(); <- SDLUpdate()
 		SDLUpdate();
-		//draw(hWindow); // call the draw function
-		//^ SDLDraw() <<<< called in SDL manager
 		SDLDraw();
 	}
 
@@ -181,6 +169,21 @@ void SDLManager::SDLDraw()
 
 void SDLManager::SDLUpdate()
 {
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
+	if (keys[SDL_SCANCODE_1]) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_CULL_FACE);
+	}
+
+	if (keys[SDL_SCANCODE_2]) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_CULL_FACE);
+	}
+
+	//if using <> - update playerR through scene->updatePlayerR();
+
+	if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(-1.0f);
+	if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(1.0f);
 
 }

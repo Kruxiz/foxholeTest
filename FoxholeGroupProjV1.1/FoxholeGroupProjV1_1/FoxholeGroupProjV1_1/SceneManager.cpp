@@ -75,10 +75,18 @@ glm::mat4 SceneManager::initRendering()
 	glm::mat4 modelview(1.0); // set base position for scene
 	mvStack.push(modelview);
 
+	initCamera();
+
 	return projection;
 }
 
-
+void SceneManager::initCamera() {
+	//init camera???
+	at = player.getPlayerPos();
+	eye = moveForward(at, player.getPlayerR(), -8.0f);
+	eye.y += 6.0;
+	mvStack.top() = glm::lookAt(eye, at, up);
+}
 
 void SceneManager::init()
 {
@@ -159,7 +167,7 @@ void SceneManager::renderObjects()
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPlayerPos().x, player.getPlayerPos().y, player.getPlayerPos().z));
-	mvStack.top() = glm::rotate(mvStack.top(), float(180*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(player.getPlayerR()*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
 													// ^^ 180 was 'r'
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -167,4 +175,13 @@ void SceneManager::renderObjects()
 	rt3d::setMaterial(shaderProgram, materials[0]);
 	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
+}
+
+void SceneManager::updatePlayerR(GLfloat deltaR)
+{
+	player.setPlayerR(player.getPlayerR() - deltaR);
+}
+
+void SceneManager::renderObject()
+{
 }
