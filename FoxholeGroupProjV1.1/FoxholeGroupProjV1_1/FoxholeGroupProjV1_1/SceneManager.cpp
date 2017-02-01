@@ -84,7 +84,7 @@ void SceneManager::initCamera() {
 	//init camera???
 	at = player.getPlayerPos();
 	eye = moveForward(at, player.getPlayerR(), -8.0f);
-	eye.y += 6.0;
+	eye.y += 3.0;
 	mvStack.top() = glm::lookAt(eye, at, up);
 }
 
