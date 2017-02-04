@@ -37,6 +37,7 @@ private:
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
 	void renderObject();
+	double getTimeScalar();
 public:
 	SceneManager();
 	void renderSkybox(glm::mat4 projection);

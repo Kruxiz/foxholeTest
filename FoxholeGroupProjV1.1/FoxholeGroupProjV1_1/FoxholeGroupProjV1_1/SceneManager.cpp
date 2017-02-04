@@ -28,16 +28,6 @@ SceneManager::SceneManager() {
 	lightPos = { 0.0f, 2.0f, -6.0f, 1.0f };
 }
 
-glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
-{
-	return glm::vec3(pos.x + d*std::sin(angle*DEG_TO_RADIAN), pos.y, pos.z - d*std::cos(angle*DEG_TO_RADIAN));
-}
-
-glm::vec3 SceneManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d)
-{
-	return glm::vec3(pos.x + d*std::cos(angle*DEG_TO_RADIAN), pos.y, pos.z + d*std::sin(angle*DEG_TO_RADIAN));
-}
-
 void SceneManager::renderSkybox(glm::mat4 projection)
 {
 	// skybox as single cube using cube map
@@ -83,7 +73,7 @@ glm::mat4 SceneManager::initRendering()
 void SceneManager::initCamera() {
 	//init camera???
 	at = player.getPlayerPos();
-	eye = moveForward(at, player.getPlayerR(), -8.0f);
+	eye = moveForward(at, -player.getPlayerR(), -8.0f);
 	eye.y += 3.0;
 	mvStack.top() = glm::lookAt(eye, at, up);
 }
@@ -178,19 +168,46 @@ void SceneManager::renderObjects()
 
 void SceneManager::updatePlayerR(GLfloat deltaR)
 {
-	player.setPlayerR(player.getPlayerR() - deltaR);
+	player.setPlayerR(player.getPlayerR() + deltaR);
 }
 
 void SceneManager::updatePlayerPos(glm::vec3 deltaPos)
 {
-	//seperate set x, y and z
-	//player.getPos().x etc
+	deltaPos.x = deltaPos.x / getTimeScalar();
+	deltaPos.y = deltaPos.y / getTimeScalar();
+	deltaPos.z = deltaPos.z / getTimeScalar();
 
 	glm::vec3 newPos = player.getPlayerPos();
 	newPos.x += deltaPos.x;
 	newPos.y += deltaPos.y;
 	newPos.z += deltaPos.z;
 	player.setPlayerPos(newPos);
+}
+
+glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
+{
+	return glm::vec3(pos.x + d*std::sin(angle*DEG_TO_RADIAN), pos.y, pos.z - d*std::cos(angle*DEG_TO_RADIAN));
+}
+
+glm::vec3 SceneManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d)
+{
+	return glm::vec3(pos.x + d*std::cos(angle*DEG_TO_RADIAN), pos.y, pos.z + d*std::sin(angle*DEG_TO_RADIAN));
+}
+
+double SceneManager::getTimeScalar() {
+	static unsigned int lastTicks = 0;
+
+	int ticks = SDL_GetTicks();
+	int ticksSince = ticks - lastTicks;
+
+	double scalar = (double)ticksSince / (double) 60.0f;
+
+	lastTicks = ticks;
+
+	if (scalar < 0.2 || scalar > 1.0)
+		scalar = 0.28333;
+
+	return scalar;
 }
 
 void SceneManager::renderObject()

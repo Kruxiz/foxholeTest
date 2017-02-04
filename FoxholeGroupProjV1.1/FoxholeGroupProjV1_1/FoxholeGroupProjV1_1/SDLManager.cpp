@@ -53,8 +53,23 @@ void SDLManager::SDLRun(void)
 	SDL_Event sdlEvent;  // variable to detect SDL events
 	while (running) {	// the event loop
 		while (SDL_PollEvent(&sdlEvent)) {
-			if (sdlEvent.type == SDL_QUIT)
+			if (sdlEvent.type == SDL_QUIT || sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE)
 				running = false;
+
+
+			if (sdlEvent.type == SDL_MOUSEMOTION)
+			{
+				SDL_SetRelativeMouseMode(SDL_TRUE);
+				SDL_WarpMouseInWindow(NULL, 800, 600);
+				/* If the mouse is moving to the left */
+				if (sdlEvent.motion.xrel < 0)
+					scene->updatePlayerR(1.5f);
+				/* If the mouse is moving to the right */
+				else if (sdlEvent.motion.xrel > 0)
+					scene->updatePlayerR(-1.5f);
+			}
+
+
 		}
 		SDLUpdate();
 		SDLDraw();
@@ -183,12 +198,12 @@ void SDLManager::SDLUpdate()
 
 	//if using <> - update playerR through scene->updatePlayerR();
 
-	if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(-1.0f);
-	if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(1.0f);
+	if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(0.50f);
+	if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(-0.50f);
 
-	if (keys[SDL_SCANCODE_W]) scene->updatePlayerPos(glm::vec3(0.0f, 0.0f, -1.0f));
-	if (keys[SDL_SCANCODE_S])  scene->updatePlayerPos(glm::vec3(0.0f, 0.0f, 1.0f));
-	if (keys[SDL_SCANCODE_A]) scene->updatePlayerPos(glm::vec3(-1.0f, 0.0f, 0.0f));
-	if (keys[SDL_SCANCODE_D])  scene->updatePlayerPos(glm::vec3(1.0f, 0.0f, 0.0f));
+	if (keys[SDL_SCANCODE_W]) scene->updatePlayerPos(glm::vec3(0.0f, 0.0f, -0.1f));
+	if (keys[SDL_SCANCODE_S]) scene->updatePlayerPos(glm::vec3(0.0f, 0.0f, 0.1f));
+	if (keys[SDL_SCANCODE_A]) scene->updatePlayerPos(glm::vec3(-0.1f, 0.0f, 0.0f));
+	if (keys[SDL_SCANCODE_D]) scene->updatePlayerPos(glm::vec3(0.1f, 0.0f, 0.0f));
 
 }
