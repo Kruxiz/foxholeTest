@@ -44,6 +44,7 @@ void SDLManager::SDLEnd(void)
 {
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
+	delete scene;
 	SDL_Quit();
 }
 

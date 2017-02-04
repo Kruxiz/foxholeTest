@@ -158,6 +158,7 @@
     <ClCompile Include="SDLManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="GLEWManager.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="rt3d.h" />
