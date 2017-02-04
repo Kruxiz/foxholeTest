@@ -168,7 +168,6 @@ void SceneManager::renderObjects()
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPlayerPos().x, player.getPlayerPos().y, player.getPlayerPos().z));
 	mvStack.top() = glm::rotate(mvStack.top(), float(player.getPlayerR()*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
-													// ^^ 180 was 'r'
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
@@ -180,6 +179,18 @@ void SceneManager::renderObjects()
 void SceneManager::updatePlayerR(GLfloat deltaR)
 {
 	player.setPlayerR(player.getPlayerR() - deltaR);
+}
+
+void SceneManager::updatePlayerPos(glm::vec3 deltaPos)
+{
+	//seperate set x, y and z
+	//player.getPos().x etc
+
+	glm::vec3 newPos = player.getPlayerPos();
+	newPos.x += deltaPos.x;
+	newPos.y += deltaPos.y;
+	newPos.z += deltaPos.z;
+	player.setPlayerPos(newPos);
 }
 
 void SceneManager::renderObject()

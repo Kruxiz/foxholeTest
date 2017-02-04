@@ -48,6 +48,7 @@ public:
 	void setLights();
 	void renderObjects();
 	void updatePlayerR(GLfloat deltaR);
+	void updatePlayerPos(glm::vec3 deltaPos);
 };
 
 #endif
