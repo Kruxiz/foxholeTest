@@ -152,17 +152,16 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rt3d.cpp" />
     <ClCompile Include="rt3dObjLoader.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SDLController.cpp" />
+    <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="rt3d.h" />
     <ClInclude Include="rt3dObjLoader.h" />
-    <ClInclude Include="Scenemanager.h" />
     <ClInclude Include="SDLController.h" />
+    <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cubeMap.frag" />
