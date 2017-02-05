@@ -15,7 +15,7 @@ private:
 	SDL_GLContext context;
 	SceneManager * scene;
 	void SDLDraw();
-	void SDLUpdate();
+	void SDLUpdate(SDL_Event sdlEvent);
 public:
 	SDLManager();
 	void SDLInit(void);

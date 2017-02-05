@@ -72,7 +72,7 @@ void SDLManager::SDLRun(void)
 
 
 		}
-		SDLUpdate();
+		SDLUpdate(sdlEvent);
 		SDLDraw();
 	}
 
@@ -183,7 +183,7 @@ void SDLManager::SDLDraw()
 	SDL_GL_SwapWindow(window); // swap buffers
 }
 
-void SDLManager::SDLUpdate()
+void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -207,5 +207,10 @@ void SDLManager::SDLUpdate()
 	if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
 	if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
 
-	scene->checkCollisions();
+	if (keys[SDL_SCANCODE_SPACE]) {
+		scene->playerJump();
+		scene->playerFall(true);
+	}
+
+	scene->playerFall(keys[SDL_SCANCODE_SPACE]);
 }

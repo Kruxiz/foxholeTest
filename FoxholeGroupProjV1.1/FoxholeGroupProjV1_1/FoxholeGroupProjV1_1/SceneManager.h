@@ -36,6 +36,8 @@ private:
 
 	std::vector<GameObject> gameObjects;
 
+	const GLuint gravity = 1.1; // needed?
+
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
@@ -57,7 +59,9 @@ public:
 	void updatePlayerR(GLfloat deltaR);
 	void movePlayerForward(GLfloat delta);
 	void movePlayerRight(GLfloat delta);
-	void checkCollisions();
+	bool checkCollisions();
+	void playerJump();
+	void playerFall(bool spaceDown);
 };
 
 #endif

@@ -240,15 +240,53 @@ glm::vec3 SceneManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d)
 	return glm::vec3(pos.x + d*std::cos(angle*DEG_TO_RADIAN), pos.y, pos.z + d*std::sin(angle*DEG_TO_RADIAN));
 }
 
-void SceneManager::checkCollisions()
+bool SceneManager::checkCollisions()
 {
 	for (GameObject gObj : gameObjects) {
 		if (CollisionDetector::detectCollision(gObj, (GameObject)player))
-			std::cout << "Collision\n";
+			return true;
 		else
-			std::cout << "No collision\n";
+			return false;
 	}
 
+}
+
+void SceneManager::playerJump() {
+	if (player.getJumpCounter() < player.getJumpMax() && !player.isFalling()) {
+		player.jump(true);
+		glm::vec3 newPos = player.getPos();
+
+		newPos.y += player.getJumpIncrement();
+		if (player.getJumpIncrement() < player.getMaxJumpIncrement())
+			player.increaseJumpIncrement();
+
+		player.incrementJumpCounter();
+
+		player.setPos(newPos);
+	}
+	else {
+		player.resetJumpIncrement();
+		player.resetJumpCounter();
+		player.jump(false);
+	}
+}
+
+void SceneManager::playerFall(bool spaceDown) {
+
+	if ((!player.isJumping() || !spaceDown && player.isJumping()) && !checkCollisions()) {
+		player.fall(true);
+		glm::vec3 newPos = player.getPos();
+		if (player.getFallIncrement() < player.getMaxFallIncrement())
+			newPos.y -= player.getFallIncrement();
+
+		player.increaseFallIncrement();
+
+		player.setPos(newPos);
+	}
+	else {
+		player.resetFallIncrement();
+		player.fall(false);
+	}
 }
 
 double SceneManager::getTimeScalar() {
