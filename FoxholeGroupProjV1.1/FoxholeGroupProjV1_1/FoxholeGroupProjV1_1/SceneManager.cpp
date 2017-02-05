@@ -114,7 +114,6 @@ void SceneManager::init()
 
 	SDLManager::loadCubeMap(cubeTexFiles, skybox);
 
-	// its own method to load cubes more easily???
 	std::vector<GLfloat> verts;
 	std::vector<GLfloat> norms;
 	std::vector<GLfloat> tex_coords;
@@ -127,7 +126,13 @@ void SceneManager::init()
 		tex_coords.data(), meshIndexCount,
 		indices.data()));
 
+	//add more meshes with rt3d::loadObj("*.obj", verts, norms, tex_coords, indices); where * is the obj name
+	//then meshIndexCount = indices.size();
+	//then meshObjects.push_back(rt3d::createMesh(verts.size() / 3, verts.data(), nullptr, norms.data(), tex_coords.data(), meshIndexCount, indices.data()));
+
 	textures.push_back(SDLManager::loadBitmap("fabric.bmp"));
+	textures.push_back(SDLManager::loadBitmap("water.bmp"));
+	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
 	initPlayer();
@@ -139,6 +144,22 @@ void SceneManager::init()
 
 void SceneManager::initGameObjects() {
 	gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(20.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
+
+	gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(20.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
+
+	gameObjects.push_back(GameObject("Cube1", glm::vec3(-5.0f, 1.0f, -50.0f), glm::vec3(5.0f, 1.0f, 5.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube2", glm::vec3(-5.0f, 1.0f, -60.0f), glm::vec3(1.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube3", glm::vec3(0.0f, 2.0f, -66.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube4", glm::vec3(-4.0f, 1.0f, -75.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube5", glm::vec3(-8.0f, 1.5f, -85.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube6", glm::vec3(-10.0f, 2.0f, -96.0f), glm::vec3(1.5f, 3.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube7", glm::vec3(-2.0f, 1.0f, -105.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube8", glm::vec3(-2.0f, 1.5f, -120.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube9", glm::vec3(-9.0f, 1.0f, -127.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+
+	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
 }
 
 void SceneManager::initPlayer() {
@@ -163,7 +184,6 @@ void SceneManager::setLights()
 
 void SceneManager::renderObjects()
 {
-	
 	for (int i = 0; i < gameObjects.size(); i++)
 		renderObject(gameObjects[i]);
 
@@ -172,16 +192,14 @@ void SceneManager::renderObjects()
 
 void SceneManager::renderObject(GameObject gObj)
 {
-	//cube - ground plane
 	glBindTexture(GL_TEXTURE_2D, gObj.getTexture());
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), gObj.getPos());
 	mvStack.top() = glm::scale(mvStack.top(), gObj.getScale());
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::setMaterial(shaderProgram, materials[0]);
+	//rt3d::setMaterial(shaderProgram, materials[0]); // don't use materials??????
 	rt3d::drawIndexedMesh(gObj.getMesh(), meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
-
 }
 
 void SceneManager::renderPlayer()
@@ -194,7 +212,7 @@ void SceneManager::renderPlayer()
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::setMaterial(shaderProgram, materials[1]);
+	//rt3d::setMaterial(shaderProgram, materials[1]);
 	rt3d::drawIndexedMesh(player.getMesh(), meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
 }
@@ -209,7 +227,7 @@ void SceneManager::movePlayerForward(GLfloat delta) {
 }
 
 void SceneManager::movePlayerRight(GLfloat delta) {
-	player.setPos(moveRight(player.getPos(), player.getPlayerR(), delta / getTimeScalar()));
+	player.setPos(moveRight(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
 }
 
 glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
@@ -220,6 +238,17 @@ glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
 glm::vec3 SceneManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d)
 {
 	return glm::vec3(pos.x + d*std::cos(angle*DEG_TO_RADIAN), pos.y, pos.z + d*std::sin(angle*DEG_TO_RADIAN));
+}
+
+void SceneManager::checkCollisions()
+{
+	for (GameObject gObj : gameObjects) {
+		if (CollisionDetector::detectCollision(gObj, (GameObject)player))
+			std::cout << "Collision\n";
+		else
+			std::cout << "No collision\n";
+	}
+
 }
 
 double SceneManager::getTimeScalar() {

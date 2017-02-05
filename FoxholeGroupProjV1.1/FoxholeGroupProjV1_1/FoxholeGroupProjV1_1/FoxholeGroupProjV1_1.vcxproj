@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CollisionDetector.cpp" />
     <ClCompile Include="GLEWManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="SDLManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CollisionDetector.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GLEWManager.h" />
     <ClInclude Include="Player.h" />

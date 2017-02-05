@@ -207,4 +207,5 @@ void SDLManager::SDLUpdate()
 	if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
 	if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
 
+	scene->checkCollisions();
 }

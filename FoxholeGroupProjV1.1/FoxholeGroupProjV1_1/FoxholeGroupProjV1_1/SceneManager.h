@@ -11,6 +11,7 @@
 #include "rt3dObjLoader.h"
 #include "SDLManager.h"
 #include "Player.h"
+#include "CollisionDetector.h"
 
 class SceneManager {
 private:
@@ -56,6 +57,7 @@ public:
 	void updatePlayerR(GLfloat deltaR);
 	void movePlayerForward(GLfloat delta);
 	void movePlayerRight(GLfloat delta);
+	void checkCollisions();
 };
 
 #endif
