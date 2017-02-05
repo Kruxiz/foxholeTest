@@ -18,12 +18,21 @@ SceneManager::SceneManager() {
 
 	//materials - same as above
 	materials.push_back({
-		{ 0.0f, 0.0f, 1.0f, 1.0f }, // ambient
+		{ 1.0f, 1.0f, 1.0f, 1.0f }, // ambient
 		{ 0.5f, 1.0f, 0.5f, 1.0f }, // diffuse
 		{ 0.0f, 0.1f, 0.0f, 1.0f }, // specular
 		2.0f  // shininess
 	}
 	);
+
+	materials.push_back({
+		{ 0.0f, 0.0f, 0.0f, 1.0f }, // ambient
+		{ 0.5f, 1.0f, 0.5f, 1.0f }, // diffuse
+		{ 0.0f, 0.1f, 0.0f, 1.0f }, // specular
+		2.0f  // shininess
+	}
+	);
+
 
 	lightPos = { 0.0f, 2.0f, -6.0f, 1.0f };
 }
@@ -113,16 +122,28 @@ void SceneManager::init()
 	rt3d::loadObj("cube.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 
-	textures.push_back(SDLManager::loadBitmap("fabric.bmp"));
-
 	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
 		verts.data(), nullptr, norms.data(),
 		tex_coords.data(), meshIndexCount,
 		indices.data()));
 
+	textures.push_back(SDLManager::loadBitmap("fabric.bmp"));
+
+	initGameObjects();
+	initPlayer();
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void SceneManager::initGameObjects() {
+	gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(20.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
+}
+
+void SceneManager::initPlayer() {
+	player.setPlayerTexture(textures[0]);
+	player.setPlayerMesh(meshObjects[0]);
 }
 
 void SceneManager::setShaderProjection(glm::mat4 projection)
@@ -142,27 +163,39 @@ void SceneManager::setLights()
 
 void SceneManager::renderObjects()
 {
+	
+	for (int i = 0; i < gameObjects.size(); i++)
+		renderObject(gameObjects[i]);
+
+	renderPlayer();
+}
+
+void SceneManager::renderObject(GameObject gObj)
+{
 	//cube - ground plane
-	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	glBindTexture(GL_TEXTURE_2D, gObj.getTexture());
 	mvStack.push(mvStack.top());
-	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(-5.0f, -0.1f, -100.0f));
-	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(20.0f, 0.1f, 200.0f));
+	mvStack.top() = glm::translate(mvStack.top(), gObj.getPos());
+	mvStack.top() = glm::scale(mvStack.top(), gObj.getScale());
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 	rt3d::setMaterial(shaderProgram, materials[0]);
-	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+	rt3d::drawIndexedMesh(gObj.getMesh(), meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
 
+}
+
+void SceneManager::renderPlayer()
+{
 	//player cube
-	///glUseProgram(shaderProgram);
-	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	glBindTexture(GL_TEXTURE_2D, player.getTexture());
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPos().x, player.getPos().y, player.getPos().z));
 	mvStack.top() = glm::rotate(mvStack.top(), float(player.getPlayerR()*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::setMaterial(shaderProgram, materials[0]);
-	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+	rt3d::setMaterial(shaderProgram, materials[1]);
+	rt3d::drawIndexedMesh(player.getMesh(), meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
 }
 
@@ -171,17 +204,12 @@ void SceneManager::updatePlayerR(GLfloat deltaR)
 	player.setPlayerR(player.getPlayerR() + deltaR);
 }
 
-void SceneManager::updatePlayerPos(glm::vec3 deltaPos)
-{
-	deltaPos.x = deltaPos.x / getTimeScalar();
-	deltaPos.y = deltaPos.y / getTimeScalar();
-	deltaPos.z = deltaPos.z / getTimeScalar();
+void SceneManager::movePlayerForward(GLfloat delta) {
+	player.setPos(moveForward(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
+}
 
-	glm::vec3 newPos = player.getPos();
-	newPos.x += deltaPos.x;
-	newPos.y += deltaPos.y;
-	newPos.z += deltaPos.z;
-	player.setPos(newPos);
+void SceneManager::movePlayerRight(GLfloat delta) {
+	player.setPos(moveRight(player.getPos(), player.getPlayerR(), delta / getTimeScalar()));
 }
 
 glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
@@ -208,8 +236,4 @@ double SceneManager::getTimeScalar() {
 		scalar = 0.28333;
 
 	return scalar;
-}
-
-void SceneManager::renderObject()
-{
 }

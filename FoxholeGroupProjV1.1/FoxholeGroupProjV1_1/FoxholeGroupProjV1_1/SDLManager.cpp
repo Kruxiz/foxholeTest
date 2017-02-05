@@ -202,9 +202,9 @@ void SDLManager::SDLUpdate()
 	if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(0.50f);
 	if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(-0.50f);
 
-	if (keys[SDL_SCANCODE_W]) scene->updatePlayerPos(glm::vec3(0.0f, 0.0f, -0.1f));
-	if (keys[SDL_SCANCODE_S]) scene->updatePlayerPos(glm::vec3(0.0f, 0.0f, 0.1f));
-	if (keys[SDL_SCANCODE_A]) scene->updatePlayerPos(glm::vec3(-0.1f, 0.0f, 0.0f));
-	if (keys[SDL_SCANCODE_D]) scene->updatePlayerPos(glm::vec3(0.1f, 0.0f, 0.0f));
+	if (keys[SDL_SCANCODE_W]) scene->movePlayerForward(0.1f);
+	if (keys[SDL_SCANCODE_S]) scene->movePlayerForward(-0.1f);
+	if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
+	if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
 
 }

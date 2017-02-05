@@ -33,10 +33,15 @@ private:
 
 	Player player;
 
+	std::vector<GameObject> gameObjects;
+
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
-	void renderObject();
+	void initGameObjects();
+	void initPlayer();
+	void renderObject(GameObject gObj);
+	void renderPlayer();
 	double getTimeScalar();
 public:
 	SceneManager();
@@ -49,7 +54,8 @@ public:
 	void setLights();
 	void renderObjects();
 	void updatePlayerR(GLfloat deltaR);
-	void updatePlayerPos(glm::vec3 deltaPos);
+	void movePlayerForward(GLfloat delta);
+	void movePlayerRight(GLfloat delta);
 };
 
 #endif
