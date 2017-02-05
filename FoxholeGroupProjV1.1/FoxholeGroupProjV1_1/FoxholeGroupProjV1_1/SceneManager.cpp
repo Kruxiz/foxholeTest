@@ -72,7 +72,7 @@ glm::mat4 SceneManager::initRendering()
 
 void SceneManager::initCamera() {
 	//init camera???
-	at = player.getPlayerPos();
+	at = player.getPos();
 	eye = moveForward(at, -player.getPlayerR(), -8.0f);
 	eye.y += 3.0;
 	mvStack.top() = glm::lookAt(eye, at, up);
@@ -156,7 +156,7 @@ void SceneManager::renderObjects()
 	///glUseProgram(shaderProgram);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	mvStack.push(mvStack.top());
-	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPlayerPos().x, player.getPlayerPos().y, player.getPlayerPos().z));
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPos().x, player.getPos().y, player.getPos().z));
 	mvStack.top() = glm::rotate(mvStack.top(), float(player.getPlayerR()*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -177,11 +177,11 @@ void SceneManager::updatePlayerPos(glm::vec3 deltaPos)
 	deltaPos.y = deltaPos.y / getTimeScalar();
 	deltaPos.z = deltaPos.z / getTimeScalar();
 
-	glm::vec3 newPos = player.getPlayerPos();
+	glm::vec3 newPos = player.getPos();
 	newPos.x += deltaPos.x;
 	newPos.y += deltaPos.y;
 	newPos.z += deltaPos.z;
-	player.setPlayerPos(newPos);
+	player.setPos(newPos);
 }
 
 glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)

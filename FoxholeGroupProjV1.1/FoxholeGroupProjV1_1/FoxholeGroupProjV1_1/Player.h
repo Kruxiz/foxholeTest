@@ -3,16 +3,17 @@
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <string>
+#include "GameObject.h"
 
-class Player {
+class Player : public GameObject {
 public:
 	Player();
-	glm::vec3 getPlayerPos() { return playerPos; }
-	void setPlayerPos(glm::vec3 newPos) { playerPos = newPos; }
 	GLfloat getPlayerR() { return r; }
 	void setPlayerR(GLfloat newR) { r = newR; }
+	void setPlayerMesh(GLuint mesh) { meshId = mesh; }
+	void setPlayerTexture(GLuint tex) { textureId = tex; }
 private:
-	glm::vec3 playerPos;
 	GLfloat r;
 };
 
