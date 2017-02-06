@@ -13,6 +13,7 @@ public:
 		scale = objScale;
 		textureId = texId;
 		meshId = mId;
+		lastCollisionObjName = "";
 	}
 	std::string getName() { return nameId; }
 	glm::vec3 getPos() { return position; }
@@ -20,6 +21,8 @@ public:
 	GLuint getTexture() { return textureId; }
 	GLuint getMesh() { return meshId; }
 	void setPos(glm::vec3 newPos) { position = newPos; }
+	std::string getLastCollision() { return lastCollisionObjName; }
+	void setLastCollision(std::string lastCollision) { lastCollisionObjName = lastCollision; }
 	//getDimensions??
 protected:
 	GLuint meshId;
@@ -27,6 +30,7 @@ protected:
 	std::string nameId;
 	glm::vec3 position;
 	glm::vec3 scale;
+	std::string lastCollisionObjName;
 };
 
 #endif

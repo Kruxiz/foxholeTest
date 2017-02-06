@@ -60,8 +60,11 @@ public:
 	void movePlayerForward(GLfloat delta);
 	void movePlayerRight(GLfloat delta);
 	bool checkCollisions();
+	bool checkCollisions(GameObject &specObj);
 	void playerJump();
-	void playerFall(bool spaceDown);
+	void playerFall();
+	GameObject getGameObject(std::string objName);
+	void setPlayerJumpFalse();
 };
 
 #endif

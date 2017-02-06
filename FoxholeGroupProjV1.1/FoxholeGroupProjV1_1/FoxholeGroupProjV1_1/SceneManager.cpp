@@ -223,11 +223,21 @@ void SceneManager::updatePlayerR(GLfloat deltaR)
 }
 
 void SceneManager::movePlayerForward(GLfloat delta) {
+	glm::vec3 temp = player.getPos();
+
 	player.setPos(moveForward(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
+
+	if (checkCollisions())
+		player.setPos(temp);
 }
 
 void SceneManager::movePlayerRight(GLfloat delta) {
+	glm::vec3 temp = player.getPos();
+
 	player.setPos(moveRight(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
+
+	if (checkCollisions())
+		player.setPos(temp);
 }
 
 glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
@@ -242,51 +252,90 @@ glm::vec3 SceneManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d)
 
 bool SceneManager::checkCollisions()
 {
-	for (GameObject gObj : gameObjects) {
-		if (CollisionDetector::detectCollision(gObj, (GameObject)player))
-			return true;
-		else
-			return false;
+	bool collided = false;
+	for (int i = 0; i < gameObjects.size(); i++) {
+		if (CollisionDetector::detectCollision(gameObjects[i], player))
+			collided = true;
 	}
+	return collided;
+}
 
+bool SceneManager::checkCollisions(GameObject &specObj) {
+	bool collided = false;
+	for (int i = 0; i < gameObjects.size(); i++) {
+		if (CollisionDetector::detectCollision(gameObjects[i], specObj))
+			collided = true;
+	}
+	return collided;
 }
 
 void SceneManager::playerJump() {
-	if (player.getJumpCounter() < player.getJumpMax() && !player.isFalling()) {
+	if (player.getJumpCounter() < player.getJumpMax()) {
 		player.jump(true);
 		glm::vec3 newPos = player.getPos();
 
 		newPos.y += player.getJumpIncrement();
-		if (player.getJumpIncrement() < player.getMaxJumpIncrement())
-			player.increaseJumpIncrement();
 
 		player.incrementJumpCounter();
-
 		player.setPos(newPos);
 	}
-	else {
-		player.resetJumpIncrement();
-		player.resetJumpCounter();
+	else if (player.getJumpCounter() >= player.getJumpMax()) {
 		player.jump(false);
+		if (player.isOnObject())
+			player.resetJumpCounter();
 	}
 }
 
-void SceneManager::playerFall(bool spaceDown) {
+void SceneManager::playerFall() {
 
-	if ((!player.isJumping() || !spaceDown && player.isJumping()) && !checkCollisions()) {
-		player.fall(true);
+	if (CollisionDetector::detectCollision(getGameObject("Cube1"), player))
+		std::cout << "player collided with cube1\n";
+
+	if (!checkCollisions()) {
 		glm::vec3 newPos = player.getPos();
-		if (player.getFallIncrement() < player.getMaxFallIncrement())
+		newPos.y -= player.getFallIncrement();
+
+		GameObject tempObj(player);
+
+		tempObj.setPos(newPos);
+
+		if (!checkCollisions(tempObj)) { player.setIsOnObj(false);}
+	}
+
+	if (!player.isJumping() && !player.isOnObject()) {
+
+		glm::vec3 newPos = player.getPos();
+
+		if (checkCollisions()) {
+			//change player y to y of object y plus object scale
+			GameObject gObj = getGameObject(player.getLastCollision());
+			std::cout << "player last coll:\t " << player.getLastCollision() << std::endl;
+			newPos.y = gObj.getPos().y + gObj.getScale().y + player.getScale().y;
+
+			player.setIsOnObj(true);
+		}
+		else {
 			newPos.y -= player.getFallIncrement();
+		}
 
-		player.increaseFallIncrement();
-
+		std::cout << "player y:\t" << player.getPos().y << std::endl;
 		player.setPos(newPos);
+		//CHANGE THIS ^^^^^ CREATE TEMP OBJECT ////MAYBE?????? LOLIDK
 	}
-	else {
-		player.resetFallIncrement();
-		player.fall(false);
+}
+
+GameObject SceneManager::getGameObject(std::string objName) {
+	for (GameObject gObj : gameObjects) {
+		if (gObj.getName() == objName)
+			return gObj;
 	}
+	return GameObject("null", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 0, 0);
+}
+
+void SceneManager::setPlayerJumpFalse()
+{
+	player.jump(false);
+	player.maxJumpCounter();
 }
 
 double SceneManager::getTimeScalar() {

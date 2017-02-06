@@ -33,6 +33,9 @@ public:
 	GLfloat getFallIncrement() { return fallIncrement; }
 	void increaseFallIncrement() { fallIncrement *= accnValue; }
 	void resetFallIncrement() { fallIncrement = baseJumpAndFallIncrement; }
+	void setIsOnObj(bool onObj) { isOnObj = onObj; }
+	bool isOnObject() { return isOnObj; }
+	void maxJumpCounter() { jumpCounter = jumpMax; }
 private:
 	GLfloat r = 0.0f;
 	GLuint jumpCounter = 0;
@@ -41,11 +44,12 @@ private:
 	GLfloat baseJumpAndFallIncrement = 0.1f;
 	GLfloat maxJumpIncrement = 0.5f;
 	GLfloat maxFallIncrement = 0.5f;
-	GLuint jumpMax = 30;
+	GLuint jumpMax = 50;
 	GLfloat accnValue = 1.1f; // needed
 	bool falling = false;
 	bool jumping = false;
 	bool jumpIncrementSet = false;
+	bool isOnObj = false;
 };
 
 #endif

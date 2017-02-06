@@ -209,8 +209,11 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 
 	if (keys[SDL_SCANCODE_SPACE]) {
 		scene->playerJump();
-		scene->playerFall(true);
 	}
 
-	scene->playerFall(keys[SDL_SCANCODE_SPACE]);
+	if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) { 
+		scene->setPlayerJumpFalse();
+	}
+
+	scene->playerFall();
 }
