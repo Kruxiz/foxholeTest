@@ -109,7 +109,7 @@ void SceneManager::init()
 
 	//loading skybox
 	const char *cubeTexFiles[6] = {
-		"Town-skybox/grass1.bmp", "Town-skybox/side1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp"
+		"Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp"
 	};
 
 	SDLManager::loadCubeMap(cubeTexFiles, skybox);
@@ -125,6 +125,40 @@ void SceneManager::init()
 		verts.data(), nullptr, norms.data(),
 		tex_coords.data(), meshIndexCount,
 		indices.data()));
+
+	verts.clear();
+	norms.clear();
+	tex_coords.clear();
+	indices.clear();
+
+	//meshIndexCount = 0;
+	std::cout << "meshindexcount: " << meshIndexCount << std::endl;
+
+	rt3d::loadObj("fox.obj", verts, norms, tex_coords, indices);
+	meshIndexCount = indices.size();
+	player.setMeshIndexCount(indices.size());
+
+	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
+		verts.data(), nullptr, norms.data(),
+		tex_coords.data(), meshIndexCount,
+		indices.data()));
+
+	verts.clear();
+	norms.clear();
+	tex_coords.clear();
+	indices.clear();
+
+	std::cout << "meshindexcount: " << meshIndexCount << std::endl;
+
+	rt3d::loadObj("CartoonTree.obj", verts, norms, tex_coords, indices);
+	meshIndexCount = indices.size();
+
+	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
+		verts.data(), nullptr, norms.data(),
+		tex_coords.data(), meshIndexCount,
+		indices.data()));
+
+	std::cout << "meshindexcount: " << meshIndexCount << std::endl;
 
 	//add more meshes with rt3d::loadObj("*.obj", verts, norms, tex_coords, indices); where * is the obj name
 	//then meshIndexCount = indices.size();
@@ -159,12 +193,14 @@ void SceneManager::initGameObjects() {
 	gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
 	gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
 
+	gameObjects.push_back(GameObject("Tree1", glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), textures[0], meshObjects[2]));
+
 	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
 }
 
 void SceneManager::initPlayer() {
 	player.setPlayerTexture(textures[0]);
-	player.setPlayerMesh(meshObjects[0]);
+	player.setPlayerMesh(meshObjects[1]);
 }
 
 void SceneManager::setShaderProjection(glm::mat4 projection)
@@ -213,7 +249,7 @@ void SceneManager::renderPlayer()
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 	//rt3d::setMaterial(shaderProgram, materials[1]);
-	rt3d::drawIndexedMesh(player.getMesh(), meshIndexCount, GL_TRIANGLES);
+	rt3d::drawIndexedMesh(player.getMesh(), player.getMeshIndexCount(), GL_TRIANGLES);
 	mvStack.pop();
 }
 

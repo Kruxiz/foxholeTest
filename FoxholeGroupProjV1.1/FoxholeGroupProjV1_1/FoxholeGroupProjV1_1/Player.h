@@ -36,6 +36,8 @@ public:
 	void setIsOnObj(bool onObj) { isOnObj = onObj; }
 	bool isOnObject() { return isOnObj; }
 	void maxJumpCounter() { jumpCounter = jumpMax; }
+	void setMeshIndexCount(GLuint newCount) { playerMeshIndexCount = newCount; }
+	GLuint getMeshIndexCount() { return playerMeshIndexCount; }
 private:
 	GLfloat r = 0.0f;
 	GLuint jumpCounter = 0;
@@ -50,6 +52,7 @@ private:
 	bool jumping = false;
 	bool jumpIncrementSet = false;
 	bool isOnObj = false;
+	GLuint playerMeshIndexCount = 0;
 };
 
 #endif
