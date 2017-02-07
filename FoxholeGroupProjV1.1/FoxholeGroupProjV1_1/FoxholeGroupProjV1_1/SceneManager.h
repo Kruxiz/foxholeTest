@@ -13,7 +13,7 @@
 #include "SDLManager.h"
 #include "Player.h"
 #include "CollisionDetector.h"
-#include "Model.h"
+//#include "Model.h"
 
 
 class SceneManager {
@@ -37,7 +37,7 @@ private:
 	GLuint textureProgram;
 	GLuint modelProgram;
 
-	Model *foxModel;
+	//Model *foxModel;
 
 	Player player;
 
