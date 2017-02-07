@@ -49,6 +49,7 @@ private:
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
 	void initGameObjects();
+	void buildTrees();
 	void initPlayer();
 	void renderObject(GameObject gObj);
 	void renderPlayer();
@@ -72,6 +73,8 @@ public:
 	void playerFall();
 	GameObject getGameObject(std::string objName);
 	void setPlayerJumpFalse();
+	void respawnPlayer();
+	void checkPlayerRespawn();
 };
 
 #endif

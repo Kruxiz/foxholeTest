@@ -174,9 +174,11 @@ void SceneManager::init()
 }
 
 void SceneManager::initGameObjects() {
-	gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(20.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
+	gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 2.0f, 5.0f), NULL, NULL));
 
-	gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(20.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
+	gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
+
+	gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(25.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
 
 	gameObjects.push_back(GameObject("Cube1", glm::vec3(-5.0f, 1.0f, -50.0f), glm::vec3(5.0f, 1.0f, 5.0f), textures[0], meshObjects[0]));
 	gameObjects.push_back(GameObject("Cube2", glm::vec3(-5.0f, 1.0f, -60.0f), glm::vec3(1.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
@@ -190,9 +192,35 @@ void SceneManager::initGameObjects() {
 	gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
 	gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
 
-	gameObjects.push_back(GameObject("Tree1", glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), textures[0], meshObjects[2]));
+	//gameObjects.push_back(GameObject("Tree1", glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), textures[0], meshObjects[2]));
+	buildTrees();
 
 	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
+}
+
+void SceneManager::buildTrees() {
+
+	glm::vec3 treePos(14.0f, 1.0f, 1.0f);
+	glm::vec3 treeScale(1.0f, 1.0f, 1.0f);
+	std::string treeName("Tree");
+	for (int i = 0; i < 5; i++) {
+		treeName.append(std::to_string((i * 1) + 1));
+
+		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[0], meshObjects[2]));
+
+		treeName = "Tree";
+		treeName.append(std::to_string((i * 2) + 2));
+		treePos.x = -19.0f;
+		treePos.z -= (i + 1) * 10;
+
+		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[0], meshObjects[2]));
+
+		treeName = "Tree";
+		treePos.x = 14.0f;
+
+	}
+
+
 }
 
 void SceneManager::initPlayer() {
@@ -217,8 +245,10 @@ void SceneManager::setLights()
 
 void SceneManager::renderObjects()
 {
-	for (int i = 0; i < gameObjects.size(); i++)
-		renderObject(gameObjects[i]);
+	for (int i = 0; i < gameObjects.size(); i++) {
+		if (gameObjects[i].getTexture() != NULL && gameObjects[i].getMesh() != NULL)
+			renderObject(gameObjects[i]);
+	}
 
 	renderPlayer();
 }
@@ -233,6 +263,8 @@ void SceneManager::renderObject(GameObject gObj)
 	//rt3d::setMaterial(shaderProgram, materials[0]); // don't use materials??????
 	rt3d::drawIndexedMesh(gObj.getMesh(), meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
+
+
 }
 
 void SceneManager::renderPlayer()
@@ -335,7 +367,7 @@ void SceneManager::playerFall() {
 
 		tempObj.setPos(newPos);
 
-		if (!checkCollisions(tempObj)) { player.setIsOnObj(false);}
+		if (!checkCollisions(tempObj)) { player.setIsOnObj(false); }
 	}
 
 	if (!player.isJumping() && !player.isOnObject()) {
@@ -372,6 +404,18 @@ void SceneManager::setPlayerJumpFalse()
 {
 	player.jump(false);
 	player.maxJumpCounter();
+}
+
+void SceneManager::respawnPlayer() {
+	std::cout << "respawn because: " << player.getLastCollision() << std::endl;
+	player.reset();
+
+}
+
+void SceneManager::checkPlayerRespawn()
+{
+	if (player.getLastCollision() == "Water" || player.getLastCollision() == "LevelEnd")
+		respawnPlayer();
 }
 
 double SceneManager::getTimeScalar() {

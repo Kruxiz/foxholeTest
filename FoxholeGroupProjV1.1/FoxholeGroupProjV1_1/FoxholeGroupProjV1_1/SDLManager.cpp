@@ -215,5 +215,8 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 		scene->setPlayerJumpFalse();
 	}
 
+	if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
+
 	scene->playerFall();
+	scene->checkPlayerRespawn();
 }
