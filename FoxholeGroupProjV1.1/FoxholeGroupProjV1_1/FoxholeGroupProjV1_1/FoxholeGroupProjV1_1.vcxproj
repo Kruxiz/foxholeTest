@@ -89,13 +89,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\dev\glew-2.0.0\include;C:\dev\glm-0.9.8.0\glm;C:\dev\glew-1.10.0\include;C:\dev\SDL2-2.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\Simple OpenGL Image Library\src;C:\dev\ASSIMP\include;C:\dev\glew-2.0.0\include;C:\dev\glm-0.9.8.0\glm;C:\dev\glew-1.10.0\include;C:\dev\SDL2-2.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\dev\glm-0.9.8.0;C:\dev\glew-1.10.0\lib\Release\Win32;C:\dev\glew-1.13.0\lib\Release\Win32;C:\dev\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\dev\Simple OpenGL Image Library\lib;C:\dev\ASSIMP\lib\x86;C:\dev\glm-0.9.8.0;C:\dev\glew-1.10.0\lib\Release\Win32;C:\dev\glew-1.13.0\lib\Release\Win32;C:\dev\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;SOIL.lib;SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -152,6 +152,7 @@
     <ClCompile Include="CollisionDetector.cpp" />
     <ClCompile Include="GLEWManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="rt3d.cpp" />
     <ClCompile Include="rt3dObjLoader.cpp" />
@@ -162,6 +163,8 @@
     <ClInclude Include="CollisionDetector.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GLEWManager.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="rt3d.h" />
     <ClInclude Include="rt3dObjLoader.h" />
@@ -173,6 +176,8 @@
     <None Include="cubeMap.vert" />
     <None Include="minimal.frag" />
     <None Include="minimal.vert" />
+    <None Include="modelLoading.frag" />
+    <None Include="modelLoading.vert" />
     <None Include="phong-tex.frag" />
     <None Include="phong-tex.vert" />
     <None Include="textured.frag" />

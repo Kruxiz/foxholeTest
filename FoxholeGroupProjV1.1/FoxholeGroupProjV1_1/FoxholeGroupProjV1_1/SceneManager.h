@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
 
@@ -12,6 +13,8 @@
 #include "SDLManager.h"
 #include "Player.h"
 #include "CollisionDetector.h"
+#include "Model.h"
+
 
 class SceneManager {
 private:
@@ -31,6 +34,10 @@ private:
 
 	GLuint skyboxProgram;
 	GLuint shaderProgram;
+	GLuint textureProgram;
+	GLuint modelProgram;
+
+	Model *foxModel;
 
 	Player player;
 

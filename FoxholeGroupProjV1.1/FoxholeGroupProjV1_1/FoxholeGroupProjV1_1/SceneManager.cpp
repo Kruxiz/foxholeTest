@@ -33,7 +33,6 @@ SceneManager::SceneManager() {
 	}
 	);
 
-
 	lightPos = { 0.0f, 2.0f, -6.0f, 1.0f };
 }
 
@@ -90,6 +89,11 @@ void SceneManager::initCamera() {
 void SceneManager::init()
 {
 	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
+	textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
+	modelProgram = rt3d::initShaders("modelLoading.vert", "modelLoading.frag");
+
+	foxModel = new Model("animations.FBX");
+
 	rt3d::setLight(shaderProgram, lights[0]);
 	rt3d::setMaterial(shaderProgram, materials[0]);
 
@@ -105,7 +109,7 @@ void SceneManager::init()
 	//GLuint skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
 
 	//doesn't appear to be used anywhere else question mark question mark question mark
-	GLuint textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
+	//GLuint textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
 
 	//loading skybox
 	const char *cubeTexFiles[6] = {
@@ -131,9 +135,6 @@ void SceneManager::init()
 	tex_coords.clear();
 	indices.clear();
 
-	//meshIndexCount = 0;
-	std::cout << "meshindexcount: " << meshIndexCount << std::endl;
-
 	rt3d::loadObj("fox.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 	player.setMeshIndexCount(indices.size());
@@ -148,8 +149,6 @@ void SceneManager::init()
 	tex_coords.clear();
 	indices.clear();
 
-	std::cout << "meshindexcount: " << meshIndexCount << std::endl;
-
 	rt3d::loadObj("CartoonTree.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 
@@ -157,8 +156,6 @@ void SceneManager::init()
 		verts.data(), nullptr, norms.data(),
 		tex_coords.data(), meshIndexCount,
 		indices.data()));
-
-	std::cout << "meshindexcount: " << meshIndexCount << std::endl;
 
 	//add more meshes with rt3d::loadObj("*.obj", verts, norms, tex_coords, indices); where * is the obj name
 	//then meshIndexCount = indices.size();
@@ -223,6 +220,9 @@ void SceneManager::renderObjects()
 	for (int i = 0; i < gameObjects.size(); i++)
 		renderObject(gameObjects[i]);
 
+	
+	//foxModel.Draw();
+
 	renderPlayer();
 }
 
@@ -241,16 +241,19 @@ void SceneManager::renderObject(GameObject gObj)
 void SceneManager::renderPlayer()
 {
 	//player cube
-	glBindTexture(GL_TEXTURE_2D, player.getTexture());
-	mvStack.push(mvStack.top());
-	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPos().x, player.getPos().y, player.getPos().z));
-	mvStack.top() = glm::rotate(mvStack.top(), float(player.getPlayerR()*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
-	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
-	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	//rt3d::setMaterial(shaderProgram, materials[1]);
-	rt3d::drawIndexedMesh(player.getMesh(), player.getMeshIndexCount(), GL_TRIANGLES);
-	mvStack.pop();
+	//glBindTexture(GL_TEXTURE_2D, player.getTexture());
+	//mvStack.push(mvStack.top());
+	//mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPos().x, player.getPos().y, player.getPos().z));
+	//mvStack.top() = glm::rotate(mvStack.top(), float(player.getPlayerR()*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+	//mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
+	//mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
+	//rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	////rt3d::setMaterial(shaderProgram, materials[1]);
+	//rt3d::drawIndexedMesh(player.getMesh(), player.getMeshIndexCount(), GL_TRIANGLES);
+	//mvStack.pop();
+
+
+
 }
 
 void SceneManager::updatePlayerR(GLfloat deltaR)

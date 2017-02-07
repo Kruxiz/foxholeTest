@@ -39,6 +39,9 @@
     <ClCompile Include="CollisionDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rt3d.h">
@@ -65,6 +68,12 @@
     <ClInclude Include="CollisionDetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="minimal.frag">
@@ -89,6 +98,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="textured.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="modelLoading.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="modelLoading.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
