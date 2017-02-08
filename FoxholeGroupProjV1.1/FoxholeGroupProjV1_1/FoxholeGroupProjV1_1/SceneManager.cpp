@@ -202,20 +202,15 @@ void SceneManager::buildTrees() {
 
 	glm::vec3 treePos(14.0f, 1.0f, 1.0f);
 	glm::vec3 treeScale(1.0f, 1.0f, 1.0f);
-	std::string treeName("Tree");
 	for (int i = 0; i < 10; i++) {
-		treeName.append(std::to_string((i * 1) + 1));
 
-		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[0], meshObjects[2]));
+		gameObjects.push_back(GameObject("Tree", treePos, treeScale, textures[0], meshObjects[2]));
 
-		treeName = "Tree";
-		treeName.append(std::to_string((i * 2) + 2));
 		treePos.x = -19.0f;
 		treePos.z -= (i + 1) * 5;
 
-		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[0], meshObjects[2]));
+		gameObjects.push_back(GameObject("Tree", treePos, treeScale, textures[0], meshObjects[2]));
 
-		treeName = "Tree";
 		treePos.x = 14.0f;
 
 	}
