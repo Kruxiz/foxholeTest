@@ -211,7 +211,7 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 		scene->playerJump();
 	}
 
-	if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) { 
+	if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
 		scene->setPlayerJumpFalse();
 	}
 
@@ -219,4 +219,6 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 
 	scene->playerFall();
 	scene->checkPlayerRespawn();
+	scene->detectCollectibleCollision();
+
 }
