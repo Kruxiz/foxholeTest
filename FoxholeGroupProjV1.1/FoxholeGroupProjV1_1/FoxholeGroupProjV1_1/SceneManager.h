@@ -58,6 +58,7 @@ private:
 	void renderPlayer();
 	double getTimeScalar();
 	int countCollectables();
+
 public:
 	SceneManager();
 	void checkSwitchLevel();
@@ -82,6 +83,7 @@ public:
 	void setPlayerJumpFalse();
 	void respawnPlayer();
 	void checkPlayerRespawn();
+
 };
 
 #endif

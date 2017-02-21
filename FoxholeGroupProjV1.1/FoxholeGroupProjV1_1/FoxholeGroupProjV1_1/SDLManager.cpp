@@ -222,4 +222,5 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 	scene->detectCollectableCollision();
 	scene->checkSwitchLevel();
 
+
 }

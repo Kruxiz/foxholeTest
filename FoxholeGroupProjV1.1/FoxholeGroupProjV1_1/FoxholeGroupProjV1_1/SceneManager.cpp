@@ -178,6 +178,7 @@ void SceneManager::initGameObjects() {
 
 	if (level == 1) {
 		//level 1
+
 		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 2.0f, 5.0f), NULL, NULL));
 		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
 
