@@ -13,6 +13,7 @@
 #include "SDLManager.h"
 #include "Player.h"
 #include "CollisionDetector.h"
+#include <random>
 //#include "Model.h"
 
 
@@ -43,6 +44,8 @@ private:
 
 	std::vector<GameObject> gameObjects;
 
+	int level; // probs better as struct
+
 	const GLuint gravity = 1.1; // needed?
 
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
@@ -54,8 +57,11 @@ private:
 	void renderObject(GameObject gObj);
 	void renderPlayer();
 	double getTimeScalar();
+	int countCollectables();
+
 public:
 	SceneManager();
+	void checkSwitchLevel();
 	void renderSkybox(glm::mat4 projection);
 	void clearScreen();
 	glm::mat4 initRendering();
@@ -65,6 +71,7 @@ public:
 	void setLights();
 	void renderObjects();
 	void updatePlayerR(GLfloat deltaR);
+	void detectCollectableCollision();
 	void movePlayerForward(GLfloat delta);
 	void movePlayerRight(GLfloat delta);
 	bool checkCollisions();
@@ -72,9 +79,11 @@ public:
 	void playerJump();
 	void playerFall();
 	GameObject getGameObject(std::string objName);
+	int getGameObjectIndex(std::string objName);
 	void setPlayerJumpFalse();
 	void respawnPlayer();
 	void checkPlayerRespawn();
+
 };
 
 #endif

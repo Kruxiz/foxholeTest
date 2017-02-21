@@ -4,6 +4,7 @@
 #define DEG_TO_RADIAN 0.017453293
 
 SceneManager::SceneManager() {
+	level = 1;
 	eye = glm::vec3(0.0f, 1.0f, 0.0f);
 	at = glm::vec3(0.0f, 1.0f, -1.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -174,43 +175,86 @@ void SceneManager::init()
 }
 
 void SceneManager::initGameObjects() {
-	gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 2.0f, 5.0f), NULL, NULL));
+	gameObjects.clear();
+	if (level == 1) {
+		//level 1
 
-	gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 2.0f, 5.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
 
-	gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(25.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
+		gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(25.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
 
-	gameObjects.push_back(GameObject("Cube1", glm::vec3(-5.0f, 1.0f, -50.0f), glm::vec3(5.0f, 1.0f, 5.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube2", glm::vec3(-5.0f, 1.0f, -60.0f), glm::vec3(1.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube3", glm::vec3(0.0f, 2.0f, -66.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube4", glm::vec3(-4.0f, 1.0f, -75.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube5", glm::vec3(-8.0f, 1.5f, -85.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube6", glm::vec3(-10.0f, 2.0f, -96.0f), glm::vec3(1.5f, 3.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube7", glm::vec3(-2.0f, 1.0f, -105.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube8", glm::vec3(-2.0f, 1.5f, -120.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube9", glm::vec3(-9.0f, 1.0f, -127.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-	gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube1", glm::vec3(-5.0f, 1.0f, -50.0f), glm::vec3(5.0f, 1.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube2", glm::vec3(-5.0f, 1.0f, -60.0f), glm::vec3(1.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube3", glm::vec3(0.0f, 2.0f, -66.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube4", glm::vec3(-4.0f, 1.0f, -75.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube5", glm::vec3(-8.0f, 1.5f, -85.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube6", glm::vec3(-10.0f, 2.0f, -96.0f), glm::vec3(1.5f, 3.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube7", glm::vec3(-2.0f, 1.0f, -105.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube8", glm::vec3(-2.0f, 1.5f, -120.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube9", glm::vec3(-9.0f, 1.0f, -127.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
 
-	//gameObjects.push_back(GameObject("Tree1", glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), textures[0], meshObjects[2]));
-	buildTrees();
+		gameObjects.push_back(GameObject("Tree1", glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), textures[0], meshObjects[2]));
+		buildTrees();
+
+	}
+	else if (level == 2) {
+		// level 2
+		//hole-y ground
+		for (int a = 0; a < 100; a++) {
+
+			int randomNum1 = rand() % 100 + 1;
+			int randomNum2 = rand() % 100 + 1;
+			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, 0.0f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[0], meshObjects[0]));
+
+		}
+
+		//collectables
+		std::string collectableId("collectable");
+		for (int b = 0; b < 10; b++) {
+			collectableId.append(std::to_string(b + 1));
+			int randomNum3 = rand() % 100 + 1;
+			int randomNum4 = rand() % 100 + 1;
+			gameObjects.push_back(GameObject(collectableId, glm::vec3(randomNum3, 4.0f, randomNum4), glm::vec3(0.5f, 0.5f, 0.5f), textures[1], meshObjects[0]));
+			collectableId = "collectable";
+		}
+	}
+
+
+
 
 	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
+}
+
+void SceneManager::checkSwitchLevel()
+{
+	if (level == 2 && countCollectables() == 0) {
+		level = 1;
+		initGameObjects();
+		respawnPlayer();
+	}
 }
 
 void SceneManager::buildTrees() {
 
 	glm::vec3 treePos(14.0f, 1.0f, 1.0f);
 	glm::vec3 treeScale(1.0f, 1.0f, 1.0f);
+	std::string treeName("Tree");
 	for (int i = 0; i < 10; i++) {
+		treeName.append(std::to_string((i * 1) + 1));
 
-		gameObjects.push_back(GameObject("Tree", treePos, treeScale, textures[0], meshObjects[2]));
+		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[0], meshObjects[2]));
 
+		treeName = "Tree";
+		treeName.append(std::to_string((i * 2) + 2));
 		treePos.x = -19.0f;
 		treePos.z -= (i + 1) * 5;
 
-		gameObjects.push_back(GameObject("Tree", treePos, treeScale, textures[0], meshObjects[2]));
+		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[0], meshObjects[2]));
 
+		treeName = "Tree";
 		treePos.x = 14.0f;
 
 	}
@@ -244,7 +288,6 @@ void SceneManager::renderObjects()
 		if (gameObjects[i].getTexture() != NULL && gameObjects[i].getMesh() != NULL)
 			renderObject(gameObjects[i]);
 	}
-
 	renderPlayer();
 }
 
@@ -285,22 +328,57 @@ void SceneManager::updatePlayerR(GLfloat deltaR)
 	player.setPlayerR(player.getPlayerR() + deltaR);
 }
 
+void SceneManager::detectCollectableCollision() {
+
+	if (level == 2) {
+		std::string playerColl = player.getLastCollision();
+		if (player.getLastCollision().substr(0, 11) == "collectable") {
+			playerColl = playerColl.substr(11);
+
+			for (GameObject gObj : gameObjects) {
+				if (gObj.getName().substr(0, 11) == "collectable" && gObj.getName().substr(11) == playerColl) {
+					std::cout << "player collided with collectable\n";
+					int index = getGameObjectIndex(player.getLastCollision());
+					player.setLastCollision("");
+					gameObjects.erase(gameObjects.begin() + index);
+					break;
+				}
+			}
+		}
+	}
+}
+
+int SceneManager::countCollectables() {
+	int count = 0;
+	for (GameObject obj : gameObjects) {
+		if (obj.getName().substr(0, 11) == "collectable")
+			count++;
+	}
+	return count;
+}
+
 void SceneManager::movePlayerForward(GLfloat delta) {
+
 	glm::vec3 temp = player.getPos();
 
 	player.setPos(moveForward(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
 
 	if (checkCollisions())
 		player.setPos(temp);
+
+
 }
 
 void SceneManager::movePlayerRight(GLfloat delta) {
+
 	glm::vec3 temp = player.getPos();
 
 	player.setPos(moveRight(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
 
 	if (checkCollisions())
 		player.setPos(temp);
+
+
 }
 
 glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
@@ -395,6 +473,14 @@ GameObject SceneManager::getGameObject(std::string objName) {
 	return GameObject("null", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 0, 0);
 }
 
+int SceneManager::getGameObjectIndex(std::string objName) {
+	for (int i = 0; i < gameObjects.size(); i++) {
+		if (gameObjects[i].getName() == objName)
+			return i;
+	}
+	return -1;
+}
+
 void SceneManager::setPlayerJumpFalse()
 {
 	player.jump(false);
@@ -409,8 +495,13 @@ void SceneManager::respawnPlayer() {
 
 void SceneManager::checkPlayerRespawn()
 {
-	if (player.getLastCollision() == "Water" || player.getLastCollision() == "LevelEnd")
+	if (player.getLastCollision() == "Water")
 		respawnPlayer();
+	else if (player.getLastCollision() == "LevelEnd") {
+		level = 2;
+		initGameObjects();
+		respawnPlayer();
+	}
 }
 
 double SceneManager::getTimeScalar() {
