@@ -219,6 +219,7 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 
 	scene->playerFall();
 	scene->checkPlayerRespawn();
-	scene->detectCollectibleCollision();
+	scene->detectCollectableCollision();
+	scene->checkSwitchLevel();
 
 }
