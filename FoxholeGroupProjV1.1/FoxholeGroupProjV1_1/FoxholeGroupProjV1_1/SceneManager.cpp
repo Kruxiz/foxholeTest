@@ -175,7 +175,7 @@ void SceneManager::init()
 }
 
 void SceneManager::initGameObjects() {
-
+	gameObjects.clear();
 	if (level == 1) {
 		//level 1
 
@@ -230,7 +230,11 @@ void SceneManager::initGameObjects() {
 
 void SceneManager::checkSwitchLevel()
 {
-
+	if (level == 2 && countCollectables() == 0) {
+		level = 1;
+		initGameObjects();
+		respawnPlayer();
+	}
 }
 
 void SceneManager::buildTrees() {
@@ -491,8 +495,13 @@ void SceneManager::respawnPlayer() {
 
 void SceneManager::checkPlayerRespawn()
 {
-	if (player.getLastCollision() == "Water" || player.getLastCollision() == "LevelEnd")
+	if (player.getLastCollision() == "Water")
 		respawnPlayer();
+	else if (player.getLastCollision() == "LevelEnd") {
+		level = 2;
+		initGameObjects();
+		respawnPlayer();
+	}
 }
 
 double SceneManager::getTimeScalar() {
