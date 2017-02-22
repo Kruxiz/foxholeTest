@@ -9,7 +9,7 @@ SceneManager::SceneManager() {
 	at = glm::vec3(0.0f, 1.0f, -1.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
 	skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
-
+	
 	//lights - initialise first light - can possibly be read in from file using rt3d::load file
 	lights.push_back({
 		{ 0.3f, 0.3f, 0.3f, 1.0f },
@@ -176,6 +176,7 @@ void SceneManager::init()
 
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
+	gameObjects.shrink_to_fit();
 	if (level == 1) {
 		//level 1
 
