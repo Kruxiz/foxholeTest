@@ -39,21 +39,53 @@ SceneManager::SceneManager() {
 
 void SceneManager::renderSkybox(glm::mat4 projection)
 {
-	// skybox as single cube using cube map
-	glUseProgram(skyboxProgram);
-	rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
-	glDepthMask(GL_FALSE); // make sure writing to update depth test is off
-	glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
-	mvStack.push(glm::mat4(mvRotOnlyMat3));
-	glCullFace(GL_FRONT); // drawing inside of cube!
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
-	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
-	rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-	mvStack.pop();
-	glCullFace(GL_BACK); // drawing inside of cube!
-						 // back to remainder of rendering
-	glDepthMask(GL_TRUE); // make sure depth test is on
+	if (level == 1) {
+		glUseProgram(skyboxProgram);				// skybox as single cube using cube map
+		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
+		glUseProgram(skyboxProgram);
+		glDepthMask(GL_FALSE); // make sure writing to update depth test is off	
+		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
+		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
+		glDepthMask(GL_FALSE); // make sure writing to update depth test is off
+		mvStack.push(glm::mat4(mvRotOnlyMat3));
+		/*glm::mat3*/ mvRotOnlyMat3 = glm::mat3(mvStack.top());
+		glCullFace(GL_FRONT); // drawing inside of cube!
+		mvStack.push(glm::mat4(mvRotOnlyMat3));
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
+		glCullFace(GL_FRONT); // drawing inside of cube!
+		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));	
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
+		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
+		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
+		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
+		mvStack.pop();
+		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+		glCullFace(GL_BACK); // drawing inside of cube!
+		mvStack.pop();
+							 // back to remainder of rendering
+		glCullFace(GL_BACK); // drawing inside of cube!
+
+		//glDepthMask(GL_TRUE); // make sure depth test is on									 // back to remainder of rendering
+		glDepthMask(GL_TRUE); // make sure depth test is on
+	}
+	else if (level == 2) {
+		// skybox as single cube using cube map
+		glUseProgram(skyboxProgram);
+		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
+		glDepthMask(GL_FALSE); // make sure writing to update depth test is off
+		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
+		mvStack.push(glm::mat4(mvRotOnlyMat3));
+		glCullFace(GL_FRONT); // drawing inside of cube!
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[1]);
+		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
+		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
+		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+		mvStack.pop();
+		glCullFace(GL_BACK); // drawing inside of cube!
+							 // back to remainder of rendering
+		glDepthMask(GL_TRUE); // make sure depth test is on
+	}
 }
 
 void SceneManager::clearScreen()
@@ -105,6 +137,10 @@ void SceneManager::init()
 	glUniform1i(uniformIndex, 1);
 	uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit2");
 	glUniform1i(uniformIndex, 2);
+	uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit3");
+	glUniform1i(uniformIndex, 3);
+	uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit4");
+	glUniform1i(uniformIndex, 4);
 
 	//skybox program needed in draw method
 	//GLuint skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
@@ -118,6 +154,10 @@ void SceneManager::init()
 	};
 
 	SDLManager::loadCubeMap(cubeTexFiles, skybox);
+	const char *cubeTexFiles2[6] = {
+		"Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp"
+	};
+	SDLManager::loadCubeMap(cubeTexFiles2, skybox);
 
 	std::vector<GLfloat> verts;
 	std::vector<GLfloat> norms;
@@ -164,6 +204,9 @@ void SceneManager::init()
 
 	textures.push_back(SDLManager::loadBitmap("fabric.bmp"));
 	textures.push_back(SDLManager::loadBitmap("water.bmp"));
+	textures.push_back(SDLManager::loadBitmap("box.bmp"));
+	textures.push_back(SDLManager::loadBitmap("twigs.bmp"));
+	textures.push_back(SDLManager::loadBitmap("Town-skybox/grass1.bmp"));
 	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
@@ -181,21 +224,21 @@ void SceneManager::initGameObjects() {
 		//level 1
 
 		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 2.0f, 5.0f), NULL, NULL));
-		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
 		gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(25.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
 
-		gameObjects.push_back(GameObject("Cube1", glm::vec3(-5.0f, 1.0f, -50.0f), glm::vec3(5.0f, 1.0f, 5.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube2", glm::vec3(-5.0f, 1.0f, -60.0f), glm::vec3(1.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube3", glm::vec3(0.0f, 2.0f, -66.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube4", glm::vec3(-4.0f, 1.0f, -75.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube5", glm::vec3(-8.0f, 1.5f, -85.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube6", glm::vec3(-10.0f, 2.0f, -96.0f), glm::vec3(1.5f, 3.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube7", glm::vec3(-2.0f, 1.0f, -105.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube8", glm::vec3(-2.0f, 1.5f, -120.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube9", glm::vec3(-9.0f, 1.0f, -127.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube1", glm::vec3(-5.0f, 1.0f, -50.0f), glm::vec3(5.0f, 1.0f, 5.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube2", glm::vec3(-5.0f, 1.0f, -60.0f), glm::vec3(1.0f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube3", glm::vec3(0.0f, 2.0f, -66.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube4", glm::vec3(-4.0f, 1.0f, -75.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube5", glm::vec3(-8.0f, 1.5f, -85.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube6", glm::vec3(-10.0f, 2.0f, -96.0f), glm::vec3(1.5f, 3.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube7", glm::vec3(-2.0f, 1.0f, -105.0f), glm::vec3(1.5f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube8", glm::vec3(-2.0f, 1.5f, -120.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube9", glm::vec3(-9.0f, 1.0f, -127.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[2], meshObjects[0]));
 
 		gameObjects.push_back(GameObject("Tree1", glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), textures[0], meshObjects[2]));
 		buildTrees();
@@ -208,7 +251,7 @@ void SceneManager::initGameObjects() {
 
 			int randomNum1 = rand() % 100 + 1;
 			int randomNum2 = rand() % 100 + 1;
-			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, 0.0f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[0], meshObjects[0]));
+			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, 0.0f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
 
 		}
 
@@ -218,7 +261,7 @@ void SceneManager::initGameObjects() {
 			collectableId.append(std::to_string(b + 1));
 			int randomNum3 = rand() % 100 + 1;
 			int randomNum4 = rand() % 100 + 1;
-			gameObjects.push_back(GameObject(collectableId, glm::vec3(randomNum3, 4.0f, randomNum4), glm::vec3(0.5f, 0.5f, 0.5f), textures[1], meshObjects[0]));
+			gameObjects.push_back(GameObject(collectableId, glm::vec3(randomNum3, 4.0f, randomNum4), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
 			collectableId = "collectable";
 		}
 	}
@@ -228,7 +271,130 @@ void SceneManager::initGameObjects() {
 
 	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
 }
-
+void SceneManager::sound()
+{
+	//*****declairation*******
+	//HSAMPLE *samples = NULL;
+	//**************stand-alone******
+	/*HSAMPLE loadSample(char * filename)
+	{
+	HSAMPLE sam;
+	if (sam = BASS_SampleLoad(FALSE, filename, 0, 0, 3, BASS_SAMPLE_OVER_POS))
+	cout << "sample " << filename << " loaded!" << endl;
+	else
+	{
+	cout << "Can't load sample";
+	exit(0);
+	}
+	return sam;
+	}*/
+	//*********************init********
+	///* Initialize default output device */
+	//if (!BASS_Init(-1, 44100, 0, 0, NULL))
+	//	cout << "Can't initialize device";
+	//samples = new HSAMPLE[2];
+	//// Following comment is from source basstest file!
+	///* Load a sample from "file" and give it a max of 3 simultaneous
+	//playings using playback position as override decider */
+	//samples[0] = loadSample("X.wav");  //background music (edit with 3/4)
+	//samples[1] = loadSample("X.wav");  //single play sound for death/collectable - code at player--collition
+	//	//ect..
+	//cout << "Press 3 and 4 to stop/start music sounds." << endl;
+	//**update****//
+	/*if (keys[SDL_SCANCODE_4]) {
+	BASS_Pause();
+	}
+	if (keys[SDL_SCANCODE_3]) {
+	BASS_Start();
+	}
+	if (player==collition)
+	{
+	cout << "Collition with sound: "  << endl;
+	HCHANNEL ch = BASS_SampleGetChannel(samples[1], FALSE);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
+	BASS_Stop();
+	}*/
+}
+void SceneManager::textOnScreen() {
+	//	//delaire
+	//	TTF_Font * textFont;
+	//	GLuint textToTexture(const char * str/*, TTF_Font *font, SDL_Color colour, GLuint &w,GLuint &h */);
+	//	GLuint labels[11];
+	//
+	//
+	//
+	//
+	//	//under textToTexture (predefined from labs)
+	//	void clearTextTexture(GLuint textID) {
+	//		if (textID != NULL) {
+	//			glDeleteTextures(1, &textID);
+	//		}
+	//	}
+	//
+	//
+	//
+	//
+	//
+	//	//init()
+	//	// set up TrueType / SDL_ttf
+	//	if (TTF_Init() == -1)
+	//		cout << "TTF failed to initialise." << endl;
+	//
+	//	textFont = TTF_OpenFont("FAFERS.ttf", 48);
+	//	if (textFont == NULL)
+	//		cout << "Failed to open font." << endl;
+	//
+	//	labels[0] = 0;
+	//
+	//
+	//
+	//
+	//
+	//
+	//	//draw/objectManagers()	
+	//
+	//#ifndef label
+	//#define label
+	//	//point label
+	//	if (point == 0)
+	//	{
+	//		glUseProgram(skyboxProgram);//Use texture-only shader for text rendering
+	//		glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
+	//		labels[0] = textToTexture(" 0/0 ", labels[0]);
+	//		glBindTexture(GL_TEXTURE_2D, labels[0]);
+	//		mvStack.push(glm::mat4(1.0));
+	//		mvStack.top() = glm::translate(mvStack.top(), glm::vec3(-0.8f, 0.8f, 0.0f));
+	//		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.20f, 0.2f, 0.0f));
+	//		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
+	//		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
+	//
+	//		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+	//		mvStack.pop();
+	//	}
+	//	else if (point == 1)
+	//	{
+	//		glUseProgram(skyboxProgram);//Use texture-only shader for text rendering
+	//		glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
+	//		labels[1] = textToTexture(" 1/10 ", labels[1]);
+	//		glBindTexture(GL_TEXTURE_2D, labels[1]);
+	//
+	//		...
+	//
+	//			//3d text on ground
+	//			glUseProgram(skyboxProgram);//Use texture-only shader for text rendering
+	//		labels[0] = textToTexture(" End of Demo! ", labels[0]);
+	//		glBindTexture(GL_TEXTURE_2D, labels[0]);
+	//		mvStack.push(mvStack.top());
+	//		mvStack.top() = glm::translate(mvStack.top(), glm::vec3(position.x, 2.0f, position.z));
+	//		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.0f, 1.0f, 0.0f));
+	//		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
+	//		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+	//		mvStack.pop();
+	//	}
+	//#endif label
+}
 void SceneManager::checkSwitchLevel()
 {
 	if (level == 2 && countCollectables() == 0) {

@@ -14,6 +14,8 @@
 #include "Player.h"
 #include "CollisionDetector.h"
 #include <random>
+//#include "bass.h"  //sound library
+//#include "SDL_ttf.h" //text library
 //#include "Model.h"
 
 
@@ -70,6 +72,8 @@ public:
 	void setShaderProjection(glm::mat4 projection);
 	void setLights();
 	void renderObjects();
+	void sound();
+	void textOnScreen();
 	void updatePlayerR(GLfloat deltaR);
 	void detectCollectableCollision();
 	void movePlayerForward(GLfloat delta);
