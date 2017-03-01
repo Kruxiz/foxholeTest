@@ -152,6 +152,7 @@
     <ClCompile Include="CollisionDetector.cpp" />
     <ClCompile Include="GLEWManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="rt3d.cpp" />
     <ClCompile Include="rt3dObjLoader.cpp" />
@@ -171,10 +172,13 @@
     <ClInclude Include="SDLManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="cubeMap.frag" />
     <None Include="cubeMap.vert" />
     <None Include="minimal.frag" />
     <None Include="minimal.vert" />
+    <None Include="modelLoading.frag" />
+    <None Include="modelLoading.vert" />
     <None Include="phong-tex.frag" />
     <None Include="phong-tex.vert" />
     <None Include="textured.frag" />
