@@ -13,66 +13,84 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Restructured">
+      <UniqueIdentifier>{9b69e91d-3d60-47d0-9937-6c8829b82b0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Restructured">
+      <UniqueIdentifier>{390efe71-5161-48dd-b43f-2c3cc84cded9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\OldStructure">
+      <UniqueIdentifier>{107ccbab-25a6-4b7a-baaf-5a268c3fdd33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OldStructure">
+      <UniqueIdentifier>{20f5385d-99e6-431a-9ecd-e132dfcd626b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rt3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDLManager.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="CollisionDetector.cpp">
+      <Filter>Source Files\OldStructure</Filter>
     </ClCompile>
     <ClCompile Include="GLEWManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\OldStructure</Filter>
     </ClCompile>
-    <ClCompile Include="rt3dObjLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionDetector.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\OldStructure</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\OldStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\OldStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="rt3d.cpp">
+      <Filter>Source Files\OldStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="rt3dObjLoader.cpp">
+      <Filter>Source Files\OldStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Source Files\OldStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="SDLManager.cpp">
+      <Filter>Source Files\OldStructure</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="rt3d.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GameEngine.h">
+      <Filter>Header Files\Restructured</Filter>
     </ClInclude>
     <ClInclude Include="SDLManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEWManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rt3dObjLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\OldStructure</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\OldStructure</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionDetector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GLEWManager.h">
+      <Filter>Header Files\OldStructure</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\OldStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\OldStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files\OldStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="rt3d.h">
+      <Filter>Header Files\OldStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="rt3dObjLoader.h">
+      <Filter>Header Files\OldStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Header Files\OldStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionDetector.h">
+      <Filter>Header Files\OldStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEvent.h">
+      <Filter>Header Files\Restructured</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
