@@ -6,14 +6,17 @@ class GameEngine {
 public:
 	GameEngine();
 	//GameEngine(with params for greater customisation);
-	int run(); //note: int used as error code
+	int run(); //int used as error code - loop occurs here
 private:
-	//vector of scenes
 	int initialise(); //params may be added for customisation
+
+	//vector of scenes
 	//bool addScene
 	//bool deleteScene
 
+	//game event reference - holds methods of all game events - only one reference
 
+	//update() - check game events  - update accordingly
 
 };
 

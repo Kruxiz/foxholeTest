@@ -89,7 +89,19 @@
     <ClInclude Include="CollisionDetector.h">
       <Filter>Header Files\OldStructure</Filter>
     </ClInclude>
-    <ClInclude Include="GameEvent.h">
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Restructured</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEvents.h">
+      <Filter>Header Files\Restructured</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneEvents.h">
+      <Filter>Header Files\Restructured</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Restructured</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEventHandler.h">
       <Filter>Header Files\Restructured</Filter>
     </ClInclude>
   </ItemGroup>
