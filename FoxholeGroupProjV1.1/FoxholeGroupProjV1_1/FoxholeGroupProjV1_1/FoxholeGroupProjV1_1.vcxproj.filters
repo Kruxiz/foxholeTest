@@ -54,6 +54,9 @@
     <ClCompile Include="SDLManager.cpp">
       <Filter>Source Files\OldStructure</Filter>
     </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\Restructured</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine.h">
@@ -92,16 +95,16 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files\Restructured</Filter>
     </ClInclude>
-    <ClInclude Include="GameEvents.h">
-      <Filter>Header Files\Restructured</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneEvents.h">
-      <Filter>Header Files\Restructured</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Header Files\Restructured</Filter>
     </ClInclude>
     <ClInclude Include="GameEventHandler.h">
+      <Filter>Header Files\Restructured</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEvent.h">
+      <Filter>Header Files\Restructured</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneEvent.h">
       <Filter>Header Files\Restructured</Filter>
     </ClInclude>
   </ItemGroup>

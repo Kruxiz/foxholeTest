@@ -163,7 +163,7 @@
     <ClInclude Include="CollisionDetector.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameEventHandler.h" />
-    <ClInclude Include="GameEvents.h" />
+    <ClInclude Include="GameEvent.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GLEWManager.h" />
     <ClInclude Include="Mesh.h" />
@@ -173,7 +173,7 @@
     <ClInclude Include="rt3d.h" />
     <ClInclude Include="rt3dObjLoader.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneEvents.h" />
+    <ClInclude Include="SceneEvent.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SDLManager.h" />
   </ItemGroup>
