@@ -74,6 +74,9 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="minimal.frag">
@@ -107,10 +110,5 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="classDiagram_b4_remodel.cd" />
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="MavenPro-Regular.ttf">
-      <Filter>Resource Files</Filter>
-    </Font>
   </ItemGroup>
 </Project>

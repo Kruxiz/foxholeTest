@@ -15,7 +15,7 @@
 #include "Player.h"
 #include "CollisionDetector.h"
 #include <random>
-//#include "bass.h"  //sound library
+#include "bass.h"  //sound library
 #include "SDL_ttf.h" //text library
 //#include "Model.h"
 
@@ -59,6 +59,8 @@ private:
 
 	const GLuint gravity = 1.1; // needed?
 
+	std::vector<HSAMPLE> sounds;
+
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
@@ -71,6 +73,8 @@ private:
 	void renderPlayer();
 	double getTimeScalar();
 	int countCollectables();
+	HSAMPLE loadSounds(char * filename);
+	void initSounds();
 
 public:
 	SceneManager();
@@ -98,7 +102,7 @@ public:
 	void setPlayerJumpFalse();
 	void respawnPlayer();
 	void checkPlayerRespawn();
-
+	void freeBass();
 };
 
 #endif

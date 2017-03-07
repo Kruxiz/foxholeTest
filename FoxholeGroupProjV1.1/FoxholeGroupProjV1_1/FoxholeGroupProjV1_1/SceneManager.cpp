@@ -134,6 +134,8 @@ void SceneManager::init()
 
 	initTTF();
 
+	initSounds();
+
 	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
 	//textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
 	//modelProgram = rt3d::initShaders("modelLoading.vert", "modelLoading.frag");
@@ -230,6 +232,8 @@ void SceneManager::init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
+
+
 
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
@@ -530,7 +534,7 @@ void SceneManager::renderHUD()
 	auto totalTime = std::chrono::duration<double>(temp - timer).count();
 	std::string timerStr = "Time: ";
 	timerStr.append(std::to_string(totalTime));
-	timerStr.append("s"); // poss needs \0 ???
+	timerStr.append("s");
 
 	glUseProgram(shaderProgram);//Use texture-only shader for text rendering
 	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
@@ -598,6 +602,40 @@ int SceneManager::countCollectables() {
 			count++;
 	}
 	return count;
+}
+
+HSAMPLE SceneManager::loadSounds(char * filename)
+{
+	HSAMPLE sam;
+	if (sam = BASS_SampleLoad(FALSE, filename, 0, 0, 3, BASS_SAMPLE_OVER_POS))
+		std::cout << "sample " << filename << " loaded!" << std::endl;
+	else
+	{
+		std::cout << "Can't load sample";
+		exit(0);
+	}
+	return sam;
+}
+
+void SceneManager::initSounds()
+{
+	/* Initialize default output device */
+	if (!BASS_Init(-1, 44100, 0, 0, NULL))
+		std::cout << "Can't initialize device";
+
+	sounds.push_back(loadSounds("forest-environment.wav"));
+	//http://soundbible.com/1818-Rainforest-Ambience.html
+
+	sounds.push_back(loadSounds("splash.wav"));
+	//http://soundbible.com/2100-Splash-Rock-In-Lake.html
+
+	HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
+	BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+	if (!BASS_ChannelPlay(ch, FALSE))
+		std::cout << "Can't play sample" << std::endl;
 }
 
 void SceneManager::movePlayerForward(GLfloat delta) {
@@ -738,13 +776,28 @@ void SceneManager::respawnPlayer() {
 
 void SceneManager::checkPlayerRespawn()
 {
-	if (player.getLastCollision() == "Water")
+	if (player.getLastCollision() == "Water") {
+
+		HCHANNEL ch = BASS_SampleGetChannel(sounds[1], FALSE);
+		BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
+		BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
+		BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
+
+		if (!BASS_ChannelPlay(ch, FALSE))
+			std::cout << "Can't play sample" << std::endl;
+
 		respawnPlayer();
+	}
 	else if (player.getLastCollision() == "LevelEnd") {
 		level = 2;
 		initGameObjects();
 		respawnPlayer();
 	}
+}
+
+void SceneManager::freeBass()
+{
+	BASS_Free();
 }
 
 double SceneManager::getTimeScalar() {

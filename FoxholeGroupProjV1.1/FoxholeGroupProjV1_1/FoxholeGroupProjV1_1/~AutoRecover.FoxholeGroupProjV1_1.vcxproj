@@ -95,7 +95,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\SDL2 plugins\lib\x86;C:\dev\Simple OpenGL Image Library\lib;C:\dev\ASSIMP\lib\x86;C:\dev\glm-0.9.8.0;C:\dev\glew-1.10.0\lib\Release\Win32;C:\dev\glew-1.13.0\lib\Release\Win32;C:\dev\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL_ttf.lib;assimp.lib;SOIL.lib;SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bass.lib;SDL2_ttf.lib;assimp.lib;SOIL.lib;SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -160,6 +160,7 @@
     <ClCompile Include="SDLManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bass.h" />
     <ClInclude Include="CollisionDetector.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GLEWManager.h" />
@@ -183,9 +184,6 @@
     <None Include="phong-tex.vert" />
     <None Include="textured.frag" />
     <None Include="textured.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="MavenPro-Regular.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
