@@ -131,6 +131,7 @@ void SceneManager::initTTF() {
 
 void SceneManager::init()
 {
+
 	initTTF();
 
 	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
@@ -233,6 +234,7 @@ void SceneManager::init()
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
 	gameObjects.shrink_to_fit();
+	timer = std::chrono::steady_clock::now();
 
 	if (level == 1) {
 		//level 1
@@ -523,9 +525,16 @@ void SceneManager::renderHUD()
 	//This renders a HUD label
 	////////////////////////////////////////////////////////////////////
 
+	//timer = std::chrono::steady_clock::now();
+	auto temp = std::chrono::steady_clock::now();
+	auto totalTime = std::chrono::duration<double>(temp - timer).count();
+	std::string timerStr = "Time: ";
+	timerStr.append(std::to_string(totalTime));
+	timerStr.append("s"); // poss needs \0 ???
+
 	glUseProgram(shaderProgram);//Use texture-only shader for text rendering
 	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
-	labels[0] = textToTexture(" Testing ", labels[0]);
+	labels[0] = textToTexture(timerStr.c_str(), labels[0]);
 	glBindTexture(GL_TEXTURE_2D, labels[0]);
 	mvStack.push(glm::mat4(1.0));
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(-0.8f, 0.8f, 0.0f));

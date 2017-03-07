@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <stack>
+#include <chrono>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -33,6 +34,8 @@ private:
 	//hud
 	GLuint labels[5];
 	TTF_Font * textFont;
+
+	std::chrono::time_point<std::chrono::steady_clock> timer;
 
 	GLuint textToTexture(const char * str, GLuint textID);
 
