@@ -108,4 +108,9 @@
     </None>
     <None Include="classDiagram_b4_remodel.cd" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="MavenPro-Regular.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+  </ItemGroup>
 </Project>

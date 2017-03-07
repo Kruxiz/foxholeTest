@@ -20,8 +20,8 @@ SceneManager::SceneManager() {
 	//materials - same as above
 	materials.push_back({
 		{ 1.0f, 1.0f, 1.0f, 1.0f }, // ambient
-		{ 0.5f, 1.0f, 0.5f, 1.0f }, // diffuse
-		{ 0.0f, 0.1f, 0.0f, 1.0f }, // specular
+		{ 0.5f, 0.5f, 0.5f, 1.0f }, // diffuse
+		{ 0.1f, 0.1f, 0.1f, 1.0f }, // specular
 		2.0f  // shininess
 	}
 	);
@@ -119,8 +119,20 @@ void SceneManager::initCamera() {
 	mvStack.top() = glm::lookAt(eye, at, up);
 }
 
+void SceneManager::initTTF() {
+	// set up TrueType / SDL_ttf
+	if (TTF_Init() == -1)
+		std::cout << "TTF failed to initialise." << std::endl;
+
+	textFont = TTF_OpenFont("MavenPro-Regular.ttf", 24);
+	if (textFont == NULL)
+		std::cout << "Failed to open font." << std::endl;
+}
+
 void SceneManager::init()
 {
+	initTTF();
+
 	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
 	//textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
 	//modelProgram = rt3d::initShaders("modelLoading.vert", "modelLoading.frag");
@@ -207,6 +219,7 @@ void SceneManager::init()
 	textures.push_back(SDLManager::loadBitmap("box.bmp"));
 	textures.push_back(SDLManager::loadBitmap("twigs.bmp"));
 	textures.push_back(SDLManager::loadBitmap("Town-skybox/grass1.bmp"));
+	textures.push_back(SDLManager::loadBitmap("orange-fox.bmp"));
 	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
@@ -220,6 +233,7 @@ void SceneManager::init()
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
 	gameObjects.shrink_to_fit();
+
 	if (level == 1) {
 		//level 1
 
@@ -271,6 +285,7 @@ void SceneManager::initGameObjects() {
 
 	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
 }
+
 void SceneManager::sound()
 {
 	//*****declairation*******
@@ -317,6 +332,34 @@ void SceneManager::sound()
 	BASS_Stop();
 	}*/
 }
+
+// textToTexture
+GLuint SceneManager::textToTexture(const char * str, GLuint textID) {
+	GLuint texture = textID;
+	TTF_Font * font = textFont;
+
+	SDL_Surface * stringImage = TTF_RenderText_Blended(font, str, { 255, 255, 255 });
+
+	if (stringImage == NULL) {
+		std::cout << "String surface not created." << std::endl;
+	}
+
+	if (texture == 0) {
+		glGenTextures(1, &texture);//This avoids memory leakage, only initialise //first time
+	}
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, stringImage->w, stringImage->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, stringImage->pixels);
+	glBindTexture(GL_TEXTURE_2D, NULL);
+
+	SDL_FreeSurface(stringImage);
+	return texture;
+}
+
 void SceneManager::textOnScreen() {
 	//	//delaire
 	//	TTF_Font * textFont;
@@ -395,6 +438,7 @@ void SceneManager::textOnScreen() {
 	//	}
 	//#endif label
 }
+
 void SceneManager::checkSwitchLevel()
 {
 	if (level == 2 && countCollectables() == 0) {
@@ -430,7 +474,7 @@ void SceneManager::buildTrees() {
 }
 
 void SceneManager::initPlayer() {
-	player.setPlayerTexture(textures[0]);
+	player.setPlayerTexture(textures[5]);
 	player.setPlayerMesh(meshObjects[1]);
 }
 
@@ -456,6 +500,7 @@ void SceneManager::renderObjects()
 			renderObject(gameObjects[i]);
 	}
 	renderPlayer();
+	renderHUD();
 }
 
 void SceneManager::renderObject(GameObject gObj)
@@ -469,6 +514,28 @@ void SceneManager::renderObject(GameObject gObj)
 	rt3d::drawIndexedMesh(gObj.getMesh(), meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
 
+
+}
+
+void SceneManager::renderHUD()
+{
+	////////////////////////////////////////////////////////////////////
+	//This renders a HUD label
+	////////////////////////////////////////////////////////////////////
+
+	glUseProgram(shaderProgram);//Use texture-only shader for text rendering
+	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
+	labels[0] = textToTexture(" Testing ", labels[0]);
+	glBindTexture(GL_TEXTURE_2D, labels[0]);
+	mvStack.push(glm::mat4(1.0));
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(-0.8f, 0.8f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.20f, 0.2f, 0.0f));
+	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+
+	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+	mvStack.pop();
+	glEnable(GL_DEPTH_TEST);//Re-enable depth test after HUD label
 
 }
 

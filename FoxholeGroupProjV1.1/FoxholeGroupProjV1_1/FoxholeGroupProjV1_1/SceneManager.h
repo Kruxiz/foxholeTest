@@ -15,7 +15,7 @@
 #include "CollisionDetector.h"
 #include <random>
 //#include "bass.h"  //sound library
-//#include "SDL_ttf.h" //text library
+#include "SDL_ttf.h" //text library
 //#include "Model.h"
 
 
@@ -29,6 +29,12 @@ private:
 	std::stack<glm::mat4> mvStack;
 	std::vector<GLuint> textures;
 	GLuint skybox[5];
+
+	//hud
+	GLuint labels[5];
+	TTF_Font * textFont;
+
+	GLuint textToTexture(const char * str, GLuint textID);
 
 	std::vector<rt3d::lightStruct> lights;
 	glm::vec4 lightPos; //light position
@@ -53,10 +59,12 @@ private:
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
+	void initTTF();
 	void initGameObjects();
 	void buildTrees();
 	void initPlayer();
 	void renderObject(GameObject gObj);
+	void renderHUD();
 	void renderPlayer();
 	double getTimeScalar();
 	int countCollectables();
