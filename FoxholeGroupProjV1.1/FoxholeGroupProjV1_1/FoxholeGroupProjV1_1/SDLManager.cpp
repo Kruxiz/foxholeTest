@@ -58,8 +58,11 @@ void SDLManager::SDLRun(void)
 			if (sdlEvent.type == SDL_QUIT || sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE)
 				running = false;
 
+			if (/*keys[SDL_SCANCODE_TAB] *//*&& !scene->paused()*/sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB) {
+				scene->togglePause();
+			}
 
-			if (sdlEvent.type == SDL_MOUSEMOTION)
+			if (sdlEvent.type == SDL_MOUSEMOTION && !scene->paused())
 			{
 				SDL_SetRelativeMouseMode(SDL_TRUE);
 				SDL_WarpMouseInWindow(NULL, 800, 600);
@@ -184,44 +187,47 @@ void SDLManager::SDLDraw()
 	SDL_GL_SwapWindow(window); // swap buffers
 }
 
+
+
 void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-	if (keys[SDL_SCANCODE_1]) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDisable(GL_CULL_FACE);
+	if (!scene->paused()) {
+		if (keys[SDL_SCANCODE_1]) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_CULL_FACE);
+		}
+
+		if (keys[SDL_SCANCODE_2]) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glEnable(GL_CULL_FACE);
+		}
+
+		//if using <> - update playerR through scene->updatePlayerR();
+
+		if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(0.50f);
+		if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(-0.50f);
+
+		if (keys[SDL_SCANCODE_W]) scene->movePlayerForward(0.1f);
+		if (keys[SDL_SCANCODE_S]) scene->movePlayerForward(-0.1f);
+		if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
+		if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
+
+		if (keys[SDL_SCANCODE_SPACE]) {
+			scene->playerJump();
+		}
+
+		if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
+			scene->setPlayerJumpFalse();
+		}
+
+		if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
+
+		scene->playerFall();
+		scene->checkPlayerRespawn();
+		scene->detectCollectableCollision();
+		scene->checkSwitchLevel();
 	}
-
-	if (keys[SDL_SCANCODE_2]) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glEnable(GL_CULL_FACE);
-	}
-
-	//if using <> - update playerR through scene->updatePlayerR();
-
-	if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(0.50f);
-	if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(-0.50f);
-
-	if (keys[SDL_SCANCODE_W]) scene->movePlayerForward(0.1f);
-	if (keys[SDL_SCANCODE_S]) scene->movePlayerForward(-0.1f);
-	if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
-	if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
-
-	if (keys[SDL_SCANCODE_SPACE]) {
-		scene->playerJump();
-	}
-
-	if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
-		scene->setPlayerJumpFalse();
-	}
-
-	if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
-
-	scene->playerFall();
-	scene->checkPlayerRespawn();
-	scene->detectCollectableCollision();
-	scene->checkSwitchLevel();
-
 
 }

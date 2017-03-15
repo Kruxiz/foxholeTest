@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <stack>
+#include <unordered_map>
 #include <chrono>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -31,11 +32,20 @@ private:
 	std::vector<GLuint> textures;
 	GLuint skybox[5];
 
+	int collectables;
+
 	//hud
-	GLuint labels[5];
+	//GLuint labels[5];
 	TTF_Font * textFont;
 
-	std::chrono::time_point<std::chrono::steady_clock> timer;
+	std::unordered_map<std::string, std::vector<std::string>> menus;
+
+	bool pause = false;
+
+	std::chrono::time_point<std::chrono::system_clock> timer;
+	double time = 0;
+	std::chrono::time_point<std::chrono::system_clock> pauseTimer;
+	double pauseTime = 0;
 
 	GLuint textToTexture(const char * str, GLuint textID);
 
@@ -78,6 +88,8 @@ private:
 
 public:
 	SceneManager();
+	void togglePause();
+	bool paused() { return pause; }
 	void checkSwitchLevel();
 	void renderSkybox(glm::mat4 projection);
 	void clearScreen();
@@ -87,8 +99,6 @@ public:
 	void setShaderProjection(glm::mat4 projection);
 	void setLights();
 	void renderObjects();
-	void sound();
-	void textOnScreen();
 	void updatePlayerR(GLfloat deltaR);
 	void detectCollectableCollision();
 	void movePlayerForward(GLfloat delta);

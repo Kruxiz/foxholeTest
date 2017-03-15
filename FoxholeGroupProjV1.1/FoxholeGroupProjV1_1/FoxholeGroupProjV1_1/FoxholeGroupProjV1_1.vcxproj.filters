@@ -111,4 +111,9 @@
     </None>
     <None Include="classDiagram_b4_remodel.cd" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="tree.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

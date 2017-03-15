@@ -185,6 +185,9 @@
     <None Include="textured.frag" />
     <None Include="textured.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="tree.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
