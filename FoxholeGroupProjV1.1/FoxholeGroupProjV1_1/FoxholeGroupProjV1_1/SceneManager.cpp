@@ -38,10 +38,10 @@ SceneManager::SceneManager() {
 
 	//menus
 	auto mainMenuDisplay = std::make_tuple("Main menu", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
-	auto playOption = std::make_tuple("Play", glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
-	auto scoresOption = std::make_tuple("Scores", glm::vec3(0.0f, 0.4f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
-	auto controlsOption = std::make_tuple("Controls", glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
-	auto quitOption = std::make_tuple("Quit", glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	auto playOption = std::make_tuple("Play[Enter]", glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	auto scoresOption = std::make_tuple("Scores[S]", glm::vec3(0.0f, 0.4f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	auto controlsOption = std::make_tuple("Controls[C]", glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	auto quitOption = std::make_tuple("Quit[Esc]", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
 
 	Menu mainMenu({mainMenuDisplay, playOption, scoresOption, controlsOption, quitOption});
 
@@ -49,7 +49,7 @@ SceneManager::SceneManager() {
 
 
 	auto scoresDisplay = std::make_tuple("Scores", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
-	auto mainMenuOption = std::make_tuple("Main menu", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto mainMenuOption = std::make_tuple("Main menu[Backspace]", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
 	
 	Menu scores({ mainMenuOption });
 
@@ -224,7 +224,7 @@ void SceneManager::init()
 
 	initTTF();
 
-	initSounds();
+	initSounds(); //todo play menu music - play forest sounds when playing game
 
 	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
 	//textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
@@ -328,7 +328,7 @@ void SceneManager::init()
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
 	gameObjects.shrink_to_fit();
-	timer = std::chrono::system_clock::now();
+	timer = std::chrono::system_clock::now(); //todo init timer when starting to actually play game
 	pauseTimer = timer;
 
 	if (level == 1) {
@@ -493,8 +493,17 @@ void SceneManager::renderObject(GameObject gObj)
 }
 
 void SceneManager::togglePause() {
-	pause = !pause; //todo sceneState = PAUSE || sceneState = IN_GAME
-	if (pause) {
+	//pause = !pause; 
+	//todo sceneState = PAUSE || sceneState = IN_GAME
+
+	if (sceneState == PAUSE) {
+		sceneState = IN_GAME;
+	}
+	else if (sceneState == IN_GAME) {
+		sceneState = PAUSE;
+	}
+
+	if (sceneState == PAUSE) {
 		pauseTime = 0;
 		pauseTimer = std::chrono::system_clock::now();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
@@ -532,7 +541,7 @@ void SceneManager::renderHUD()
 	glUseProgram(shaderProgram);//Use texture-only shader for text rendering
 	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
 
-	if (pause) {
+	if (sceneState == PAUSE) { //todo sceneState == PAUSE
 
 		/*GLuint pauseLabel = 0;
 		pauseLabel = textToTexture("PAUSE", pauseLabel);
@@ -547,15 +556,16 @@ void SceneManager::renderHUD()
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 		mvStack.pop();*/
 
-		renderHUDObject(std::make_tuple("PAUSE", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+		//renderHUDObject(std::make_tuple("PAUSE", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
 
 		//todo display pause menu
+		renderMenus();
 	}
 	auto temp = std::chrono::system_clock::now();
 
 	double totalTime;
 	
-	if (pause) {
+	if (sceneState == PAUSE) {
 		totalTime = std::chrono::duration<double>(pauseTimer - timer).count();
 	}
 	else {

@@ -55,10 +55,10 @@ void SDLManager::SDLRun(void)
 	SDL_Event sdlEvent;  // variable to detect SDL events
 	while (running) {	// the event loop
 		while (SDL_PollEvent(&sdlEvent)) {
-			if (sdlEvent.type == SDL_QUIT || sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE)
+			if (sdlEvent.type == SDL_QUIT || sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE /* && scene->inMainMenu()*/)
 				running = false;
 
-			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB && scene->inGame()) { //todo &&scene->inGame()
+			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB) {
 				scene->togglePause();
 			}
 
@@ -174,13 +174,14 @@ void SDLManager::SDLDraw()
 	//todo draw menu instead
 	scene->clearScreen();
 
-	if (scene->inMenus()) {
+	if (scene->inMainMenu() || scene->inControls() || scene->inScores()) {
 		glm::mat4 projection = scene->initRendering();
 
 		scene->setShaderProjection(projection);
 
 		scene->renderMenus();
-	} else {
+	}
+	else {
 		glm::mat4 projection = scene->initRendering();
 
 		scene->renderSkybox(projection);
@@ -204,10 +205,33 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-	if (scene->inMenus()) {
-
-
-	} else if (/*!scene->paused() && */scene->inGame()) { //todo switch to && scene->inGame()
+	if (scene->inMainMenu()) {
+		if (keys[SDL_SCANCODE_RETURN]) {
+			scene->play();
+		}
+		if (keys[SDL_SCANCODE_S]) {
+			scene->scores();
+		}
+		if (keys[SDL_SCANCODE_C]) {
+			scene->controls();
+		}
+	}
+	else if (scene->inControls()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
+	}
+	else if (scene->inScores()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
+	}
+	else if (scene->paused()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
+	}
+	else if (/*!scene->paused() && */scene->inGame()) { //todo switch to && scene->inGame()
 		if (keys[SDL_SCANCODE_1]) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glDisable(GL_CULL_FACE);
@@ -231,10 +255,10 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 		if (keys[SDL_SCANCODE_SPACE]) {
 			scene->playerJump();
 		}
-/*
-		if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
-			scene->setPlayerJumpFalse();
-		}*/
+		/*
+				if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
+					scene->setPlayerJumpFalse();
+				}*/
 
 		if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
 

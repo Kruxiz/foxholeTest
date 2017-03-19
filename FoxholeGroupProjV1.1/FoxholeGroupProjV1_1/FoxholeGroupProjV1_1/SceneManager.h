@@ -22,7 +22,7 @@
 //#include "Model.h"
 
 enum SceneState {
-	PAUSE,
+	PAUSE, //todo possibly add 'countdown' state
 	IN_GAME,
 	MAIN_MENU,
 	SCORES,
@@ -103,7 +103,6 @@ private:
 public:
 	SceneManager();
 	void togglePause();
-	bool paused() { return pause; }
 	void checkSwitchLevel();
 	void renderSkybox(glm::mat4 projection);
 	void clearScreen();
@@ -128,7 +127,14 @@ public:
 	void checkPlayerRespawn();
 	void freeBass();
 	bool inGame() { return sceneState == IN_GAME; }
-	bool inMenus() { return sceneState == MAIN_MENU || sceneState == SCORES || sceneState == CONTROLS || sceneState == PAUSE; }
+	bool inMainMenu() { return sceneState == MAIN_MENU; }
+	bool inControls() { return sceneState == CONTROLS; }
+	bool inScores() { return sceneState == SCORES; }
+	bool paused() { return sceneState == PAUSE; } //todo return sceneState == PAUSE;
+	void play() { sceneState = IN_GAME; }
+	void mainMenu() { sceneState = MAIN_MENU; }
+	void controls() { sceneState = CONTROLS; }
+	void scores() { sceneState = SCORES; }
 	void renderMenus();
 };
 
