@@ -5,6 +5,7 @@
 #include <vector>
 #include <stack>
 #include <unordered_map>
+#include <tuple>
 #include <chrono>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -20,6 +21,16 @@
 #include "SDL_ttf.h" //text library
 //#include "Model.h"
 
+enum SceneState {
+	PAUSE,
+	IN_GAME,
+	MAIN_MENU,
+	SCORES,
+	CONTROLS
+};
+
+typedef std::tuple<std::string, glm::vec3, glm::vec3> MenuObject;
+typedef std::vector<MenuObject> Menu;
 
 class SceneManager {
 private:
@@ -38,9 +49,10 @@ private:
 	//GLuint labels[5];
 	TTF_Font * textFont;
 
-	std::unordered_map<std::string, std::vector<std::string>> menus;
+	std::unordered_map<std::string, Menu> menus;
+	SceneState sceneState;
 
-	bool pause = false;
+	bool pause = false; //todo deprecate
 
 	std::chrono::time_point<std::chrono::system_clock> timer;
 	double time = 0;
@@ -85,6 +97,8 @@ private:
 	int countCollectables();
 	HSAMPLE loadSounds(char * filename);
 	void initSounds();
+	void renderHUDObject(MenuObject menuObj);
+	void addToScores();
 
 public:
 	SceneManager();
@@ -113,6 +127,9 @@ public:
 	void respawnPlayer();
 	void checkPlayerRespawn();
 	void freeBass();
+	bool inGame() { return sceneState == IN_GAME; }
+	bool inMenus() { return sceneState == MAIN_MENU || sceneState == SCORES || sceneState == CONTROLS || sceneState == PAUSE; }
+	void renderMenus();
 };
 
 #endif

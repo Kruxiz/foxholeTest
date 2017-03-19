@@ -37,31 +37,94 @@ SceneManager::SceneManager() {
 	lightPos = { 0.0f, 2.0f, -6.0f, 1.0f };
 
 	//menus
-	std::vector<std::string> mainMenu;
-	mainMenu.push_back("Play");
-	mainMenu.push_back("Scores");
-	mainMenu.push_back("Controls");
-	mainMenu.push_back("Quit");
+	auto mainMenuDisplay = std::make_tuple("Main menu", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto playOption = std::make_tuple("Play", glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	auto scoresOption = std::make_tuple("Scores", glm::vec3(0.0f, 0.4f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	auto controlsOption = std::make_tuple("Controls", glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	auto quitOption = std::make_tuple("Quit", glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+
+	Menu mainMenu({mainMenuDisplay, playOption, scoresOption, controlsOption, quitOption});
 
 	menus.insert({ "mainMenu", mainMenu });
 
-	std::vector<std::string> scores;
-	scores.push_back("Main menu");
+
+	auto scoresDisplay = std::make_tuple("Scores", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+	auto mainMenuOption = std::make_tuple("Main menu", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	
+	Menu scores({ mainMenuOption });
 
 	menus.insert({ "scores", scores });
 
-	std::vector<std::string> pause;
-	pause.push_back("Pause");
-	pause.push_back("Main menu");
+
+
+	auto pauseDisplay = std::make_tuple("Pause", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+
+	Menu pause({ pauseDisplay, mainMenuOption });
 
 	menus.insert({ "pause", pause });
 
-	std::vector<std::string> controls;
-	controls.push_back("WASD - movement");
-	controls.push_back("Mouse - look");
-	controls.push_back("Tab - pause");
-	controls.push_back("Space - jump");
-	controls.push_back("Main menu");
+
+
+
+	auto controlsDisplay = std::make_tuple("Controls", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+	auto movementControl = std::make_tuple("WASD - movement", glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto lookControl = std::make_tuple("Mouse - look", glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto pauseControl = std::make_tuple("Tab - pause", glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto jumpControl = std::make_tuple("Space - jump", glm::vec3(0.0f, 0.4f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+
+	Menu controls({ controlsDisplay, movementControl, lookControl, pauseControl, jumpControl, mainMenuOption });
+
+	menus.insert({ "controls", controls });
+
+	sceneState = MAIN_MENU;
+}
+
+void SceneManager::renderMenus() {
+	Menu menu;
+	switch (sceneState) {
+	case MAIN_MENU:
+		menu = menus.at("mainMenu");
+
+		for (auto menuObj : menu) {
+			renderHUDObject(menuObj);
+		}
+
+		break;
+	case PAUSE:
+		menu = menus.at("pause");
+
+		for (auto menuObj : menu) {
+			renderHUDObject(menuObj);
+		}
+
+		break;
+	case SCORES:
+		menu = menus.at("scores");
+
+		for (auto menuObj : menu) {
+			renderHUDObject(menuObj);
+		}
+
+		break;
+	case CONTROLS:
+		menu = menus.at("controls");
+
+		for (auto menuObj : menu) {
+			renderHUDObject(menuObj);
+		}
+
+		break;
+	default://todo maybe add something else here
+		break;
+
+	}
+}
+
+void SceneManager::addToScores() {
+	//todo addToScores - only top 5?
+	glm::vec3 pos(0.6f, 0.5f, 0.0f);
+	glm::vec3 scale(0.2f, 0.2f, 0.0f);
+	float step = 0.1f;
 }
 
 void SceneManager::renderSkybox(glm::mat4 projection)
@@ -119,7 +182,7 @@ void SceneManager::clearScreen()
 {
 	// clear the screen
 	glEnable(GL_CULL_FACE);
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -261,8 +324,6 @@ void SceneManager::init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
-
 
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
@@ -432,17 +493,35 @@ void SceneManager::renderObject(GameObject gObj)
 }
 
 void SceneManager::togglePause() {
-	pause = !pause;
+	pause = !pause; //todo sceneState = PAUSE || sceneState = IN_GAME
 	if (pause) {
 		pauseTime = 0;
 		pauseTimer = std::chrono::system_clock::now();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
+		BASS_Pause();
 	}
 	else {
 		pauseTime = std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer).count();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
 		timer += std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer));
+		BASS_Start();
 	}
+}
+
+void SceneManager::renderHUDObject(MenuObject menuObj) {
+	GLuint label = 0;
+	label = textToTexture(std::get<0>(menuObj).c_str(), label);
+
+	glBindTexture(GL_TEXTURE_2D, label);
+
+	mvStack.push(glm::mat4(1.0));
+	mvStack.top() = glm::translate(mvStack.top(), std::get<1>(menuObj));
+	mvStack.top() = glm::scale(mvStack.top(), std::get<2>(menuObj));
+	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+
+	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+	mvStack.pop();
 }
 
 void SceneManager::renderHUD()
@@ -455,7 +534,7 @@ void SceneManager::renderHUD()
 
 	if (pause) {
 
-		GLuint pauseLabel = 0;
+		/*GLuint pauseLabel = 0;
 		pauseLabel = textToTexture("PAUSE", pauseLabel);
 		glBindTexture(GL_TEXTURE_2D, pauseLabel);
 
@@ -466,8 +545,11 @@ void SceneManager::renderHUD()
 		rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-		mvStack.pop();
+		mvStack.pop();*/
 
+		renderHUDObject(std::make_tuple("PAUSE", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+
+		//todo display pause menu
 	}
 	auto temp = std::chrono::system_clock::now();
 
@@ -484,7 +566,7 @@ void SceneManager::renderHUD()
 	timerStr.append(std::to_string(totalTime));
 	timerStr.append("s");
 
-	GLuint timerLabel = 0;
+	/*GLuint timerLabel = 0;
 	timerLabel = textToTexture(timerStr.c_str(), timerLabel);
 	glBindTexture(GL_TEXTURE_2D, timerLabel);
 
@@ -495,13 +577,16 @@ void SceneManager::renderHUD()
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 
 	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-	mvStack.pop();
+	mvStack.pop();*/
+
+	renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
 
 	if (level == 2) {
-		int collectables = countCollectables();
+		//int collectables = countCollectables();
 		std::string collectablesString("Collectables left: ");
 		collectablesString.append(std::to_string(collectables));
-		GLuint collectablesLabel = 0;
+
+		/*GLuint collectablesLabel = 0;
 		collectablesLabel = textToTexture(collectablesString.c_str(), collectablesLabel);
 		glBindTexture(GL_TEXTURE_2D, collectablesLabel);
 		mvStack.push(glm::mat4(1.0));
@@ -510,7 +595,10 @@ void SceneManager::renderHUD()
 		rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
 		rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-		mvStack.pop();
+		mvStack.pop();*/
+
+		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(0.5f, 0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
+
 	}
 	glEnable(GL_DEPTH_TEST);//Re-enable depth test after HUD label
 
