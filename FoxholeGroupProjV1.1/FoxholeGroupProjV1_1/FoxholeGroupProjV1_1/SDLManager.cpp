@@ -55,7 +55,7 @@ void SDLManager::SDLRun(void)
 	SDL_Event sdlEvent;  // variable to detect SDL events
 	while (running) {	// the event loop
 		while (SDL_PollEvent(&sdlEvent)) {
-			if (sdlEvent.type == SDL_QUIT || sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE /* && scene->inMainMenu()*/)
+			if (sdlEvent.type == SDL_QUIT || (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE  && scene->inMainMenu()))
 				running = false;
 
 			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB && (scene->inGame() ^ scene->paused())) {

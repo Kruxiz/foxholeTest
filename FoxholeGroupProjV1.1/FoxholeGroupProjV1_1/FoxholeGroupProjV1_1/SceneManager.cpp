@@ -48,16 +48,16 @@ SceneManager::SceneManager() {
 	menus.insert({ "mainMenu", mainMenu });
 
 
-	auto scoresDisplay = std::make_tuple("Scores", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
-	auto mainMenuOption = std::make_tuple("Main menu[Backspace]", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto scoresDisplay = std::make_tuple("Scores", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto mainMenuOption = std::make_tuple("Main menu[Backspace]", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
 
-	Menu scores({ mainMenuOption });
+	Menu scores({ scoresDisplay, mainMenuOption });
 
 	menus.insert({ "scores", scores });
 
 
 
-	auto pauseDisplay = std::make_tuple("Pause", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+	auto pauseDisplay = std::make_tuple("Pause", glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(0.45f, 0.45f, 0.0f));
 
 	Menu pause({ pauseDisplay, mainMenuOption });
 
@@ -66,11 +66,11 @@ SceneManager::SceneManager() {
 
 
 
-	auto controlsDisplay = std::make_tuple("Controls", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
-	auto movementControl = std::make_tuple("WASD - movement", glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
-	auto lookControl = std::make_tuple("Mouse - look", glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
-	auto pauseControl = std::make_tuple("Tab - pause", glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
-	auto jumpControl = std::make_tuple("Space - jump", glm::vec3(0.0f, 0.4f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto controlsDisplay = std::make_tuple("Controls", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto movementControl = std::make_tuple("WASD - movement", glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
+	auto lookControl = std::make_tuple("Mouse - look", glm::vec3(0.0f, 0.4f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
+	auto pauseControl = std::make_tuple("Tab - pause", glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
+	auto jumpControl = std::make_tuple("Space - jump", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
 
 	Menu controls({ controlsDisplay, movementControl, lookControl, pauseControl, jumpControl, mainMenuOption });
 
@@ -86,14 +86,19 @@ void SceneManager::play()
 		timer = std::chrono::system_clock::now(); //todo init timer when starting to actually play game
 		pauseTimer = timer;
 
-		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
-		if (!BASS_ChannelPlay(ch, FALSE))
+		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
+		if (!BASS_ChannelPlay(ch, TRUE))
 			std::cout << "Can't play sample - "<< BASS_ErrorGetCode() << std::endl;
+
+		level = 1;
+		initGameObjects();
+		respawnPlayer();
 	}
 	else {
 		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
 		if (!BASS_ChannelPlay(ch, TRUE))
 			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
+
 	}
 
 	sceneState = IN_GAME;
@@ -604,7 +609,7 @@ void SceneManager::renderHUD()
 		std::string collectablesString("Collectables left: ");
 		collectablesString.append(std::to_string(collectables));
 
-		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(0.5f, 0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
+		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(-0.5f, -0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
 
 	}
 	glEnable(GL_DEPTH_TEST);//Re-enable depth test after HUD label
@@ -693,7 +698,8 @@ void SceneManager::initSounds()
 	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
 	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
 	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
-	BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+	int flag = BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+	std::cout << flag << std::endl;
 	/*if (!BASS_ChannelPlay(ch, FALSE))
 		std::cout << "Can't play sample" << std::endl;*/
 }
