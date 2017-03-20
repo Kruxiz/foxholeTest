@@ -9,7 +9,7 @@ SceneManager::SceneManager() {
 	at = glm::vec3(0.0f, 1.0f, -1.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
 	skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
-	
+
 	//lights - initialise first light - can possibly be read in from file using rt3d::load file
 	lights.push_back({
 		{ 0.3f, 0.3f, 0.3f, 1.0f },
@@ -43,14 +43,14 @@ SceneManager::SceneManager() {
 	auto controlsOption = std::make_tuple("Controls[C]", glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
 	auto quitOption = std::make_tuple("Quit[Esc]", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
 
-	Menu mainMenu({mainMenuDisplay, playOption, scoresOption, controlsOption, quitOption});
+	Menu mainMenu({ mainMenuDisplay, playOption, scoresOption, controlsOption, quitOption });
 
 	menus.insert({ "mainMenu", mainMenu });
 
 
 	auto scoresDisplay = std::make_tuple("Scores", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
 	auto mainMenuOption = std::make_tuple("Main menu[Backspace]", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
-	
+
 	Menu scores({ mainMenuOption });
 
 	menus.insert({ "scores", scores });
@@ -77,6 +77,39 @@ SceneManager::SceneManager() {
 	menus.insert({ "controls", controls });
 
 	sceneState = MAIN_MENU;
+}
+
+void SceneManager::play()
+{
+	BASS_Start();
+	if (sceneState != PAUSE) {
+		timer = std::chrono::system_clock::now(); //todo init timer when starting to actually play game
+		pauseTimer = timer;
+
+		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
+		if (!BASS_ChannelPlay(ch, FALSE))
+			std::cout << "Can't play sample - "<< BASS_ErrorGetCode() << std::endl;
+	}
+	else {
+		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
+		if (!BASS_ChannelPlay(ch, TRUE))
+			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
+	}
+
+	sceneState = IN_GAME;
+
+
+}
+
+void SceneManager::mainMenu()
+{
+	/*if (sceneState == PAUSE) {
+		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE);
+		BASS_ChannelPause(ch);
+	}*/
+
+	sceneState = MAIN_MENU;
+
 }
 
 void SceneManager::renderMenus() {
@@ -143,7 +176,7 @@ void SceneManager::renderSkybox(glm::mat4 projection)
 		mvStack.push(glm::mat4(mvRotOnlyMat3));
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
 		glCullFace(GL_FRONT); // drawing inside of cube!
-		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));	
+		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
 		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
 		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
@@ -153,7 +186,7 @@ void SceneManager::renderSkybox(glm::mat4 projection)
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 		glCullFace(GL_BACK); // drawing inside of cube!
 		mvStack.pop();
-							 // back to remainder of rendering
+		// back to remainder of rendering
 		glCullFace(GL_BACK); // drawing inside of cube!
 
 		//glDepthMask(GL_TRUE); // make sure depth test is on									 // back to remainder of rendering
@@ -328,8 +361,8 @@ void SceneManager::init()
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
 	gameObjects.shrink_to_fit();
-	timer = std::chrono::system_clock::now(); //todo init timer when starting to actually play game
-	pauseTimer = timer;
+	//timer = std::chrono::system_clock::now(); //todo init timer when starting to actually play game
+	//pauseTimer = timer;
 
 	if (level == 1) {
 		//level 1
@@ -481,7 +514,7 @@ void SceneManager::renderObject(GameObject gObj)
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), gObj.getPos());
 	mvStack.top() = glm::scale(mvStack.top(), gObj.getScale());
-	mvStack.top() = glm::rotate(mvStack.top(), float(0*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(0 * DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
@@ -493,11 +526,10 @@ void SceneManager::renderObject(GameObject gObj)
 }
 
 void SceneManager::togglePause() {
-	//pause = !pause; 
-	//todo sceneState = PAUSE || sceneState = IN_GAME
 
 	if (sceneState == PAUSE) {
-		sceneState = IN_GAME;
+		//sceneState = IN_GAME;
+		play();
 	}
 	else if (sceneState == IN_GAME) {
 		sceneState = PAUSE;
@@ -508,12 +540,19 @@ void SceneManager::togglePause() {
 		pauseTimer = std::chrono::system_clock::now();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
 		BASS_Pause();
+		/*HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
+		if (!BASS_ChannelPause(ch))
+			std::cout << "Can't pause sample - " << BASS_ErrorGetCode() << std::endl;
+		else
+			std::cout << "Pausing sample\n";*/
 	}
-	else {
+	else if (sceneState == IN_GAME) {
 		pauseTime = std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer).count();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
 		timer += std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer));
-		BASS_Start();
+		//BASS_Start();
+		//HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
+		//BASS_ChannelPlay(ch, FALSE);
 	}
 }
 
@@ -541,30 +580,13 @@ void SceneManager::renderHUD()
 	glUseProgram(shaderProgram);//Use texture-only shader for text rendering
 	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
 
-	if (sceneState == PAUSE) { //todo sceneState == PAUSE
-
-		/*GLuint pauseLabel = 0;
-		pauseLabel = textToTexture("PAUSE", pauseLabel);
-		glBindTexture(GL_TEXTURE_2D, pauseLabel);
-
-		mvStack.push(glm::mat4(1.0));
-		mvStack.top() = glm::translate(mvStack.top(), glm::vec3(0.0f, 0.8f, 0.0f));
-		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.20f, 0.2f, 0.0f));
-		rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
-		rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-
-		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-		mvStack.pop();*/
-
-		//renderHUDObject(std::make_tuple("PAUSE", glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
-
-		//todo display pause menu
+	if (sceneState == PAUSE) {
 		renderMenus();
 	}
 	auto temp = std::chrono::system_clock::now();
 
 	double totalTime;
-	
+
 	if (sceneState == PAUSE) {
 		totalTime = std::chrono::duration<double>(pauseTimer - timer).count();
 	}
@@ -576,36 +598,11 @@ void SceneManager::renderHUD()
 	timerStr.append(std::to_string(totalTime));
 	timerStr.append("s");
 
-	/*GLuint timerLabel = 0;
-	timerLabel = textToTexture(timerStr.c_str(), timerLabel);
-	glBindTexture(GL_TEXTURE_2D, timerLabel);
-
-	mvStack.push(glm::mat4(1.0));
-	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(-0.8f, 0.8f, 0.0f));
-	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.20f, 0.2f, 0.0f));
-	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-
-	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-	mvStack.pop();*/
-
 	renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
 
 	if (level == 2) {
-		//int collectables = countCollectables();
 		std::string collectablesString("Collectables left: ");
 		collectablesString.append(std::to_string(collectables));
-
-		/*GLuint collectablesLabel = 0;
-		collectablesLabel = textToTexture(collectablesString.c_str(), collectablesLabel);
-		glBindTexture(GL_TEXTURE_2D, collectablesLabel);
-		mvStack.push(glm::mat4(1.0));
-		mvStack.top() = glm::translate(mvStack.top(), glm::vec3(0.5f, 0.8f, 0.0f));
-		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.50f, 0.2f, 0.0f));
-		rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
-		rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-		mvStack.pop();*/
 
 		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(0.5f, 0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
 
@@ -697,8 +694,8 @@ void SceneManager::initSounds()
 	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
 	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
 	BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-	if (!BASS_ChannelPlay(ch, FALSE))
-		std::cout << "Can't play sample" << std::endl;
+	/*if (!BASS_ChannelPlay(ch, FALSE))
+		std::cout << "Can't play sample" << std::endl;*/
 }
 
 void SceneManager::movePlayerForward(GLfloat delta) {

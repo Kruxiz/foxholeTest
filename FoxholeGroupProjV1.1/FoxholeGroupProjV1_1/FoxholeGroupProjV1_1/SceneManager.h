@@ -130,9 +130,9 @@ public:
 	bool inMainMenu() { return sceneState == MAIN_MENU; }
 	bool inControls() { return sceneState == CONTROLS; }
 	bool inScores() { return sceneState == SCORES; }
-	bool paused() { return sceneState == PAUSE; } //todo return sceneState == PAUSE;
-	void play() { sceneState = IN_GAME; }
-	void mainMenu() { sceneState = MAIN_MENU; }
+	bool paused() { return sceneState == PAUSE; }
+	void play();
+	void mainMenu();
 	void controls() { sceneState = CONTROLS; }
 	void scores() { sceneState = SCORES; }
 	void renderMenus();

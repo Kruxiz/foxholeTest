@@ -58,7 +58,7 @@ void SDLManager::SDLRun(void)
 			if (sdlEvent.type == SDL_QUIT || sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE /* && scene->inMainMenu()*/)
 				running = false;
 
-			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB) {
+			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB && (scene->inGame() ^ scene->paused())) {
 				scene->togglePause();
 			}
 
@@ -171,7 +171,6 @@ GLuint SDLManager::loadBitmap(char * fname)
 void SDLManager::SDLDraw()
 {
 	//call scene manager
-	//todo draw menu instead
 	scene->clearScreen();
 
 	if (scene->inMainMenu() || scene->inControls() || scene->inScores()) {
@@ -231,7 +230,7 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 			scene->mainMenu();
 		}
 	}
-	else if (/*!scene->paused() && */scene->inGame()) { //todo switch to && scene->inGame()
+	else if (scene->inGame()) {
 		if (keys[SDL_SCANCODE_1]) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glDisable(GL_CULL_FACE);
@@ -255,10 +254,6 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 		if (keys[SDL_SCANCODE_SPACE]) {
 			scene->playerJump();
 		}
-		/*
-				if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
-					scene->setPlayerJumpFalse();
-				}*/
 
 		if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
 
