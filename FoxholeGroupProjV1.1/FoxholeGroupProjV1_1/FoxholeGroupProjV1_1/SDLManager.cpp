@@ -58,11 +58,11 @@ void SDLManager::SDLRun(void)
 			if (sdlEvent.type == SDL_QUIT || (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE  && scene->inMainMenu()))
 				running = false;
 
-			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB && (scene->inGame() ^ scene->paused())) {
+			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB && (scene->inGame() ^ scene->paused() ^ scene->inCountdown())) {
 				scene->togglePause();
 			}
 
-			if (sdlEvent.type == SDL_MOUSEMOTION && !scene->paused())
+			if (sdlEvent.type == SDL_MOUSEMOTION && !scene->paused() && !scene->inCountdown())
 			{
 				SDL_SetRelativeMouseMode(SDL_TRUE);
 				SDL_WarpMouseInWindow(NULL, 800, 600);

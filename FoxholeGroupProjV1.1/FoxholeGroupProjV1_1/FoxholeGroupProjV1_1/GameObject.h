@@ -24,7 +24,7 @@ public:
 	void setPos(glm::vec3 newPos) { position = newPos; }
 	std::string getLastCollision() { return lastCollisionObjName; }
 	void setLastCollision(std::string lastCollision) { lastCollisionObjName = lastCollision; }
-	void reset() { position = startPos; lastCollisionObjName = "";}
+	void reset() { position = startPos; lastCollisionObjName = ""; }
 	//getDimensions??
 	//meshIndexCount getters and setters
 protected:

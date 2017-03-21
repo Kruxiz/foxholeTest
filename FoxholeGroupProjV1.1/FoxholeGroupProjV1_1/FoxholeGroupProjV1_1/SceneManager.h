@@ -26,7 +26,8 @@ enum SceneState {
 	IN_GAME,
 	MAIN_MENU,
 	SCORES,
-	CONTROLS
+	CONTROLS,
+	COUNTDOWN
 };
 
 typedef std::tuple<std::string, glm::vec3, glm::vec3> MenuObject;
@@ -52,12 +53,13 @@ private:
 	std::unordered_map<std::string, Menu> menus;
 	SceneState sceneState;
 
-	bool pause = false; //todo deprecate
+	//bool pause = false; //todo deprecate
 
 	std::chrono::time_point<std::chrono::system_clock> timer;
 	double time = 0;
 	std::chrono::time_point<std::chrono::system_clock> pauseTimer;
 	double pauseTime = 0;
+	std::chrono::time_point<std::chrono::system_clock> respawnTimer;
 
 	GLuint textToTexture(const char * str, GLuint textID);
 
@@ -131,10 +133,12 @@ public:
 	bool inControls() { return sceneState == CONTROLS; }
 	bool inScores() { return sceneState == SCORES; }
 	bool paused() { return sceneState == PAUSE; }
+	bool inCountdown();
 	void play();
 	void mainMenu();
 	void controls() { sceneState = CONTROLS; }
 	void scores() { sceneState = SCORES; }
+	void countdown() { sceneState = COUNTDOWN; }
 	void renderMenus();
 };
 

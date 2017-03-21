@@ -89,7 +89,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\dev\SDL2 plugins\include;C:\dev\Simple OpenGL Image Library\src;C:\dev\ASSIMP\include;C:\dev\glew-2.0.0\include;C:\dev\glm-0.9.8.0\glm;C:\dev\glew-1.10.0\include;C:\dev\SDL2-2.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\SDL2 plugins\include;C:\dev\Simple OpenGL Image Library\src;C:\dev\assimp-3.3.1\include;C:\dev\ASSIMP\include;C:\dev\glew-2.0.0\include;C:\dev\glm-0.9.8.0\glm;C:\dev\glew-1.10.0\include;C:\dev\SDL2-2.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

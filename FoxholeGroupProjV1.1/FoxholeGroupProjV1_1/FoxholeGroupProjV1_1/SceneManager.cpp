@@ -83,12 +83,12 @@ void SceneManager::play()
 {
 	BASS_Start();
 	if (sceneState != PAUSE) {
-		timer = std::chrono::system_clock::now(); //todo init timer when starting to actually play game
+		timer = std::chrono::system_clock::now();
 		pauseTimer = timer;
 
 		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
 		if (!BASS_ChannelPlay(ch, TRUE))
-			std::cout << "Can't play sample - "<< BASS_ErrorGetCode() << std::endl;
+			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 
 		level = 1;
 		initGameObjects();
@@ -101,9 +101,28 @@ void SceneManager::play()
 
 	}
 
-	sceneState = IN_GAME;
+	if (!inCountdown())
+		sceneState = IN_GAME;
 
+}
 
+bool SceneManager::inCountdown()
+{
+
+	int countdownTimer = std::chrono::duration<double>(std::chrono::system_clock::now() - timer).count();
+
+	if (!paused()) {
+		if (countdownTimer < 3) {
+			countdown();
+		}
+		else {
+			//;//sceneState = IN_GAME; //todo make mechanism to end countdown
+			if (sceneState == COUNTDOWN) {
+				sceneState = IN_GAME;
+			}
+		}
+	}
+	return sceneState == COUNTDOWN;
 }
 
 void SceneManager::mainMenu()
@@ -372,10 +391,10 @@ void SceneManager::initGameObjects() {
 	if (level == 1) {
 		//level 1
 
-		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 2.0f, 5.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 20.0f, 5.0f), NULL, NULL));
 		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
-		gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(25.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
+		gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(20.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
 
 		gameObjects.push_back(GameObject("Cube1", glm::vec3(-5.0f, 1.0f, -50.0f), glm::vec3(5.0f, 1.0f, 5.0f), textures[2], meshObjects[0]));
 		gameObjects.push_back(GameObject("Cube2", glm::vec3(-5.0f, 1.0f, -60.0f), glm::vec3(1.0f, 2.0f, 1.0f), textures[2], meshObjects[0]));
@@ -396,11 +415,12 @@ void SceneManager::initGameObjects() {
 	else if (level == 2) {
 		// level 2
 		//hole-y ground
-		for (int a = 0; a < 100; a++) {
+		gameObjects.push_back(GameObject("trap_ground", glm::vec3(0.0f, 0.2f, 1.5f), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
+		for (int a = 0; a < 99; a++) {
 
 			int randomNum1 = rand() % 100 + 1;
 			int randomNum2 = rand() % 100 + 1;
-			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, 0.0f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
+			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, 0.2f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
 
 		}
 
@@ -453,6 +473,8 @@ void SceneManager::checkSwitchLevel()
 {
 	if (level == 2 && collectables == 0) {
 		level = 1;
+		timer = std::chrono::system_clock::now();
+		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
 	}
@@ -460,23 +482,23 @@ void SceneManager::checkSwitchLevel()
 
 void SceneManager::buildTrees() {
 
-	glm::vec3 treePos(14.0f, 1.0f, 1.0f);
-	glm::vec3 treeScale(1.0f, 1.0f, 1.0f);
+	glm::vec3 treePos(16.0f, 1.0f, 1.0f);
+	glm::vec3 treeScale(1.0f, 5.0f, 1.0f);
 	std::string treeName("Tree");
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 20; i++) {
 		treeName.append(std::to_string((i * 1) + 1));
 
 		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[6], meshObjects[2]));
 
 		treeName = "Tree";
 		treeName.append(std::to_string((i * 2) + 2));
-		treePos.x = -19.0f;
-		treePos.z -= (i + 1) * 5;
+		treePos.x = -26.0f;
+		treePos.z -= (i + 1);
 
 		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[6], meshObjects[2]));
 
 		treeName = "Tree";
-		treePos.x = 14.0f;
+		treePos.x = 16.0f;
 
 	}
 
@@ -536,7 +558,7 @@ void SceneManager::togglePause() {
 		//sceneState = IN_GAME;
 		play();
 	}
-	else if (sceneState == IN_GAME) {
+	else if (sceneState == IN_GAME ^ sceneState == COUNTDOWN) {
 		sceneState = PAUSE;
 	}
 
@@ -555,6 +577,7 @@ void SceneManager::togglePause() {
 		pauseTime = std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer).count();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
 		timer += std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer));
+
 		//BASS_Start();
 		//HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
 		//BASS_ChannelPlay(ch, FALSE);
@@ -579,6 +602,8 @@ void SceneManager::renderHUDObject(MenuObject menuObj) {
 
 void SceneManager::renderHUD()
 {
+	//todo add countdown for death respawn and initial play
+
 	////////////////////////////////////////////////////////////////////
 	//This renders a HUD label
 	////////////////////////////////////////////////////////////////////
@@ -599,11 +624,48 @@ void SceneManager::renderHUD()
 		totalTime = std::chrono::duration<double>(temp - timer).count();
 	}
 
-	std::string timerStr = "Time: ";
-	timerStr.append(std::to_string(totalTime));
-	timerStr.append("s");
+	if (inCountdown()) {
 
-	renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+		int countdownTimer = (int)totalTime;
+
+		if (countdownTimer == 0) {
+			std::cout << "3\n";
+			countdownTimer = 3;
+		}
+		else if (countdownTimer == 1) {
+			std::cout << "2\n";
+			countdownTimer = 2;
+		}
+		else if (countdownTimer == 2) {
+			std::cout << "1\n";
+			countdownTimer = 1;
+		}
+		else if (countdownTimer == 3) {
+			std::cout << "GO!\n";
+		}
+		else {
+			std::cout << "still in countdown for some reason\n";
+		}
+		std::string countdownStr(std::to_string(countdownTimer));
+
+		renderHUDObject(std::make_tuple(countdownStr, glm::vec3(0.0f, -0.1f, 0.0f), glm::vec3(0.25f, 0.25f, 0.0f)));
+
+	}
+	else {
+		totalTime -= 3;
+
+		std::string timerStr = "Time: ";
+
+		if (totalTime < 0)
+			totalTime = 0;
+
+		timerStr.append(std::to_string(totalTime));
+
+		timerStr.append("s");
+
+		renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+
+	}
 
 	if (level == 2) {
 		std::string collectablesString("Collectables left: ");
@@ -612,6 +674,13 @@ void SceneManager::renderHUD()
 		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(-0.5f, -0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
 
 	}
+
+	int respawnTime = std::chrono::duration<double>(temp - respawnTimer).count();
+
+	if (respawnTime > -1 && respawnTime < 2) {
+		renderHUDObject(std::make_tuple("Avoid the water!", glm::vec3(0.8f, -0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+	}
+
 	glEnable(GL_DEPTH_TEST);//Re-enable depth test after HUD label
 
 }
@@ -837,6 +906,7 @@ void SceneManager::setPlayerJumpFalse()
 void SceneManager::respawnPlayer() {
 	std::cout << "respawn because: " << player.getLastCollision() << std::endl;
 	player.reset();
+	player.setPlayerR(0.0f);
 
 }
 
@@ -852,13 +922,18 @@ void SceneManager::checkPlayerRespawn()
 		if (!BASS_ChannelPlay(ch, FALSE))
 			std::cout << "Can't play sample" << std::endl;
 
+		respawnTimer = std::chrono::system_clock::now();
 		respawnPlayer();
 	}
 	else if (player.getLastCollision() == "LevelEnd") {
 		level = 2;
+		timer = std::chrono::system_clock::now();
+		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
 	}
+	else if (player.getPos().y < -10)
+		respawnPlayer();
 }
 
 void SceneManager::freeBass()
