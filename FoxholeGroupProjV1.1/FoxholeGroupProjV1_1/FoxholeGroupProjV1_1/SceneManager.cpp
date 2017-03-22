@@ -705,7 +705,7 @@ void SceneManager::renderPlayer()
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPos().x, player.getPos().y, player.getPos().z));
 	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.05f, 0.05f, 0.05f));
 
-	//change r
+	//change r based on current r
 	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR()-90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
