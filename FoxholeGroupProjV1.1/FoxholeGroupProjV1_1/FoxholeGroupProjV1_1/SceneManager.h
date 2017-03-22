@@ -19,6 +19,7 @@
 #include <random>
 #include "bass.h"  //sound library
 #include "SDL_ttf.h" //text library
+#include "md2model.h"
 //#include "Model.h"
 
 enum SceneState {
@@ -60,6 +61,7 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> pauseTimer;
 	double pauseTime = 0;
 	std::chrono::time_point<std::chrono::system_clock> respawnTimer;
+	double levelTime = 0;
 
 	GLuint textToTexture(const char * str, GLuint textID);
 
@@ -76,6 +78,8 @@ private:
 	//Model *foxModel;
 
 	Player player;
+	md2model foxModel;
+	int currentAnimation = 0;
 
 	std::vector<GameObject> gameObjects;
 
@@ -101,11 +105,13 @@ private:
 	void initSounds();
 	void renderHUDObject(MenuObject menuObj);
 	void addToScores();
+	void saveScores(double levelTime);
 
 public:
 	SceneManager();
 	void togglePause();
 	void checkSwitchLevel();
+	void standingAnimation();
 	void renderSkybox(glm::mat4 projection);
 	void clearScreen();
 	glm::mat4 initRendering();

@@ -19,6 +19,7 @@ public:
 	std::string getName() { return nameId; }
 	glm::vec3 getPos() { return position; }
 	glm::vec3 getScale() { return scale; }
+	void setScale(glm::vec3 newScale) { scale = newScale; }
 	GLuint getTexture() { return textureId; }
 	GLuint getMesh() { return meshId; }
 	void setPos(glm::vec3 newPos) { position = newPos; }

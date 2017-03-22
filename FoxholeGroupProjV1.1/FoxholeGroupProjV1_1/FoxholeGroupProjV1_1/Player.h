@@ -13,6 +13,7 @@ public:
 	void setPlayerR(GLfloat newR) { r = newR; }
 	void setPlayerMesh(GLuint mesh) { meshId = mesh; }
 	void setPlayerTexture(GLuint tex) { textureId = tex; }
+	void setPlayerScale(glm::vec3 newScale) { scale = newScale; }
 	GLfloat getBaseJumpIncrement() { return baseJumpAndFallIncrement; }
 	GLfloat getMaxJumpIncrement() { return maxJumpIncrement; }
 	GLfloat getMaxFallIncrement() { return maxFallIncrement; }

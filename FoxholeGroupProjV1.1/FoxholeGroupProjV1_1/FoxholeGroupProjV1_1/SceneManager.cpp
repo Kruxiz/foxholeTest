@@ -341,7 +341,7 @@ void SceneManager::init()
 
 	rt3d::loadObj("fox.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
-	player.setMeshIndexCount(indices.size());
+	//player.setMeshIndexCount(indices.size());
 
 	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
 		verts.data(), nullptr, norms.data(),
@@ -361,6 +361,10 @@ void SceneManager::init()
 		tex_coords.data(), meshIndexCount,
 		indices.data()));
 
+	//md2model tmpmodel;
+	meshObjects.push_back(foxModel.ReadMD2Model("starfox.md2"));
+	player.setMeshIndexCount(foxModel.getVertDataCount());
+
 	//add more meshes with rt3d::loadObj("*.obj", verts, norms, tex_coords, indices); where * is the obj name
 	//then meshIndexCount = indices.size();
 	//then meshObjects.push_back(rt3d::createMesh(verts.size() / 3, verts.data(), nullptr, norms.data(), tex_coords.data(), meshIndexCount, indices.data()));
@@ -372,6 +376,7 @@ void SceneManager::init()
 	textures.push_back(SDLManager::loadBitmap("Town-skybox/grass1.bmp"));
 	textures.push_back(SDLManager::loadBitmap("orange-fox.bmp"));
 	textures.push_back(SDLManager::loadBitmap("tree.bmp"));
+	textures.push_back(SDLManager::loadBitmap("starfox.bmp"));
 	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
@@ -477,6 +482,7 @@ void SceneManager::checkSwitchLevel()
 		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
+		saveScores(levelTime);
 	}
 }
 
@@ -506,8 +512,8 @@ void SceneManager::buildTrees() {
 }
 
 void SceneManager::initPlayer() {
-	player.setPlayerTexture(textures[5]);
-	player.setPlayerMesh(meshObjects[1]);
+	player.setPlayerTexture(textures[7]);
+	player.setPlayerMesh(meshObjects[3]);
 }
 
 void SceneManager::setShaderProjection(glm::mat4 projection)
@@ -664,6 +670,7 @@ void SceneManager::renderHUD()
 		timerStr.append("s");
 
 		renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+		levelTime = totalTime;
 
 	}
 
@@ -687,20 +694,34 @@ void SceneManager::renderHUD()
 
 void SceneManager::renderPlayer()
 {
+	if (!paused()) {
+		foxModel.Animate(currentAnimation, 0.1);
+		rt3d::updateMesh(player.getMesh(), RT3D_VERTEX, foxModel.getAnimVerts(), foxModel.getVertDataSize());
+	}
 	//player cube
+	glCullFace(GL_FRONT);
 	glBindTexture(GL_TEXTURE_2D, player.getTexture());
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPos().x, player.getPos().y, player.getPos().z));
-	mvStack.top() = glm::rotate(mvStack.top(), float(player.getPlayerR()*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
-	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.05f, 0.05f, 0.05f));
+
+	//change r
+	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR()-90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
+
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 	//rt3d::setMaterial(shaderProgram, materials[1]);
-	rt3d::drawIndexedMesh(player.getMesh(), player.getMeshIndexCount(), GL_TRIANGLES);
+	rt3d::drawMesh(player.getMesh(), player.getMeshIndexCount(), GL_TRIANGLES);
 	mvStack.pop();
+	glCullFace(GL_BACK);
 
 	//foxModel->Draw(modelProgram);
-
+	/*
+	// Animate the md2 model, and update the mesh with new vertex data
+	foxModel.Animate(currentAnim,0.1);
+	rt3d::updateMesh(player.getMesh(),RT3D_VERTEX,foxModel.getAnimVerts(),foxModel.getVertDataSize());
+	*/
 }
 
 void SceneManager::updatePlayerR(GLfloat deltaR)
@@ -773,6 +794,10 @@ void SceneManager::initSounds()
 		std::cout << "Can't play sample" << std::endl;*/
 }
 
+void SceneManager::standingAnimation() {
+	currentAnimation = 0;
+}
+
 void SceneManager::movePlayerForward(GLfloat delta) {
 
 	glm::vec3 temp = player.getPos();
@@ -782,7 +807,7 @@ void SceneManager::movePlayerForward(GLfloat delta) {
 	if (checkCollisions())
 		player.setPos(temp);
 
-
+	currentAnimation = 1;
 }
 
 void SceneManager::movePlayerRight(GLfloat delta) {
@@ -794,7 +819,7 @@ void SceneManager::movePlayerRight(GLfloat delta) {
 	if (checkCollisions())
 		player.setPos(temp);
 
-
+	currentAnimation = 1;
 }
 
 glm::vec3 SceneManager::moveForward(glm::vec3 pos, GLfloat angle, GLfloat d)
@@ -809,6 +834,9 @@ glm::vec3 SceneManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d)
 
 bool SceneManager::checkCollisions()
 {
+	//Player tempPlayer = player;
+	//tempPlayer.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+	//tempPlayer.setPos(glm::vec3(tempPlayer.getPos().x, tempPlayer.getPos().y + 1.0f, tempPlayer.getPos().z));
 	bool collided = false;
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (CollisionDetector::detectCollision(gameObjects[i], player))
@@ -854,7 +882,9 @@ void SceneManager::playerFall() {
 
 		GameObject tempObj(player);
 
+		//tempObj.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 		tempObj.setPos(newPos);
+		//tempObj.setPos(glm::vec3(tempObj.getPos().x, tempObj.getPos().y+1.0f, tempObj.getPos().z));
 
 		if (!checkCollisions(tempObj)) { player.setIsOnObj(false); }
 	}
@@ -924,16 +954,24 @@ void SceneManager::checkPlayerRespawn()
 
 		respawnTimer = std::chrono::system_clock::now();
 		respawnPlayer();
-	}
-	else if (player.getLastCollision() == "LevelEnd") {
+	}//for demonstration purposes
+	else if (player.getLastCollision() == "LevelEnd" /*|| (!inCountdown() && */) {
 		level = 2;
 		timer = std::chrono::system_clock::now();
 		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
+		saveScores(levelTime);
 	}
 	else if (player.getPos().y < -10)
 		respawnPlayer();
+}
+
+void SceneManager::saveScores(double levelTime) {
+	std::ofstream highScores("highscores.txt", std::ios_base::app);
+	highScores << levelTime, /*input name function elsewhere and have the string passed here for use*/"\n";
+	highScores << /*scorevariable here*/ "\n";
+
 }
 
 void SceneManager::freeBass()

@@ -246,11 +246,15 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 		if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(0.50f);
 		if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(-0.50f);
 
-		if (keys[SDL_SCANCODE_W]) scene->movePlayerForward(0.1f);
-		if (keys[SDL_SCANCODE_S]) scene->movePlayerForward(-0.1f);
-		if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
-		if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
-
+		if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_D]) {
+			if (keys[SDL_SCANCODE_W]) scene->movePlayerForward(0.1f);
+			if (keys[SDL_SCANCODE_S]) scene->movePlayerForward(-0.1f);
+			if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
+			if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
+		}
+		else {
+			scene->standingAnimation();
+		}
 		if (keys[SDL_SCANCODE_SPACE]) {
 			scene->playerJump();
 		}
