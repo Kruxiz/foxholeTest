@@ -15,7 +15,7 @@ private:
 	SDL_GLContext context;
 	SceneManager * scene;
 	void SDLDraw();
-	void SDLUpdate();
+	void SDLUpdate(SDL_Event sdlEvent);
 public:
 	SDLManager();
 	void SDLInit(void);
@@ -23,6 +23,7 @@ public:
 	void SDLRun(void);
 	static GLuint loadCubeMap(const char * fname[6], GLuint * texID);
 	static GLuint loadBitmap(char * fname);
+	//static Uint8 
 };
 
 #endif

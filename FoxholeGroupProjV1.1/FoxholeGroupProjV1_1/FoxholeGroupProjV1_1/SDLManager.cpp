@@ -44,6 +44,8 @@ void SDLManager::SDLEnd(void)
 {
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
+	scene->freeBass();
+	delete scene;
 	SDL_Quit();
 }
 
@@ -53,15 +55,38 @@ void SDLManager::SDLRun(void)
 	SDL_Event sdlEvent;  // variable to detect SDL events
 	while (running) {	// the event loop
 		while (SDL_PollEvent(&sdlEvent)) {
-			if (sdlEvent.type == SDL_QUIT)
+			if (sdlEvent.type == SDL_QUIT || (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE  && scene->inMainMenu()))
 				running = false;
+
+			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_TAB && (scene->inGame() ^ scene->paused() ^ scene->inCountdown())) {
+				scene->togglePause();
+			}
+
+			if (sdlEvent.type == SDL_MOUSEMOTION && !scene->paused() && !scene->inCountdown())
+			{
+				SDL_SetRelativeMouseMode(SDL_TRUE);
+				SDL_WarpMouseInWindow(NULL, 800, 600);
+				/* If the mouse is moving to the left */
+				if (sdlEvent.motion.xrel < 0)
+					scene->updatePlayerR(1.5f);
+				/* If the mouse is moving to the right */
+				else if (sdlEvent.motion.xrel > 0)
+					scene->updatePlayerR(-1.5f);
+			}
+
+
+			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
+				scene->setPlayerJumpFalse();
+			}
+
 		}
-		SDLUpdate();
 		SDLDraw();
+		SDLUpdate(sdlEvent);
 	}
 
 }
 
+//todo move into scenemanager???
 GLuint SDLManager::loadCubeMap(const char * fname[6], GLuint * texID)
 {
 	glGenTextures(1, texID); // generate texture ID
@@ -142,48 +167,104 @@ GLuint SDLManager::loadBitmap(char * fname)
 	return texID;	// return value of texture ID
 }
 
+//todo refactor in some fashion
 void SDLManager::SDLDraw()
 {
 	//call scene manager
-
 	scene->clearScreen();
 
-	glm::mat4 projection = scene->initRendering();
+	if (scene->inMainMenu() || scene->inControls() || scene->inScores()) {
+		glm::mat4 projection = scene->initRendering();
 
-	scene->renderSkybox(projection);
+		scene->setShaderProjection(projection);
 
-	scene->setShaderProjection(projection);
+		scene->renderMenus();
+	}
+	else {
+		glm::mat4 projection = scene->initRendering();
 
-	//set lights
-	scene->setLights();
+		scene->renderSkybox(projection);
 
-	//render objects
-	scene->renderObjects();
+		scene->setShaderProjection(projection);
 
-	scene->popMatrixStack();
+		//set lights
+		scene->setLights();
 
-	glDepthMask(GL_TRUE);
+		//render objects
+		scene->renderObjects();
 
+		scene->popMatrixStack();
+
+		glDepthMask(GL_TRUE);
+	}
 	SDL_GL_SwapWindow(window); // swap buffers
 }
 
-void SDLManager::SDLUpdate()
+void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-	if (keys[SDL_SCANCODE_1]) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDisable(GL_CULL_FACE);
+	if (scene->inMainMenu()) {
+		if (keys[SDL_SCANCODE_RETURN]) {
+			scene->play();
+		}
+		if (keys[SDL_SCANCODE_S]) {
+			scene->scores();
+		}
+		if (keys[SDL_SCANCODE_C]) {
+			scene->controls();
+		}
 	}
-
-	if (keys[SDL_SCANCODE_2]) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glEnable(GL_CULL_FACE);
+	else if (scene->inControls()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
 	}
+	else if (scene->inScores()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
+	}
+	else if (scene->paused()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
+	}
+	else if (scene->inGame()) {
+		if (keys[SDL_SCANCODE_1]) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_CULL_FACE);
+		}
 
-	//if using <> - update playerR through scene->updatePlayerR();
+		if (keys[SDL_SCANCODE_2]) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glEnable(GL_CULL_FACE);
+		}
 
-	if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(-1.0f);
-	if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(1.0f);
+		//if using <> - update playerR through scene->updatePlayerR();
+
+		if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(0.50f);
+		if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(-0.50f);
+
+		if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_D]) {
+			if (keys[SDL_SCANCODE_W]) scene->movePlayerForward(0.1f);
+			if (keys[SDL_SCANCODE_S]) scene->movePlayerForward(-0.1f);
+			if (keys[SDL_SCANCODE_A]) scene->movePlayerRight(-0.1f);
+			if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
+		}
+		else {
+			scene->standingAnimation();
+		}
+		if (keys[SDL_SCANCODE_SPACE]) {
+			scene->playerJump();
+		}
+
+		if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
+
+		scene->playerFall();
+		scene->checkPlayerRespawn();
+		scene->detectCollectableCollision();
+		scene->checkSwitchLevel();
+	}
 
 }
