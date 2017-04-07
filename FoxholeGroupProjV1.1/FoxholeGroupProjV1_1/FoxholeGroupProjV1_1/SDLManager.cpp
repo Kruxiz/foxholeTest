@@ -54,6 +54,7 @@ void SDLManager::SDLRun(void)
 	bool running = true; // set running to true
 	SDL_Event sdlEvent;  // variable to detect SDL events
 	while (running) {	// the event loop
+		bool spaceUp = false;
 		while (SDL_PollEvent(&sdlEvent)) {
 			if (sdlEvent.type == SDL_QUIT || (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE  && scene->inMainMenu()))
 				running = false;
@@ -74,14 +75,13 @@ void SDLManager::SDLRun(void)
 					scene->updatePlayerR(-1.5f);
 			}
 
-
 			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
-				scene->setPlayerJumpFalse();
+				spaceUp = true;
 			}
 
 		}
 		SDLDraw();
-		SDLUpdate(sdlEvent);
+		SDLUpdate(sdlEvent, spaceUp);
 	}
 
 }
@@ -187,9 +187,6 @@ void SDLManager::SDLDraw()
 
 		scene->setShaderProjection(projection);
 
-		//set lights
-		scene->setLights();
-
 		//render objects
 		scene->renderObjects();
 
@@ -200,7 +197,7 @@ void SDLManager::SDLDraw()
 	SDL_GL_SwapWindow(window); // swap buffers
 }
 
-void SDLManager::SDLUpdate(SDL_Event sdlEvent)
+void SDLManager::SDLUpdate(SDL_Event sdlEvent, bool spaceUp)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -261,10 +258,7 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 
 		if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
 
-		scene->playerFall();
-		scene->checkPlayerRespawn();
-		scene->detectCollectableCollision();
-		scene->checkSwitchLevel();
+		scene->playerUpdate(spaceUp);
 	}
 
 }

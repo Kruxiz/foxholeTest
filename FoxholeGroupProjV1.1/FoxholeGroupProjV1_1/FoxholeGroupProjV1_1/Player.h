@@ -6,6 +6,13 @@
 #include <string>
 #include "GameObject.h"
 
+enum PlayerState {
+	STANDING,
+	JUMPING,
+	FALLING,
+	RUNNING //todo not sure needed
+};
+
 class Player : public GameObject {
 public:
 	Player();
@@ -14,31 +21,16 @@ public:
 	void setPlayerMesh(GLuint mesh) { meshId = mesh; }
 	void setPlayerTexture(GLuint tex) { textureId = tex; }
 	void setPlayerScale(glm::vec3 newScale) { scale = newScale; }
-	GLfloat getBaseJumpIncrement() { return baseJumpAndFallIncrement; }
-	GLfloat getMaxJumpIncrement() { return maxJumpIncrement; }
-	GLfloat getMaxFallIncrement() { return maxFallIncrement; }
-	GLuint getJumpMax() { return jumpMax; }
-	GLfloat getAccnValue() { return accnValue; } // needed?
-	bool isFalling() { return falling; }
-	void fall(bool newBool) { falling = newBool; }
-	bool isJumping() { return jumping; }
-	void jump(bool newBool) { jumping = newBool; }
-	bool isJumpIncrementSet() { return jumpIncrementSet; }
-	GLuint getJumpCounter() { return jumpCounter; }
-	void incrementJumpCounter() { jumpCounter++; }
-	void decrementJumpCounter() { jumpCounter--; } // needed?
-	void resetJumpCounter() { jumpCounter = 0; }
-	GLfloat getJumpIncrement() { return jumpIncrement; }
-	void increaseJumpIncrement() { jumpIncrement *= accnValue; }
-	void resetJumpIncrement() { jumpIncrement = baseJumpAndFallIncrement; }
-	GLfloat getFallIncrement() { return fallIncrement; }
-	void increaseFallIncrement() { fallIncrement *= accnValue; }
-	void resetFallIncrement() { fallIncrement = baseJumpAndFallIncrement; }
-	void setIsOnObj(bool onObj) { isOnObj = onObj; }
-	bool isOnObject() { return isOnObj; }
-	void maxJumpCounter() { jumpCounter = jumpMax; }
 	void setMeshIndexCount(GLuint newCount) { playerMeshIndexCount = newCount; }
 	GLuint getMeshIndexCount() { return playerMeshIndexCount; }
+	void playerJump();
+	void playerStand();
+	void playerFall();
+	void playerRun() { playerState = RUNNING; }
+	bool isPlayerJumping() { return playerState == JUMPING; }
+	bool isPlayerFalling() { return playerState == FALLING; }
+	bool isPlayerRunning() { return playerState == RUNNING; }
+	bool isPlayerStanding() { return playerState == STANDING; }
 private:
 	GLfloat r = 0.0f;
 	GLuint jumpCounter = 0;
@@ -54,6 +46,8 @@ private:
 	bool jumpIncrementSet = false;
 	bool isOnObj = false;
 	GLuint playerMeshIndexCount = 0;
+	PlayerState playerState = STANDING;
+
 };
 
 #endif

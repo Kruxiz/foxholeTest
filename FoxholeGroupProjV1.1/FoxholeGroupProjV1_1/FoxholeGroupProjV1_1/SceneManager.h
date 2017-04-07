@@ -44,6 +44,7 @@ private:
 	std::stack<glm::mat4> mvStack;
 	std::vector<GLuint> textures;
 	GLuint skybox[5];
+	GLuint skybox2[5];
 
 	int collectables;
 
@@ -106,33 +107,33 @@ private:
 	void renderHUDObject(MenuObject menuObj);
 	void addToScores();
 	void saveScores(double levelTime);
+	void playerFall(bool spaceUp);
+	void checkPlayerRespawn();
+	void detectCollectableCollision();
+	void checkSwitchLevel();
 
 public:
 	SceneManager();
 	void togglePause();
-	void checkSwitchLevel();
 	void standingAnimation();
 	void renderSkybox(glm::mat4 projection);
 	void clearScreen();
 	glm::mat4 initRendering();
+	void respawnPlayer();
 	void init();
 	void popMatrixStack() { mvStack.pop(); }
 	void setShaderProjection(glm::mat4 projection);
 	void setLights();
 	void renderObjects();
 	void updatePlayerR(GLfloat deltaR);
-	void detectCollectableCollision();
 	void movePlayerForward(GLfloat delta);
 	void movePlayerRight(GLfloat delta);
 	bool checkCollisions();
 	bool checkCollisions(GameObject &specObj);
 	void playerJump();
-	void playerFall();
 	GameObject getGameObject(std::string objName);
 	int getGameObjectIndex(std::string objName);
 	void setPlayerJumpFalse();
-	void respawnPlayer();
-	void checkPlayerRespawn();
 	void freeBass();
 	bool inGame() { return sceneState == IN_GAME; }
 	bool inMainMenu() { return sceneState == MAIN_MENU; }
@@ -146,6 +147,7 @@ public:
 	void scores() { sceneState = SCORES; }
 	void countdown() { sceneState = COUNTDOWN; }
 	void renderMenus();
+	void playerUpdate(bool spaceUp);
 };
 
 #endif

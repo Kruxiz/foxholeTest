@@ -177,6 +177,14 @@ void SceneManager::renderMenus() {
 	}
 }
 
+void SceneManager::playerUpdate(bool spaceUp)
+{
+	playerFall(spaceUp);
+	checkPlayerRespawn();
+	detectCollectableCollision();
+	checkSwitchLevel();
+}
+
 void SceneManager::addToScores() {
 	//todo addToScores - only top 5?
 	glm::vec3 pos(0.6f, 0.5f, 0.0f);
@@ -187,34 +195,22 @@ void SceneManager::addToScores() {
 void SceneManager::renderSkybox(glm::mat4 projection)
 {
 	if (level == 1) {
-		glUseProgram(skyboxProgram);				// skybox as single cube using cube map
-		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
+		// skybox as single cube using cube map
 		glUseProgram(skyboxProgram);
-		glDepthMask(GL_FALSE); // make sure writing to update depth test is off	
 		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
-		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		glDepthMask(GL_FALSE); // make sure writing to update depth test is off
+		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		mvStack.push(glm::mat4(mvRotOnlyMat3));
-		/*glm::mat3*/ mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		glCullFace(GL_FRONT); // drawing inside of cube!
-		mvStack.push(glm::mat4(mvRotOnlyMat3));
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
-		glCullFace(GL_FRONT); // drawing inside of cube!
 		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
 		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
-		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
 		mvStack.pop();
-		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 		glCullFace(GL_BACK); // drawing inside of cube!
-		mvStack.pop();
-		// back to remainder of rendering
-		glCullFace(GL_BACK); // drawing inside of cube!
-
-		//glDepthMask(GL_TRUE); // make sure depth test is on									 // back to remainder of rendering
+							 // back to remainder of rendering
 		glDepthMask(GL_TRUE); // make sure depth test is on
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 	else if (level == 2) {
 		// skybox as single cube using cube map
@@ -224,7 +220,7 @@ void SceneManager::renderSkybox(glm::mat4 projection)
 		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		mvStack.push(glm::mat4(mvRotOnlyMat3));
 		glCullFace(GL_FRONT); // drawing inside of cube!
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[1]);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox2[0]);
 		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
 		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
@@ -239,7 +235,7 @@ void SceneManager::clearScreen()
 {
 	// clear the screen
 	glEnable(GL_CULL_FACE);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -284,43 +280,22 @@ void SceneManager::init()
 	initSounds(); //todo play menu music - play forest sounds when playing game
 
 	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
-	//textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
-	//modelProgram = rt3d::initShaders("modelLoading.vert", "modelLoading.frag");
+	textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
 
-	//foxModel = new Model("fox.obj");
-
-	rt3d::setLight(shaderProgram, lights[0]);
-	rt3d::setMaterial(shaderProgram, materials[0]);
-
-	////matching textureUnits
-	//GLuint uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit0");
-	//glUniform1i(uniformIndex, 0);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit1");
-	//glUniform1i(uniformIndex, 1);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit2");
-	//glUniform1i(uniformIndex, 2);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit3");
-	//glUniform1i(uniformIndex, 3);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit4");
-	//glUniform1i(uniformIndex, 4);
-	//^^ above is nonsense
-
-	//skybox program needed in draw method
-	//GLuint skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
-
-	//doesn't appear to be used anywhere else question mark question mark question mark
-	GLuint textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
+	//rt3d::setLight(shaderProgram, lights[0]);
+	//rt3d::setMaterial(shaderProgram, materials[0]);
 
 	//loading skybox
+	//https://opengameart.org/content/forest-skyboxes
 	const char *cubeTexFiles[6] = {
-		"Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp"
+		"Brudslojan/posz.bmp", "Brudslojan/negz.bmp", "Brudslojan/posx.bmp", "Brudslojan/negx.bmp", "Brudslojan/posy.bmp", "Brudslojan/posy.bmp"
 	};
 
 	SDLManager::loadCubeMap(cubeTexFiles, skybox);
 	const char *cubeTexFiles2[6] = {
-		"Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp"
+		"Town-skybox/Town_bk.bmp", "Town-skybox/Town_ft.bmp", "Town-skybox/Town_rt.bmp", "Town-skybox/Town_lf.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp"
 	};
-	SDLManager::loadCubeMap(cubeTexFiles2, skybox);
+	SDLManager::loadCubeMap(cubeTexFiles2, skybox2);
 
 	std::vector<GLfloat> verts;
 	std::vector<GLfloat> norms;
@@ -397,7 +372,7 @@ void SceneManager::initGameObjects() {
 		//level 1
 
 		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 20.0f, 5.0f), NULL, NULL));
-		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
+		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(200.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
 		gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(20.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
 
@@ -420,12 +395,12 @@ void SceneManager::initGameObjects() {
 	else if (level == 2) {
 		// level 2
 		//hole-y ground
-		gameObjects.push_back(GameObject("trap_ground", glm::vec3(0.0f, 0.2f, 1.5f), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
+		gameObjects.push_back(GameObject("trap_ground", glm::vec3(0.0f, -0.2f, 1.5f), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
 		for (int a = 0; a < 99; a++) {
 
 			int randomNum1 = rand() % 100 + 1;
 			int randomNum2 = rand() % 100 + 1;
-			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, 0.2f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
+			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, -0.2f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
 
 		}
 
@@ -524,6 +499,8 @@ void SceneManager::setShaderProjection(glm::mat4 projection)
 
 void SceneManager::setLights()
 {
+	rt3d::setLight(shaderProgram, lights[0]);
+	rt3d::setMaterial(shaderProgram, materials[0]);
 	glm::vec4 tmp = mvStack.top()*lightPos;
 	lights[0].position[0] = tmp.x;
 	lights[0].position[1] = tmp.y;
@@ -533,11 +510,13 @@ void SceneManager::setLights()
 
 void SceneManager::renderObjects()
 {
+	glUseProgram(shaderProgram);
+	setLights();
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i].getTexture() != NULL && gameObjects[i].getMesh() != NULL)
 			renderObject(gameObjects[i]);
 	}
-	renderPlayer(); //NO DIFFERENCE BETWEEN THIS AND RENDER OBJECT
+	renderPlayer(); 
 	renderHUD();
 }
 
@@ -591,6 +570,9 @@ void SceneManager::togglePause() {
 }
 
 void SceneManager::renderHUDObject(MenuObject menuObj) {
+	
+	glUseProgram(textureProgram);//Use texture-only shader for text rendering
+
 	GLuint label = 0;
 	label = textToTexture(std::get<0>(menuObj).c_str(), label);
 
@@ -599,8 +581,8 @@ void SceneManager::renderHUDObject(MenuObject menuObj) {
 	mvStack.push(glm::mat4(1.0));
 	mvStack.top() = glm::translate(mvStack.top(), std::get<1>(menuObj));
 	mvStack.top() = glm::scale(mvStack.top(), std::get<2>(menuObj));
-	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::setUniformMatrix4fv(textureProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
+	rt3d::setUniformMatrix4fv(textureProgram, "modelview", glm::value_ptr(mvStack.top()));
 
 	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
@@ -613,7 +595,7 @@ void SceneManager::renderHUD()
 	////////////////////////////////////////////////////////////////////
 	//This renders a HUD label
 	////////////////////////////////////////////////////////////////////
-	glUseProgram(shaderProgram);//Use texture-only shader for text rendering
+	//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
 
 	if (sceneState == PAUSE) {
@@ -654,8 +636,10 @@ void SceneManager::renderHUD()
 		}
 		std::string countdownStr(std::to_string(countdownTimer));
 
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(countdownStr, glm::vec3(0.0f, -0.1f, 0.0f), glm::vec3(0.25f, 0.25f, 0.0f)));
 
+		currentAnimation = 0;
 	}
 	else {
 		totalTime -= 3;
@@ -669,6 +653,7 @@ void SceneManager::renderHUD()
 
 		timerStr.append("s");
 
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
 		levelTime = totalTime;
 
@@ -678,6 +663,7 @@ void SceneManager::renderHUD()
 		std::string collectablesString("Collectables left: ");
 		collectablesString.append(std::to_string(collectables));
 
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(-0.5f, -0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
 
 	}
@@ -685,11 +671,12 @@ void SceneManager::renderHUD()
 	int respawnTime = std::chrono::duration<double>(temp - respawnTimer).count();
 
 	if (respawnTime > -1 && respawnTime < 2) {
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple("Avoid the water!", glm::vec3(0.8f, -0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 	}
 
 	glEnable(GL_DEPTH_TEST);//Re-enable depth test after HUD label
-
+	//setLights();
 }
 
 void SceneManager::renderPlayer()
@@ -734,18 +721,18 @@ void SceneManager::detectCollectableCollision() {
 	if (level == 2) {
 		std::string playerColl = player.getLastCollision();
 		if (player.getLastCollision().substr(0, 11) == "collectable") {
-			playerColl = playerColl.substr(11);
+			//playerColl = playerColl.substr(11);
 
-			for (GameObject gObj : gameObjects) {
-				if (gObj.getName().substr(0, 11) == "collectable" && gObj.getName().substr(11) == playerColl) {
+			//for (GameObject gObj : gameObjects) {
+				//if (gObj.getName().substr(0, 11) == "collectable" && gObj.getName().substr(11) == playerColl) {
 					std::cout << "player collided with collectable\n";
 					int index = getGameObjectIndex(player.getLastCollision());
 					player.setLastCollision("");
 					gameObjects.erase(gameObjects.begin() + index);
 					collectables--;
-					break;
-				}
-			}
+					//break;
+				//}
+			//}
 		}
 	}
 }
@@ -855,7 +842,7 @@ bool SceneManager::checkCollisions(GameObject &specObj) {
 }
 
 void SceneManager::playerJump() {
-	if (player.getJumpCounter() < player.getJumpMax()) {
+	/*if (player.getJumpCounter() < player.getJumpMax()) {
 		player.jump(true);
 		glm::vec3 newPos = player.getPos();
 
@@ -868,47 +855,68 @@ void SceneManager::playerJump() {
 		player.jump(false);
 		if (player.isOnObject())
 			player.resetJumpCounter();
-	}
+	}*/
+
+	player.playerJump();
+
+	/*if (player.isPlayerJumping()) {
+		player.setPos(glm::vec3(player.getPos().x, player.getPos().y + player.getJumpIncrement(), player.getPos().z));
+	}*/
 }
 
-void SceneManager::playerFall() {
+void SceneManager::playerFall(bool spaceUp) {
 
-	if (CollisionDetector::detectCollision(getGameObject("Cube1"), player))
-		std::cout << "player collided with cube1\n";
+	//if (CollisionDetector::detectCollision(getGameObject("Cube1"), player))
+		//std::cout << "player collided with cube1\n";
+	//if (player.isPlayerFalling()) {
+	//	if (!checkCollisions()) {
+	//		glm::vec3 newPos = player.getPos();
+	//		newPos.y -= player.getFallIncrement();
 
-	if (!checkCollisions()) {
-		glm::vec3 newPos = player.getPos();
-		newPos.y -= player.getFallIncrement();
+	//		GameObject tempObj(player);
 
-		GameObject tempObj(player);
+	//		//tempObj.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+	//		tempObj.setPos(newPos);
+	//		//tempObj.setPos(glm::vec3(tempObj.getPos().x, tempObj.getPos().y+1.0f, tempObj.getPos().z));
 
-		//tempObj.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-		tempObj.setPos(newPos);
-		//tempObj.setPos(glm::vec3(tempObj.getPos().x, tempObj.getPos().y+1.0f, tempObj.getPos().z));
+	//		if (!checkCollisions(tempObj)) { player.setIsOnObj(false); }
+	//	}
 
-		if (!checkCollisions(tempObj)) { player.setIsOnObj(false); }
+	//	//if (!player.isJumping() && !player.isOnObject()) {
+
+	//		glm::vec3 newPos = player.getPos();
+
+	//		if (checkCollisions()) {
+	//			//change player y to y of object y plus object scale
+	//			GameObject gObj = getGameObject(player.getLastCollision());
+	//			std::cout << "player last coll:\t " << player.getLastCollision() << std::endl;
+	//			newPos.y = gObj.getPos().y + gObj.getScale().y + player.getScale().y;
+
+	//			player.setIsOnObj(true);
+	//		}
+	//		else {
+	//			newPos.y -= player.getFallIncrement();
+	//		}
+
+	//		std::cout << "player y:\t" << player.getPos().y << std::endl;
+	//		player.setPos(newPos);
+	//		//CHANGE THIS ^^^^^ CREATE TEMP OBJECT ////MAYBE?????? LOLIDK
+	//	//}
+	//}
+	////
+
+	if (spaceUp) {
+		player.playerFall();
 	}
 
-	if (!player.isJumping() && !player.isOnObject()) {
-
-		glm::vec3 newPos = player.getPos();
+	if (!player.isPlayerJumping()) {
+		player.playerFall();
 
 		if (checkCollisions()) {
-			//change player y to y of object y plus object scale
-			GameObject gObj = getGameObject(player.getLastCollision());
-			std::cout << "player last coll:\t " << player.getLastCollision() << std::endl;
-			newPos.y = gObj.getPos().y + gObj.getScale().y + player.getScale().y;
-
-			player.setIsOnObj(true);
+			player.playerStand();
 		}
-		else {
-			newPos.y -= player.getFallIncrement();
-		}
-
-		std::cout << "player y:\t" << player.getPos().y << std::endl;
-		player.setPos(newPos);
-		//CHANGE THIS ^^^^^ CREATE TEMP OBJECT ////MAYBE?????? LOLIDK
 	}
+
 }
 
 GameObject SceneManager::getGameObject(std::string objName) {
@@ -925,12 +933,6 @@ int SceneManager::getGameObjectIndex(std::string objName) {
 			return i;
 	}
 	return -1;
-}
-
-void SceneManager::setPlayerJumpFalse()
-{
-	player.jump(false);
-	player.maxJumpCounter();
 }
 
 void SceneManager::respawnPlayer() {
