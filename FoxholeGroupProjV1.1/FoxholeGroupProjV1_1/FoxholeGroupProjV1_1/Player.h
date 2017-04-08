@@ -26,10 +26,10 @@ public:
 	void playerJump();
 	void playerStand();
 	void playerFall();
-	void playerRun() { playerState = RUNNING; }
+	void playerRun() { playerState = RUNNING; } //not sure if needed
 	bool isPlayerJumping() { return playerState == JUMPING; }
 	bool isPlayerFalling() { return playerState == FALLING; }
-	bool isPlayerRunning() { return playerState == RUNNING; }
+	bool isPlayerRunning() { return playerState == RUNNING; } //not sure if needed
 	bool isPlayerStanding() { return playerState == STANDING; }
 private:
 	GLfloat r = 0.0f;
@@ -41,10 +41,6 @@ private:
 	GLfloat maxFallIncrement = 0.5f;
 	GLuint jumpMax = 50;
 	GLfloat accnValue = 1.1f; // needed
-	bool falling = false;
-	bool jumping = false;
-	bool jumpIncrementSet = false;
-	bool isOnObj = false;
 	GLuint playerMeshIndexCount = 0;
 	PlayerState playerState = STANDING;
 

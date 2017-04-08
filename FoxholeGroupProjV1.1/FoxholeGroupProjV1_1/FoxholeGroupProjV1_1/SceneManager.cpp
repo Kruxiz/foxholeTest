@@ -76,34 +76,51 @@ SceneManager::SceneManager() {
 
 	menus.insert({ "controls", controls });
 
+
+	auto chooseNameDisplay = std::make_tuple("Choose name", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto chooseNameControls1 = std::make_tuple("Use arrows keys to", glm::vec3(-0.5f, 0.6f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f));
+	auto chooseNameControls2 = std::make_tuple("choose name and then play", glm::vec3(-0.45f, 0.3f, 0.0f), glm::vec3(0.55f, 0.2f, 0.0f));
+	//auto upArrows = std::make_tuple("/\    /\     /\ ", glm::vec3(-0.5f, 0.6f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+	//auto downArrows = std::make_tuple("\\/    \\/    \\/", glm::vec3(-0.5f, 0.3f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+	////todo add more
+
+	Menu chooseName({ chooseNameDisplay, chooseNameControls1, chooseNameControls2, mainMenuOption });
+
+	menus.insert({ "chooseName", chooseName });
+
+
 	sceneState = MAIN_MENU;
 }
 
 void SceneManager::play()
 {
-	BASS_Start();
-	if (sceneState != PAUSE) {
-		timer = std::chrono::system_clock::now();
-		pauseTimer = timer;
+	if (playerNameSet) {
+		BASS_Start();
+		if (sceneState != PAUSE) {
+			timer = std::chrono::system_clock::now();
+			pauseTimer = timer;
 
-		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
-		if (!BASS_ChannelPlay(ch, TRUE))
-			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
+			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
+			if (!BASS_ChannelPlay(ch, TRUE))
+				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 
-		level = 1;
-		initGameObjects();
-		respawnPlayer();
+			level = 1;
+			initGameObjects();
+			respawnPlayer();
+		}
+		else {
+			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
+			if (!BASS_ChannelPlay(ch, TRUE))
+				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
+
+		}
+
+		if (!inCountdown())
+			sceneState = IN_GAME;
 	}
 	else {
-		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
-		if (!BASS_ChannelPlay(ch, TRUE))
-			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
-
+		chooseName();
 	}
-
-	if (!inCountdown())
-		sceneState = IN_GAME;
-
 }
 
 bool SceneManager::inCountdown()
@@ -133,7 +150,69 @@ void SceneManager::mainMenu()
 	}*/
 
 	sceneState = MAIN_MENU;
+	if (highScores1.size() == 0 && highScores2.size() == 0)
+		loadScores();
 
+}
+
+void SceneManager::scores()
+{
+	//if (highScores1.size() == 0 && highScores2.size() == 0) {
+		//loadScores();
+	//}
+	//else {
+
+	addToScores();
+	//}
+	sceneState = SCORES;
+
+}
+
+void SceneManager::loadScores() {
+	//todo syntax = 3 chars then ; then double level time
+	std::ifstream highScores1_STREAM("highScores1.txt");
+	std::ifstream highScores2_STREAM("highScores2.txt");
+
+	//todo add error checking
+	if (highScores1_STREAM && highScores2_STREAM) {
+		std::string username;
+		std::string userTimeStr;
+		double userTime;
+		std::stringstream ss;
+		//bool 
+		//char name1, name2, name3;
+		while (!highScores1_STREAM.eof()) {
+			std::getline(highScores1_STREAM, username, ';');
+
+			std::getline(highScores1_STREAM, userTimeStr);
+			ss.str(userTimeStr);
+			ss >> userTime;
+
+			highScores1.insert({ username, userTime });
+
+			ss.str("");
+			ss.clear();
+		}
+		//ss >> name1 >> name2 >> name3;
+
+		while (!highScores2_STREAM.eof()) {
+			std::getline(highScores2_STREAM, username, ';');
+
+			std::getline(highScores2_STREAM, userTimeStr);
+			ss.str(userTimeStr);
+			ss >> userTime;
+
+			highScores2.insert({ username, userTime });
+
+			ss.str("");
+			ss.clear();
+		}
+		//ss >> name1 >> name2 >> name3;
+	}
+
+	if (highScores1.size() != highScores2.size()) {
+		std::cerr << "SOMETHING WRONG YO! highscores1 and 2 have different no of scores\n";
+	}
 }
 
 void SceneManager::renderMenus() {
@@ -171,9 +250,56 @@ void SceneManager::renderMenus() {
 		}
 
 		break;
+	case CHOOSE_NAME:
+		//todo WHAT HERE
+		menu = menus.at("chooseName");
+
+		for (auto menuObj : menu) {
+			renderHUDObject(menuObj);
+		}
+		renderPlayerChars();
+		break;
 	default://todo maybe add something else here
 		break;
 
+	}
+}
+
+void SceneManager::renderPlayerChars()
+{
+	std::string playerCharStr;
+	playerCharStr += playerName1;
+	auto playerChar1 = std::make_tuple(playerCharStr, glm::vec3(-0.5f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	renderHUDObject(playerChar1);
+
+	playerCharStr.clear();
+	playerCharStr += playerName2;
+	auto playerChar2 = std::make_tuple(playerCharStr, glm::vec3(-0.3f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	renderHUDObject(playerChar2);
+
+	playerCharStr.clear();
+	playerCharStr += playerName3;
+	auto playerChar3 = std::make_tuple(playerCharStr, glm::vec3(-0.1f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	renderHUDObject(playerChar3);
+
+	MenuObject charUnderline;/* = std::make_tuple("_", glm::vec3(-0.1f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	//renderHUDObject(charUnderline);*/
+
+	switch (activeChar) {
+	case 1:
+		charUnderline = std::make_tuple("_", glm::vec3(-0.5f, -0.15f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+		renderHUDObject(charUnderline);
+		break;
+	case 2:
+		charUnderline = std::make_tuple("_", glm::vec3(-0.3f, -0.15f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+		renderHUDObject(charUnderline);
+		break;
+	case 3:
+		charUnderline = std::make_tuple("_", glm::vec3(-0.1f, -0.15f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+		renderHUDObject(charUnderline);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -185,11 +311,86 @@ void SceneManager::playerUpdate(bool spaceUp)
 	checkSwitchLevel();
 }
 
+void SceneManager::changeActiveChar(bool right)
+{
+	if (right) {
+		activeChar++;
+	}
+	else {
+		if (activeChar > 1)
+			activeChar--;
+	}
+	if (activeChar > 3) {
+		playerName += playerName1;
+		playerName += playerName2;
+		playerName += playerName3;
+		playerNameSet = true;
+		play();
+	}
+
+}
+
+void SceneManager::changeCurrentChar(bool up)
+{
+	if (up) {
+		switch (activeChar) {
+		case 1:
+			playerName1++;
+			if (playerName1 > 'Z') {
+				playerName1 = 'A';
+			}
+			break;
+		case 2:
+			playerName2++;
+			if (playerName2 > 'Z') {
+				playerName2 = 'A';
+			}
+			break;
+		case 3:
+			playerName3++;
+			if (playerName3 > 'Z') {
+				playerName3 = 'A';
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	else {
+		switch (activeChar) {
+		case 1:
+			playerName1--;
+			if (playerName1 < 'A') {
+				playerName1 = 'Z';
+			}
+			break;
+		case 2:
+			playerName2--;
+			if (playerName2 < 'A') {
+				playerName2 = 'Z';
+			}
+			break;
+		case 3:
+			playerName3--;
+			if (playerName3 < 'A') {
+				playerName3 = 'Z';
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+//todo call this method when player selects scores menu
+//this method gets top five scores and displays
 void SceneManager::addToScores() {
 	//todo addToScores - only top 5?
 	glm::vec3 pos(0.6f, 0.5f, 0.0f);
 	glm::vec3 scale(0.2f, 0.2f, 0.0f);
 	float step = 0.1f;
+
+	//auto score 
 }
 
 void SceneManager::renderSkybox(glm::mat4 projection)
@@ -293,7 +494,7 @@ void SceneManager::init()
 
 	SDLManager::loadCubeMap(cubeTexFiles, skybox);
 	const char *cubeTexFiles2[6] = {
-		"Town-skybox/Town_bk.bmp", "Town-skybox/Town_ft.bmp", "Town-skybox/Town_rt.bmp", "Town-skybox/Town_lf.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp"
+		"Town-skybox/Town_bk.bmp", "Town-skybox/Town_ft.bmp", "Town-skybox/Town_rt.bmp", "Town-skybox/Town_lf.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_dn.bmp"
 	};
 	SDLManager::loadCubeMap(cubeTexFiles2, skybox2);
 
@@ -395,12 +596,12 @@ void SceneManager::initGameObjects() {
 	else if (level == 2) {
 		// level 2
 		//hole-y ground
-		gameObjects.push_back(GameObject("trap_ground", glm::vec3(0.0f, -0.2f, 1.5f), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
+		gameObjects.push_back(GameObject("trap_ground", glm::vec3(0.0f, -1.0f, 1.5f), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
 		for (int a = 0; a < 99; a++) {
 
 			int randomNum1 = rand() % 100 + 1;
 			int randomNum2 = rand() % 100 + 1;
-			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, -0.2f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
+			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, -1.0f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
 
 		}
 
@@ -449,6 +650,7 @@ GLuint SceneManager::textToTexture(const char * str, GLuint textID) {
 	return texture;
 }
 
+//todo may deprecate
 void SceneManager::checkSwitchLevel()
 {
 	if (level == 2 && collectables == 0) {
@@ -457,7 +659,9 @@ void SceneManager::checkSwitchLevel()
 		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
-		saveScores(levelTime);
+		saveScores(levelTime, 2);
+		playerNameSet = false;
+		//todo change scene state here ?? maybe wait no - call method that 
 	}
 }
 
@@ -516,7 +720,7 @@ void SceneManager::renderObjects()
 		if (gameObjects[i].getTexture() != NULL && gameObjects[i].getMesh() != NULL)
 			renderObject(gameObjects[i]);
 	}
-	renderPlayer(); 
+	renderPlayer();
 	renderHUD();
 }
 
@@ -570,7 +774,7 @@ void SceneManager::togglePause() {
 }
 
 void SceneManager::renderHUDObject(MenuObject menuObj) {
-	
+
 	glUseProgram(textureProgram);//Use texture-only shader for text rendering
 
 	GLuint label = 0;
@@ -693,7 +897,7 @@ void SceneManager::renderPlayer()
 	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.05f, 0.05f, 0.05f));
 
 	//change r based on current r
-	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR()-90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR() - 90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -725,14 +929,14 @@ void SceneManager::detectCollectableCollision() {
 
 			//for (GameObject gObj : gameObjects) {
 				//if (gObj.getName().substr(0, 11) == "collectable" && gObj.getName().substr(11) == playerColl) {
-					std::cout << "player collided with collectable\n";
-					int index = getGameObjectIndex(player.getLastCollision());
-					player.setLastCollision("");
-					gameObjects.erase(gameObjects.begin() + index);
-					collectables--;
-					//break;
-				//}
-			//}
+			std::cout << "player collided with collectable\n";
+			int index = getGameObjectIndex(player.getLastCollision());
+			player.setLastCollision("");
+			gameObjects.erase(gameObjects.begin() + index);
+			collectables--;
+			//break;
+		//}
+	//}
 		}
 	}
 }
@@ -963,17 +1167,79 @@ void SceneManager::checkPlayerRespawn()
 		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
-		saveScores(levelTime);
+		saveScores(levelTime, 1);
 	}
 	else if (player.getPos().y < -10)
 		respawnPlayer();
 }
 
-void SceneManager::saveScores(double levelTime) {
-	std::ofstream highScores("highscores.txt", std::ios_base::app);
-	highScores << levelTime, /*input name function elsewhere and have the string passed here for use*/"\n";
-	highScores << /*scorevariable here*/ "\n";
+void SceneManager::saveScores(double levelTime, int level) {
+	//std::ofstream highScores1("highScores1.txt", std::ios_base::app);
+	//std::ofstream highScores2("highScores2.txt", std::ios_base::app);
+	//highScores << levelTime, /*input name function elsewhere and have the string passed here for use*/"\n";
+	//highScores << /*scorevariable here*/ "\n";
 
+	//todo change this so that it saves level time in temp score (add param to know whether to store
+	// as first or second)
+	// after level 2 is complete, save to file.
+	// read file and check if either score is in top five
+	// if so, let player choose 3 letters to save score
+	// to do this, add new scene state with accompanying menu
+	// todo figure out later
+
+	switch (level) {
+	case 1:
+		tempScore.first = levelTime;
+		break;
+	case 2:
+		tempScore.second = levelTime;
+		//highScores1 << tempScore.first << "\n";
+		//highScores2 << tempScore.second << "\n";
+
+		//highScores1.close();
+		//highScores2.close();
+
+		//call method to 
+		findHighScores();
+		break;
+	default:
+		break;
+	}
+
+	//todo not sure about below
+	//if(highScores1.is_open())
+		//highScores1.close();
+
+	//if (highScores2.is_open())
+		//highScores2.close();
+}
+
+void SceneManager::findHighScores() {
+	std::ofstream highScores1_STREAM("highScores1.txt");
+	std::ofstream highScores2_STREAM("highScores2.txt");
+
+	//if (highScores1.size() == 0 && highScores2.size() == 0) {
+		//loadScores();
+	//}
+
+	/*if (!highScores1) {
+		std::cerr << "highScores1 failed to load\n";
+	}
+
+	if (!highScores2) {
+		std::cerr << "highScores2 failed to load\n";
+	}*/
+
+	//add to temp vectors of scores
+	//sort them
+
+
+	//todo not sure about below
+	if (highScores1_STREAM.is_open())
+		highScores1_STREAM.close();
+
+	if (highScores2_STREAM.is_open())
+		highScores2_STREAM.close();
 }
 
 void SceneManager::freeBass()

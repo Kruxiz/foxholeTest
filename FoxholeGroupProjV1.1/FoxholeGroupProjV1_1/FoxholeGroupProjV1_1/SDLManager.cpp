@@ -79,6 +79,22 @@ void SDLManager::SDLRun(void)
 				spaceUp = true;
 			}
 
+			if (scene->inChooseName()) {
+				if (sdlEvent.key.keysym.sym == SDLK_RIGHT && sdlEvent.type == SDL_KEYUP) {
+					scene->changeActiveChar(true);
+				}
+				if (sdlEvent.key.keysym.sym == SDLK_LEFT && sdlEvent.type == SDL_KEYUP) {
+					scene->changeActiveChar(false);
+				}
+				if (sdlEvent.key.keysym.sym == SDLK_UP && sdlEvent.type == SDL_KEYUP) {
+					scene->changeCurrentChar(true);
+				}
+				if (sdlEvent.key.keysym.sym == SDLK_DOWN && sdlEvent.type == SDL_KEYUP) {
+					scene->changeCurrentChar(false);
+				}
+
+			}
+
 		}
 		SDLDraw();
 		SDLUpdate(sdlEvent, spaceUp);
@@ -173,7 +189,7 @@ void SDLManager::SDLDraw()
 	//call scene manager
 	scene->clearScreen();
 
-	if (scene->inMainMenu() || scene->inControls() || scene->inScores()) {
+	if (scene->inMainMenu() || scene->inControls() || scene->inScores() || scene->inChooseName()) {
 		glm::mat4 projection = scene->initRendering();
 
 		scene->setShaderProjection(projection);
@@ -223,6 +239,11 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent, bool spaceUp)
 		}
 	}
 	else if (scene->paused()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
+	}
+	else if (scene->inChooseName()) {
 		if (keys[SDL_SCANCODE_BACKSPACE]) {
 			scene->mainMenu();
 		}

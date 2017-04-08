@@ -6,6 +6,7 @@
 #include <stack>
 #include <unordered_map>
 #include <tuple>
+#include <sstream>
 #include <chrono>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -23,13 +24,20 @@
 //#include "Model.h"
 
 enum SceneState {
-	PAUSE, //todo possibly add 'countdown' state
+	PAUSE, 
 	IN_GAME,
 	MAIN_MENU,
 	SCORES,
 	CONTROLS,
-	COUNTDOWN
+	COUNTDOWN, 
+	CHOOSE_NAME
 };
+
+//enum ActivePlayerChar {
+//	FIRST,
+//	SECOND,
+//	THIRD
+//};
 
 typedef std::tuple<std::string, glm::vec3, glm::vec3> MenuObject;
 typedef std::vector<MenuObject> Menu;
@@ -63,6 +71,19 @@ private:
 	double pauseTime = 0;
 	std::chrono::time_point<std::chrono::system_clock> respawnTimer;
 	double levelTime = 0;
+
+	//could change to tuple to accomodate more levels
+	std::unordered_map<std::string, double> highScores1;
+	std::unordered_map<std::string, double> highScores2;
+
+	std::pair<double, double> tempScore;
+	std::string playerName;
+	bool playerNameSet = false;
+	char playerName1 = 'A';
+	char playerName2 = 'A';
+	char playerName3 = 'A';
+	int activeChar = 1;
+	//double tempScore;
 
 	GLuint textToTexture(const char * str, GLuint textID);
 
@@ -106,12 +127,14 @@ private:
 	void initSounds();
 	void renderHUDObject(MenuObject menuObj);
 	void addToScores();
-	void saveScores(double levelTime);
+	void saveScores(double levelTime, int level);
 	void playerFall(bool spaceUp);
 	void checkPlayerRespawn();
 	void detectCollectableCollision();
 	void checkSwitchLevel();
-
+	void findHighScores();
+	void loadScores();
+	void renderPlayerChars();
 public:
 	SceneManager();
 	void togglePause();
@@ -133,21 +156,24 @@ public:
 	void playerJump();
 	GameObject getGameObject(std::string objName);
 	int getGameObjectIndex(std::string objName);
-	void setPlayerJumpFalse();
 	void freeBass();
 	bool inGame() { return sceneState == IN_GAME; }
 	bool inMainMenu() { return sceneState == MAIN_MENU; }
 	bool inControls() { return sceneState == CONTROLS; }
 	bool inScores() { return sceneState == SCORES; }
 	bool paused() { return sceneState == PAUSE; }
+	bool inChooseName() { return sceneState == CHOOSE_NAME; }
 	bool inCountdown();
 	void play();
 	void mainMenu();
 	void controls() { sceneState = CONTROLS; }
-	void scores() { sceneState = SCORES; }
+	void scores();
 	void countdown() { sceneState = COUNTDOWN; }
+	void chooseName() { sceneState = CHOOSE_NAME; }
 	void renderMenus();
 	void playerUpdate(bool spaceUp);
+	void changeActiveChar(bool right);
+	void changeCurrentChar(bool up);
 };
 
 #endif
