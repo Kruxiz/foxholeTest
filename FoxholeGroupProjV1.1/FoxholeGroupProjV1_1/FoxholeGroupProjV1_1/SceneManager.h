@@ -8,6 +8,7 @@
 #include <tuple>
 #include <sstream>
 #include <chrono>
+#include <algorithm>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,12 +25,12 @@
 //#include "Model.h"
 
 enum SceneState {
-	PAUSE, 
+	PAUSE,
 	IN_GAME,
 	MAIN_MENU,
 	SCORES,
 	CONTROLS,
-	COUNTDOWN, 
+	COUNTDOWN,
 	CHOOSE_NAME
 };
 
@@ -73,8 +74,10 @@ private:
 	double levelTime = 0;
 
 	//could change to tuple to accomodate more levels
-	std::unordered_map<std::string, double> highScores1;
-	std::unordered_map<std::string, double> highScores2;
+	//std::unordered_map<std::string, double> highScores1;
+	//std::unordered_map<std::string, double> highScores2;
+	std::vector<std::pair<std::string, double>> highscores1;
+	std::vector<std::pair<std::string, double>> highscores2;
 
 	std::pair<double, double> tempScore;
 	std::string playerName;
@@ -83,6 +86,8 @@ private:
 	char playerName2 = 'A';
 	char playerName3 = 'A';
 	int activeChar = 1;
+	bool highscoreOnLevel1 = false;
+	bool highscoreOnLevel2 = false;
 	//double tempScore;
 
 	GLuint textToTexture(const char * str, GLuint textID);
@@ -131,10 +136,12 @@ private:
 	void playerFall(bool spaceUp);
 	void checkPlayerRespawn();
 	void detectCollectableCollision();
-	void checkSwitchLevel();
+	void checkEndLevel();
 	void findHighScores();
 	void loadScores();
 	void renderPlayerChars();
+	void writeScores();
+	void chooseName() { sceneState = CHOOSE_NAME; }
 public:
 	SceneManager();
 	void togglePause();
@@ -169,11 +176,11 @@ public:
 	void controls() { sceneState = CONTROLS; }
 	void scores();
 	void countdown() { sceneState = COUNTDOWN; }
-	void chooseName() { sceneState = CHOOSE_NAME; }
 	void renderMenus();
 	void playerUpdate(bool spaceUp);
 	void changeActiveChar(bool right);
 	void changeCurrentChar(bool up);
+	void chooseNameAndPlay();
 };
 
 #endif

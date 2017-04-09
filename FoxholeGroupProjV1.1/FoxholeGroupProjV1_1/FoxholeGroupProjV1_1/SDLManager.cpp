@@ -97,7 +97,7 @@ void SDLManager::SDLRun(void)
 
 		}
 		SDLDraw();
-		SDLUpdate(sdlEvent, spaceUp);
+		SDLUpdate(spaceUp);
 	}
 
 }
@@ -213,7 +213,7 @@ void SDLManager::SDLDraw()
 	SDL_GL_SwapWindow(window); // swap buffers
 }
 
-void SDLManager::SDLUpdate(SDL_Event sdlEvent, bool spaceUp)
+void SDLManager::SDLUpdate(bool spaceUp)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -246,6 +246,9 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent, bool spaceUp)
 	else if (scene->inChooseName()) {
 		if (keys[SDL_SCANCODE_BACKSPACE]) {
 			scene->mainMenu();
+		}
+		if (keys[SDL_SCANCODE_SPACE]) {
+			scene->chooseNameAndPlay();
 		}
 	}
 	else if (scene->inGame()) {

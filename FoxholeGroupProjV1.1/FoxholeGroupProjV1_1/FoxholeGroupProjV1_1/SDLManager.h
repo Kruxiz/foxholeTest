@@ -15,7 +15,7 @@ private:
 	SDL_GLContext context;
 	SceneManager * scene;
 	void SDLDraw();
-	void SDLUpdate(SDL_Event sdlEvent, bool spaceUp);
+	void SDLUpdate(bool spaceUp);
 public:
 	SDLManager();
 	void SDLInit(void);

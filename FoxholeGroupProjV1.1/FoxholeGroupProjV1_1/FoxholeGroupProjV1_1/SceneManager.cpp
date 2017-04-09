@@ -49,9 +49,11 @@ SceneManager::SceneManager() {
 
 
 	auto scoresDisplay = std::make_tuple("Scores", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto level1Display = std::make_tuple("Level 1", glm::vec3(-0.6f, 0.6f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
+	auto level2Display = std::make_tuple("Level 2", glm::vec3(0.6f, 0.6f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
 	auto mainMenuOption = std::make_tuple("Main menu[Backspace]", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
 
-	Menu scores({ scoresDisplay, mainMenuOption });
+	Menu scores({ scoresDisplay, level1Display, level2Display, mainMenuOption });
 
 	menus.insert({ "scores", scores });
 
@@ -79,7 +81,7 @@ SceneManager::SceneManager() {
 
 	auto chooseNameDisplay = std::make_tuple("Choose name", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
 	auto chooseNameControls1 = std::make_tuple("Use arrows keys to", glm::vec3(-0.5f, 0.6f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f));
-	auto chooseNameControls2 = std::make_tuple("choose name and then play", glm::vec3(-0.45f, 0.3f, 0.0f), glm::vec3(0.55f, 0.2f, 0.0f));
+	auto chooseNameControls2 = std::make_tuple("choose name and then press space to play", glm::vec3(-0.25f, 0.3f, 0.0f), glm::vec3(0.75f, 0.2f, 0.0f));
 	//auto upArrows = std::make_tuple("/\    /\     /\ ", glm::vec3(-0.5f, 0.6f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
 	//auto downArrows = std::make_tuple("\\/    \\/    \\/", glm::vec3(-0.5f, 0.3f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
 	////todo add more
@@ -148,21 +150,23 @@ void SceneManager::mainMenu()
 		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE);
 		BASS_ChannelPause(ch);
 	}*/
-
+	BASS_Pause();
+	highscoreOnLevel1 = false;
+	highscoreOnLevel2 = false;
 	sceneState = MAIN_MENU;
-	if (highScores1.size() == 0 && highScores2.size() == 0)
-		loadScores();
+	/*if (highscores1.size() == 0 && highscores2.size() == 0)
+		loadScores();*/
 
 }
 
 void SceneManager::scores()
 {
-	//if (highScores1.size() == 0 && highScores2.size() == 0) {
+	//if (highscores1.size() == 0 && highscores2.size() == 0)
 		//loadScores();
 	//}
 	//else {
 
-	addToScores();
+	//addToScores();
 	//}
 	sceneState = SCORES;
 
@@ -177,40 +181,53 @@ void SceneManager::loadScores() {
 	if (highScores1_STREAM && highScores2_STREAM) {
 		std::string username;
 		std::string userTimeStr;
+		//std::string blank;
+		std::string hash;
 		double userTime;
 		std::stringstream ss;
-		//bool 
+		bool continueReading = true;
 		//char name1, name2, name3;
-		while (!highScores1_STREAM.eof()) {
-			std::getline(highScores1_STREAM, username, ';');
+		while (continueReading) {
+			std::getline(highScores1_STREAM, username, ':');
 
-			std::getline(highScores1_STREAM, userTimeStr);
+			std::getline(highScores1_STREAM, userTimeStr, ';');
 			ss.str(userTimeStr);
 			ss >> userTime;
 
-			highScores1.insert({ username, userTime });
+			highscores1.push_back(std::make_pair(username, userTime));
 
 			ss.str("");
 			ss.clear();
+			//std::getline(highScores1_STREAM, blank);
+			std::getline(highScores1_STREAM, hash, ';');
+			if (hash != "#")
+				continueReading = false;
 		}
 		//ss >> name1 >> name2 >> name3;
+		continueReading = true;
+		while (continueReading) {
+			std::getline(highScores2_STREAM, username, ':');
 
-		while (!highScores2_STREAM.eof()) {
-			std::getline(highScores2_STREAM, username, ';');
-
-			std::getline(highScores2_STREAM, userTimeStr);
+			std::getline(highScores2_STREAM, userTimeStr, ';');
 			ss.str(userTimeStr);
 			ss >> userTime;
 
-			highScores2.insert({ username, userTime });
+			highscores2.push_back(std::make_pair(username, userTime));
 
 			ss.str("");
 			ss.clear();
+			//std::getline(highScores2_STREAM, blank);
+			std::getline(highScores2_STREAM, hash, ';');
+			if (hash != "#")
+				continueReading = false;
 		}
 		//ss >> name1 >> name2 >> name3;
+
+		highScores1_STREAM.close();
+		highScores2_STREAM.close();
 	}
 
-	if (highScores1.size() != highScores2.size()) {
+	if (highscores1.size() != highscores2.size()) {
 		std::cerr << "SOMETHING WRONG YO! highscores1 and 2 have different no of scores\n";
 	}
 }
@@ -240,7 +257,7 @@ void SceneManager::renderMenus() {
 		for (auto menuObj : menu) {
 			renderHUDObject(menuObj);
 		}
-
+		addToScores();
 		break;
 	case CONTROLS:
 		menu = menus.at("controls");
@@ -251,7 +268,6 @@ void SceneManager::renderMenus() {
 
 		break;
 	case CHOOSE_NAME:
-		//todo WHAT HERE
 		menu = menus.at("chooseName");
 
 		for (auto menuObj : menu) {
@@ -305,10 +321,18 @@ void SceneManager::renderPlayerChars()
 
 void SceneManager::playerUpdate(bool spaceUp)
 {
-	playerFall(spaceUp);
 	checkPlayerRespawn();
+	playerFall(spaceUp);
 	detectCollectableCollision();
-	checkSwitchLevel();
+	checkEndLevel();
+}
+
+void SceneManager::chooseNameAndPlay() {
+	playerName += playerName1;
+	playerName += playerName2;
+	playerName += playerName3;
+	playerNameSet = true;
+	play();
 }
 
 void SceneManager::changeActiveChar(bool right)
@@ -321,11 +345,10 @@ void SceneManager::changeActiveChar(bool right)
 			activeChar--;
 	}
 	if (activeChar > 3) {
-		playerName += playerName1;
-		playerName += playerName2;
-		playerName += playerName3;
-		playerNameSet = true;
-		play();
+		activeChar = 1;
+	}
+	else if (activeChar < 1) {
+		activeChar = 3;
 	}
 
 }
@@ -386,11 +409,48 @@ void SceneManager::changeCurrentChar(bool up)
 //this method gets top five scores and displays
 void SceneManager::addToScores() {
 	//todo addToScores - only top 5?
-	glm::vec3 pos(0.6f, 0.5f, 0.0f);
-	glm::vec3 scale(0.2f, 0.2f, 0.0f);
-	float step = 0.1f;
+	glm::vec3 pos(-0.6f, 0.3f, 0.0f);
+	glm::vec3 scale(0.2f, 0.1f, 0.0f);
+	float step = 0.15f;
+	std::string scoreStr;
+	int scoreCounter = 0;
 
-	//auto score 
+	if (highscoreOnLevel1)
+		renderHUDObject(std::make_tuple("HIGH SCORE", glm::vec3(-0.6f, -0.6f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+
+	if (highscoreOnLevel2)
+		renderHUDObject(std::make_tuple("HIGH SCORE", glm::vec3(0.6f, -0.6f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+
+	for (auto score : highscores1) {
+		scoreStr.append(std::to_string(++scoreCounter));
+		scoreStr.append(". " + score.first + "  ");
+		scoreStr.append(std::to_string(score.second));
+		scoreStr.append("s");
+		auto scoreRender = std::make_tuple(scoreStr, pos, scale);
+		//renderHUDObject(nameRender);
+		//pos.x -= 0.2f;
+		//auto scoreRender = std::make_tuple(std::to_string(score.second), pos, scale);
+		renderHUDObject(scoreRender);
+		pos.y -= step;
+		//pos.x += 0.2f;
+		scoreStr.clear();
+	}
+	pos = { 0.6f, 0.3f, 0.0f };
+	scoreCounter = 0;
+	for (auto score : highscores2) {
+		scoreStr.append(std::to_string(++scoreCounter));
+		scoreStr.append(". " + score.first + "  ");
+		scoreStr.append(std::to_string(score.second));
+		scoreStr.append("s");
+		auto scoreRender = std::make_tuple(scoreStr, pos, scale);
+		//renderHUDObject(nameRender);
+		//pos.x -= 0.2f;
+		//auto scoreRender = std::make_tuple(std::to_string(score.second), pos, scale);
+		renderHUDObject(scoreRender);
+		pos.y -= step;
+		//pos.x += 0.2f;
+		scoreStr.clear();
+	}
 }
 
 void SceneManager::renderSkybox(glm::mat4 projection)
@@ -558,6 +618,8 @@ void SceneManager::init()
 	initGameObjects();
 	initPlayer();
 
+	loadScores();
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -651,16 +713,22 @@ GLuint SceneManager::textToTexture(const char * str, GLuint textID) {
 }
 
 //todo may deprecate
-void SceneManager::checkSwitchLevel()
+void SceneManager::checkEndLevel()
 {
 	if (level == 2 && collectables == 0) {
-		level = 1;
-		timer = std::chrono::system_clock::now();
-		pauseTimer = timer;
-		initGameObjects();
-		respawnPlayer();
+		//level = 1;
+		//timer = std::chrono::system_clock::now();
+		//pauseTimer = timer;
+		//initGameObjects();
+		//respawnPlayer();
 		saveScores(levelTime, 2);
 		playerNameSet = false;
+		playerName = "";
+		activeChar = 1;
+		if (highscoreOnLevel1 || highscoreOnLevel2)
+			scores();
+		else 
+			mainMenu();
 		//todo change scene state here ?? maybe wait no - call method that 
 	}
 }
@@ -1201,6 +1269,7 @@ void SceneManager::saveScores(double levelTime, int level) {
 
 		//call method to 
 		findHighScores();
+		writeScores();
 		break;
 	default:
 		break;
@@ -1214,9 +1283,40 @@ void SceneManager::saveScores(double levelTime, int level) {
 		//highScores2.close();
 }
 
-void SceneManager::findHighScores() {
+void SceneManager::writeScores() {
 	std::ofstream highScores1_STREAM("highScores1.txt");
 	std::ofstream highScores2_STREAM("highScores2.txt");
+
+
+	//highScores1_STREAM << 
+
+	for (int i = 0; i < highscores1.size(); i++) {
+		highScores1_STREAM << highscores1[i].first << ':' << highscores1[i].second;
+		highScores1_STREAM << ';';
+		if (i != highscores1.size() - 1) {
+			highScores1_STREAM << "#;";
+		}
+	}
+
+	for (int i = 0; i < highscores2.size(); i++) {
+		highScores2_STREAM << highscores2[i].first << ':' << highscores2[i].second;
+		highScores2_STREAM << ';';
+		if (i != highscores2.size() - 1) {
+			highScores2_STREAM << "#;";
+		}
+	}
+
+	//todo not sure about below
+	if (highScores1_STREAM.is_open())
+		highScores1_STREAM.close();
+
+	if (highScores2_STREAM.is_open())
+		highScores2_STREAM.close();
+}
+
+void SceneManager::findHighScores() {
+	//std::ofstream highScores1_STREAM("highScores1.txt", std::ios_base::app);
+	//std::ofstream highScores2_STREAM("highScores2.txt", std::ios_base::app);
 
 	//if (highScores1.size() == 0 && highScores2.size() == 0) {
 		//loadScores();
@@ -1235,11 +1335,47 @@ void SceneManager::findHighScores() {
 
 
 	//todo not sure about below
-	if (highScores1_STREAM.is_open())
-		highScores1_STREAM.close();
+	//if (highScores1_STREAM.is_open())
+		//highScores1_STREAM.close();
 
-	if (highScores2_STREAM.is_open())
-		highScores2_STREAM.close();
+	//if (highScores2_STREAM.is_open())
+		//highScores2_STREAM.close();
+
+	//
+
+	highscores1.push_back(std::make_pair(playerName, tempScore.first));
+	highscores2.push_back(std::make_pair(playerName, tempScore.second));
+
+	std::sort(highscores1.begin(), highscores1.end(), [](const std::pair<std::string, double> &left, const std::pair<std::string, double> &right) {
+		return left.second < right.second;
+	});
+
+	std::sort(highscores2.begin(), highscores2.end(), [](const std::pair<std::string, double> &left, const std::pair<std::string, double> &right) {
+		return left.second < right.second;
+	});
+
+	if (highscores1.size() > 5) {
+		highscores1.erase(highscores1.begin() + 5, highscores1.end());
+	}
+	if (highscores2.size() > 5) {
+		highscores2.erase(highscores2.begin() + 5, highscores2.end());
+	}
+
+	for (int i = 0; i < highscores1.size(); i++) {
+		if (playerName == highscores1[i].first && tempScore.first == highscores1[i].second) {
+			highscoreOnLevel1 = true;
+			break;
+		}
+	}
+
+	for (int i = 0; i < highscores2.size(); i++) {
+		if (playerName == highscores2[i].first && tempScore.second == highscores2[i].second) {
+			highscoreOnLevel2 = true;
+			break;
+		}
+	}
+
+	//todo clear tempscore
 }
 
 void SceneManager::freeBass()
