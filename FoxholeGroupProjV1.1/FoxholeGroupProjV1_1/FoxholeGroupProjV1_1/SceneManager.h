@@ -174,7 +174,7 @@ public:
 	void play();
 	void mainMenu();
 	void controls() { sceneState = CONTROLS; }
-	void scores();
+	void scores() { sceneState = SCORES; }
 	void countdown() { sceneState = COUNTDOWN; }
 	void renderMenus();
 	void playerUpdate(bool spaceUp);

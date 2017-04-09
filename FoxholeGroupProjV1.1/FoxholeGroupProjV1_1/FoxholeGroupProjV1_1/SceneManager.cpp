@@ -156,19 +156,6 @@ void SceneManager::mainMenu()
 
 }
 
-void SceneManager::scores()
-{
-	//if (highscores1.size() == 0 && highscores2.size() == 0)
-		//loadScores();
-	//}
-	//else {
-
-	//addToScores();
-	//}
-	sceneState = SCORES;
-
-}
-
 void SceneManager::loadScores() {
 	//todo syntax = 3 chars then ; then double level time
 	std::ifstream highScores1_STREAM("highScores1.txt");
@@ -632,6 +619,12 @@ void SceneManager::initGameObjects() {
 		//level 1
 
 		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 20.0f, 5.0f), NULL, NULL));
+
+		gameObjects.push_back(GameObject("InvisibleWallRight", glm::vec3(16.0f, 0.0f, -80.0f), glm::vec3(1.0f, 20.0f, 100.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("InvisibleWallLeft", glm::vec3(-26.0f, 0.0f, -80.0f), glm::vec3(1.0f, 20.0f, 100.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("InvisibleWallBack", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(30.0f, 20.0f, 1.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("InvisibleWallFront", glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(30.0f, 20.0f, 0.5f), NULL, NULL));
+
 		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(200.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
 		gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(20.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
