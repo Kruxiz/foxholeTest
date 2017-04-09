@@ -157,7 +157,7 @@
     <ClCompile Include="rt3d.cpp" />
     <ClCompile Include="rt3dObjLoader.cpp" />
     <ClCompile Include="SceneManager.cpp" />
-    <ClCompile Include="SDLManager.cpp" />
+    <ClCompile Include="GameManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="anorms.h" />
@@ -170,7 +170,7 @@
     <ClInclude Include="rt3d.h" />
     <ClInclude Include="rt3dObjLoader.h" />
     <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="SDLManager.h" />
+    <ClInclude Include="GameManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="classDiagram_b4_remodel.cd" />

@@ -1,12 +1,12 @@
 
-#include "SDLManager.h"
+#include "GameManager.h"
 
-SDLManager::SDLManager() {
+GameManager::GameManager() {
 	window = nullptr;
 	context = 0;
 };
 
-void SDLManager::SDLInit()
+void GameManager::GameInit()
 {
 	//SDL_Window * window;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) // Initialize video
@@ -40,7 +40,7 @@ void SDLManager::SDLInit()
 	scene->init();
 }
 
-void SDLManager::SDLEnd(void)
+void GameManager::GameEnd(void)
 {
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
@@ -49,7 +49,7 @@ void SDLManager::SDLEnd(void)
 	SDL_Quit();
 }
 
-void SDLManager::SDLRun(void)
+void GameManager::GameRun(void)
 {
 	bool running = true; // set running to true
 	SDL_Event sdlEvent;  // variable to detect SDL events
@@ -96,14 +96,14 @@ void SDLManager::SDLRun(void)
 			}
 
 		}
-		SDLDraw();
-		SDLUpdate(spaceUp);
+		GameDraw();
+		GameUpdate(spaceUp);
 	}
 
 }
 
 //todo move into scenemanager???
-GLuint SDLManager::loadCubeMap(const char * fname[6], GLuint * texID)
+GLuint GameManager::loadCubeMap(const char * fname[6], GLuint * texID)
 {
 	glGenTextures(1, texID); // generate texture ID
 	GLenum sides[6] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
@@ -144,7 +144,7 @@ GLuint SDLManager::loadCubeMap(const char * fname[6], GLuint * texID)
 	return *texID;	// return value of texure ID, redundant really
 }
 
-GLuint SDLManager::loadBitmap(char * fname)
+GLuint GameManager::loadBitmap(char * fname)
 {
 	GLuint texID;
 	glGenTextures(1, &texID); // generate texture ID
@@ -184,7 +184,7 @@ GLuint SDLManager::loadBitmap(char * fname)
 }
 
 //todo refactor in some fashion
-void SDLManager::SDLDraw()
+void GameManager::GameDraw()
 {
 	//call scene manager
 	scene->clearScreen();
@@ -213,7 +213,7 @@ void SDLManager::SDLDraw()
 	SDL_GL_SwapWindow(window); // swap buffers
 }
 
-void SDLManager::SDLUpdate(bool spaceUp)
+void GameManager::GameUpdate(bool spaceUp)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 

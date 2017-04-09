@@ -9,18 +9,18 @@
 
 class SceneManager;
 
-class SDLManager {
+class GameManager {
 private:
 	SDL_Window * window;
 	SDL_GLContext context;
 	SceneManager * scene;
-	void SDLDraw();
-	void SDLUpdate(bool spaceUp);
+	void GameDraw();
+	void GameUpdate(bool spaceUp);
 public:
-	SDLManager();
-	void SDLInit(void);
-	void SDLEnd(void);
-	void SDLRun(void);
+	GameManager();
+	void GameInit(void);
+	void GameEnd(void);
+	void GameRun(void);
 	static GLuint loadCubeMap(const char * fname[6], GLuint * texID);
 	static GLuint loadBitmap(char * fname);
 	//static Uint8 

@@ -15,7 +15,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "rt3d.h"
 #include "rt3dObjLoader.h"
-#include "SDLManager.h"
+#include "GameManager.h"
 #include "Player.h"
 #include "CollisionDetector.h"
 #include <random>

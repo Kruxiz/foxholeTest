@@ -82,9 +82,6 @@ SceneManager::SceneManager() {
 	auto chooseNameDisplay = std::make_tuple("Choose name", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
 	auto chooseNameControls1 = std::make_tuple("Use arrows keys to", glm::vec3(-0.5f, 0.6f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f));
 	auto chooseNameControls2 = std::make_tuple("choose name and then press space to play", glm::vec3(-0.25f, 0.3f, 0.0f), glm::vec3(0.75f, 0.2f, 0.0f));
-	//auto upArrows = std::make_tuple("/\    /\     /\ ", glm::vec3(-0.5f, 0.6f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
-	//auto downArrows = std::make_tuple("\\/    \\/    \\/", glm::vec3(-0.5f, 0.3f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
-	////todo add more
 
 	Menu chooseName({ chooseNameDisplay, chooseNameControls1, chooseNameControls2, mainMenuOption });
 
@@ -552,11 +549,11 @@ void SceneManager::init()
 		"Brudslojan/posz.bmp", "Brudslojan/negz.bmp", "Brudslojan/posx.bmp", "Brudslojan/negx.bmp", "Brudslojan/posy.bmp", "Brudslojan/posy.bmp"
 	};
 
-	SDLManager::loadCubeMap(cubeTexFiles, skybox);
+	GameManager::loadCubeMap(cubeTexFiles, skybox);
 	const char *cubeTexFiles2[6] = {
 		"Town-skybox/Town_bk.bmp", "Town-skybox/Town_ft.bmp", "Town-skybox/Town_rt.bmp", "Town-skybox/Town_lf.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_dn.bmp"
 	};
-	SDLManager::loadCubeMap(cubeTexFiles2, skybox2);
+	GameManager::loadCubeMap(cubeTexFiles2, skybox2);
 
 	std::vector<GLfloat> verts;
 	std::vector<GLfloat> norms;
@@ -605,14 +602,14 @@ void SceneManager::init()
 	//then meshIndexCount = indices.size();
 	//then meshObjects.push_back(rt3d::createMesh(verts.size() / 3, verts.data(), nullptr, norms.data(), tex_coords.data(), meshIndexCount, indices.data()));
 
-	textures.push_back(SDLManager::loadBitmap("fabric.bmp"));
-	textures.push_back(SDLManager::loadBitmap("water.bmp"));
-	textures.push_back(SDLManager::loadBitmap("box.bmp"));
-	textures.push_back(SDLManager::loadBitmap("twigs.bmp"));
-	textures.push_back(SDLManager::loadBitmap("Town-skybox/grass1.bmp"));
-	textures.push_back(SDLManager::loadBitmap("orange-fox.bmp"));
-	textures.push_back(SDLManager::loadBitmap("tree.bmp"));
-	textures.push_back(SDLManager::loadBitmap("starfox.bmp"));
+	textures.push_back(GameManager::loadBitmap("fabric.bmp"));
+	textures.push_back(GameManager::loadBitmap("water.bmp"));
+	textures.push_back(GameManager::loadBitmap("box.bmp"));
+	textures.push_back(GameManager::loadBitmap("twigs.bmp"));
+	textures.push_back(GameManager::loadBitmap("Town-skybox/grass1.bmp"));
+	textures.push_back(GameManager::loadBitmap("orange-fox.bmp"));
+	textures.push_back(GameManager::loadBitmap("tree.bmp"));
+	textures.push_back(GameManager::loadBitmap("starfox.bmp"));
 	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
@@ -727,7 +724,7 @@ void SceneManager::checkEndLevel()
 		activeChar = 1;
 		if (highscoreOnLevel1 || highscoreOnLevel2)
 			scores();
-		else 
+		else
 			mainMenu();
 		//todo change scene state here ?? maybe wait no - call method that 
 	}
@@ -1307,11 +1304,11 @@ void SceneManager::writeScores() {
 	}
 
 	//todo not sure about below
-	if (highScores1_STREAM.is_open())
-		highScores1_STREAM.close();
+	//if (highScores1_STREAM.is_open())
+	highScores1_STREAM.close();
 
-	if (highScores2_STREAM.is_open())
-		highScores2_STREAM.close();
+	//if (highScores2_STREAM.is_open())
+	highScores2_STREAM.close();
 }
 
 void SceneManager::findHighScores() {
