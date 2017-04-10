@@ -8,7 +8,7 @@ SceneManager::SceneManager() {
 	eye = glm::vec3(0.0f, 1.0f, 0.0f);
 	at = glm::vec3(0.0f, 1.0f, -1.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
-	skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
+	skyboxProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/cubeMap.vert", "../FoxholeGroupProjV1_1/cubeMap.frag");
 
 	//lights - initialise first light - can possibly be read in from file using rt3d::load file
 	lights.push_back({
@@ -100,6 +100,7 @@ void SceneManager::play()
 			pauseTimer = timer;
 
 			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
+			BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
 			if (!BASS_ChannelPlay(ch, TRUE))
 				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 
@@ -109,6 +110,7 @@ void SceneManager::play()
 		}
 		else {
 			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
+			BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
 			if (!BASS_ChannelPlay(ch, TRUE))
 				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 
@@ -158,8 +160,8 @@ void SceneManager::mainMenu()
 
 void SceneManager::loadScores() {
 	//todo syntax = 3 chars then ; then double level time
-	std::ifstream highScores1_STREAM("highScores1.txt");
-	std::ifstream highScores2_STREAM("highScores2.txt");
+	std::ifstream highScores1_STREAM("../FoxholeGroupProjV1_1/highScores1.txt");
+	std::ifstream highScores2_STREAM("../FoxholeGroupProjV1_1/highScores2.txt");
 
 	//todo add error checking
 	if (highScores1_STREAM && highScores2_STREAM) {
@@ -325,8 +327,7 @@ void SceneManager::changeActiveChar(bool right)
 		activeChar++;
 	}
 	else {
-		if (activeChar > 1)
-			activeChar--;
+		activeChar--;
 	}
 	if (activeChar > 3) {
 		activeChar = 1;
@@ -512,7 +513,7 @@ void SceneManager::initTTF() {
 	if (TTF_Init() == -1)
 		std::cout << "TTF failed to initialise." << std::endl;
 
-	textFont = TTF_OpenFont("MavenPro-Regular.ttf", 24);
+	textFont = TTF_OpenFont("../FoxholeGroupProjV1_1/MavenPro-Regular.ttf", 24);
 	if (textFont == NULL)
 		std::cout << "Failed to open font." << std::endl;
 }
@@ -524,8 +525,8 @@ void SceneManager::init()
 
 	initSounds(); //todo play menu music - play forest sounds when playing game
 
-	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
-	textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
+	shaderProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/phong-tex.vert", "../FoxholeGroupProjV1_1/phong-tex.frag");
+	textureProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/textured.vert", "../FoxholeGroupProjV1_1/textured.frag");
 
 	//rt3d::setLight(shaderProgram, lights[0]);
 	//rt3d::setMaterial(shaderProgram, materials[0]);
@@ -533,12 +534,16 @@ void SceneManager::init()
 	//loading skybox
 	//https://opengameart.org/content/forest-skyboxes
 	const char *cubeTexFiles[6] = {
-		"Brudslojan/posz.bmp", "Brudslojan/negz.bmp", "Brudslojan/posx.bmp", "Brudslojan/negx.bmp", "Brudslojan/posy.bmp", "Brudslojan/posy.bmp"
+		"../FoxholeGroupProjV1_1/Brudslojan/posz.bmp", "../FoxholeGroupProjV1_1/Brudslojan/negz.bmp",
+		"../FoxholeGroupProjV1_1/Brudslojan/posx.bmp", "../FoxholeGroupProjV1_1/Brudslojan/negx.bmp", 
+		"../FoxholeGroupProjV1_1/Brudslojan/posy.bmp", "../FoxholeGroupProjV1_1/Brudslojan/posy.bmp"
 	};
 
 	GameManager::loadCubeMap(cubeTexFiles, skybox);
 	const char *cubeTexFiles2[6] = {
-		"Town-skybox/Town_bk.bmp", "Town-skybox/Town_ft.bmp", "Town-skybox/Town_rt.bmp", "Town-skybox/Town_lf.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_dn.bmp"
+		"../FoxholeGroupProjV1_1/Town-skybox/Town_bk.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_ft.bmp", 
+		"../FoxholeGroupProjV1_1/Town-skybox/Town_rt.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_lf.bmp",
+		"../FoxholeGroupProjV1_1/Town-skybox/Town_up.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_dn.bmp"
 	};
 	GameManager::loadCubeMap(cubeTexFiles2, skybox2);
 
@@ -546,7 +551,7 @@ void SceneManager::init()
 	std::vector<GLfloat> norms;
 	std::vector<GLfloat> tex_coords;
 	std::vector<GLuint> indices;
-	rt3d::loadObj("cube.obj", verts, norms, tex_coords, indices);
+	rt3d::loadObj("../FoxholeGroupProjV1_1/cube.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 
 	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
@@ -559,7 +564,7 @@ void SceneManager::init()
 	tex_coords.clear();
 	indices.clear();
 
-	rt3d::loadObj("fox.obj", verts, norms, tex_coords, indices);
+	rt3d::loadObj("../FoxholeGroupProjV1_1/fox.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 	//player.setMeshIndexCount(indices.size());
 
@@ -573,7 +578,7 @@ void SceneManager::init()
 	tex_coords.clear();
 	indices.clear();
 
-	rt3d::loadObj("CartoonTree.obj", verts, norms, tex_coords, indices);
+	rt3d::loadObj("../FoxholeGroupProjV1_1/CartoonTree.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 
 	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
@@ -582,21 +587,21 @@ void SceneManager::init()
 		indices.data()));
 
 	//md2model tmpmodel;
-	meshObjects.push_back(foxModel.ReadMD2Model("starfox.md2"));
+	meshObjects.push_back(foxModel.ReadMD2Model("../FoxholeGroupProjV1_1/starfox.md2"));
 	player.setMeshIndexCount(foxModel.getVertDataCount());
 
 	//add more meshes with rt3d::loadObj("*.obj", verts, norms, tex_coords, indices); where * is the obj name
 	//then meshIndexCount = indices.size();
 	//then meshObjects.push_back(rt3d::createMesh(verts.size() / 3, verts.data(), nullptr, norms.data(), tex_coords.data(), meshIndexCount, indices.data()));
 
-	textures.push_back(GameManager::loadBitmap("fabric.bmp"));
-	textures.push_back(GameManager::loadBitmap("water.bmp"));
-	textures.push_back(GameManager::loadBitmap("box.bmp"));
-	textures.push_back(GameManager::loadBitmap("twigs.bmp"));
-	textures.push_back(GameManager::loadBitmap("Town-skybox/grass1.bmp"));
-	textures.push_back(GameManager::loadBitmap("orange-fox.bmp"));
-	textures.push_back(GameManager::loadBitmap("tree.bmp"));
-	textures.push_back(GameManager::loadBitmap("starfox.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/fabric.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/water.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/box.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/twigs.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/Town-skybox/grass1.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/orange-fox.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/tree.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/starfox.bmp"));
 	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
@@ -1027,10 +1032,10 @@ void SceneManager::initSounds()
 	if (!BASS_Init(-1, 44100, 0, 0, NULL))
 		std::cout << "Can't initialize device";
 
-	sounds.push_back(loadSounds("forest-environment.wav"));
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/forest-environment.wav"));
 	//http://soundbible.com/1818-Rainforest-Ambience.html
 
-	sounds.push_back(loadSounds("splash.wav"));
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/splash.wav"));
 	//http://soundbible.com/2100-Splash-Rock-In-Lake.html
 
 	HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
@@ -1274,8 +1279,8 @@ void SceneManager::saveScores(double levelTime, int level) {
 }
 
 void SceneManager::writeScores() {
-	std::ofstream highScores1_STREAM("highScores1.txt");
-	std::ofstream highScores2_STREAM("highScores2.txt");
+	std::ofstream highScores1_STREAM("../FoxholeGroupProjV1_1/highScores1.txt");
+	std::ofstream highScores2_STREAM("../FoxholeGroupProjV1_1/highScores2.txt");
 
 
 	//highScores1_STREAM << 
