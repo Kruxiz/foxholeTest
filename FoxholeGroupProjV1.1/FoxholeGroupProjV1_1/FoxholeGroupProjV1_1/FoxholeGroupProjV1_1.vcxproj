@@ -89,13 +89,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\dev\SDL2 plugins\include;C:\dev\Simple OpenGL Image Library\src;C:\dev\assimp-3.3.1\include;C:\dev\ASSIMP\include;C:\dev\glew-2.0.0\include;C:\dev\glm-0.9.8.0\glm;C:\dev\glew-1.10.0\include;C:\dev\SDL2-2.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\SDL2 plugins\include;C:\dev\glew-2.0.0\include;C:\dev\glm-0.9.8.0\glm;C:\dev\glew-1.10.0\include;C:\dev\SDL2-2.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\dev\SDL2 plugins\lib\x86;C:\dev\Simple OpenGL Image Library\lib;C:\dev\ASSIMP\lib\x86;C:\dev\glm-0.9.8.0;C:\dev\glew-1.10.0\lib\Release\Win32;C:\dev\glew-1.13.0\lib\Release\Win32;C:\dev\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>bass.lib;SDL2_ttf.lib;assimp.lib;SOIL.lib;SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\dev\SDL2 plugins\lib\x86;C:\dev\glm-0.9.8.0;C:\dev\glew-1.10.0\lib\Release\Win32;C:\dev\glew-1.13.0\lib\Release\Win32;C:\dev\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>bass.lib;SDL2_ttf.lib;SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -173,7 +173,6 @@
     <ClInclude Include="GameManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="classDiagram_b4_remodel.cd" />
     <None Include="cubeMap.frag" />
     <None Include="cubeMap.vert" />
     <None Include="minimal.frag" />

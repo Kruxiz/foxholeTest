@@ -109,7 +109,6 @@
     <None Include="modelLoading.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="classDiagram_b4_remodel.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="tree.bmp">

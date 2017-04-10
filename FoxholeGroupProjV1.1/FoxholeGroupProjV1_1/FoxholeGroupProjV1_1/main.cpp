@@ -2,8 +2,9 @@
 
 #include "GameManager.h"
 
-// Program entry point - SDL manages the actual WinMain entry point for us
 int main(int argc, char *argv[]) {
+
+	//ShowWindow(GetConsoleWindow(), SW_HIDE);
 
 	GameManager manager;
 	manager.GameInit();
