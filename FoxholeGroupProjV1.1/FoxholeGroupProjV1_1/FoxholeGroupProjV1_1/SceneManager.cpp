@@ -488,7 +488,7 @@ void SceneManager::clearScreen()
 glm::mat4 SceneManager::initRendering()
 {
 	glm::mat4 projection(1.0);
-	projection = glm::perspective(float(60.0f*DEG_TO_RADIAN), 800.0f / 600.0f, 1.0f, 150.0f);
+	projection = glm::perspective(float(60.0f*DEG_TO_RADIAN), 800.0f / 600.0f, 1.0f, 300.0f);
 
 	//GLfloat scale(1.0f); // just to allow easy scaling of complete scene
 
@@ -595,11 +595,23 @@ void SceneManager::init()
 	meshObjects.push_back(foxModel.ReadMD2Model("../FoxholeGroupProjV1_1/starfox.md2"));
 	player.setMeshIndexCount(foxModel.getVertDataCount());
 
-
 	verts.clear();
 	norms.clear();
 	tex_coords.clear();
 	indices.clear();
+
+	/*rt3d::loadObj("../FoxholeGroupProjV1_1/car2.obj", verts, norms, tex_coords, indices);
+	meshIndexCount = indices.size();
+
+	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
+		verts.data(), nullptr, norms.data(),
+		tex_coords.data(), meshIndexCount,
+		indices.data()));
+
+	verts.clear();
+	norms.clear();
+	tex_coords.clear();
+	indices.clear(); */
 
 	rt3d::loadObj("../FoxholeGroupProjV1_1/fence.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
@@ -612,7 +624,9 @@ void SceneManager::init()
 	verts.clear();
 	norms.clear();
 	tex_coords.clear();
-	indices.clear();
+	indices.clear(); 
+
+	
 
 	//add more meshes with rt3d::loadObj("*.obj", verts, norms, tex_coords, indices); where * is the obj name
 	//then meshIndexCount = indices.size();
@@ -626,6 +640,7 @@ void SceneManager::init()
 	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/orange-fox.bmp"));
 	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/tree.bmp"));
 	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/starfox.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/citybuilding.bmp"));
 	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
@@ -681,24 +696,24 @@ void SceneManager::initGameObjects() {
 		gameObjects.push_back(GameObject("Ground2", glm::vec3(-50.0f, -0.1f, -150.0f), glm::vec3(300.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
 		//right edge
-		gameObjects.push_back(GameObject("building1", glm::vec3(250.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building2", glm::vec3(250.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building3", glm::vec3(250.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building4", glm::vec3(250.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building1", glm::vec3(150.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(150.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(150.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(150.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[8], meshObjects[0]));
 		//back edge
-		gameObjects.push_back(GameObject("building1", glm::vec3(200.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building2", glm::vec3(95.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building3", glm::vec3(-10.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building4", glm::vec3(-115.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building5", glm::vec3(-150.0f, 10.0f, -355.0f), glm::vec3(20.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building1", glm::vec3(200.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(95.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(-10.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(-115.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building5", glm::vec3(-150.0f, 10.0f, -355.0f), glm::vec3(20.0f, 10.0f, 5.0f), textures[8], meshObjects[0]));
 		//left edge
-		gameObjects.push_back(GameObject("building1", glm::vec3(-180.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building2", glm::vec3(-180.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building3", glm::vec3(-180.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("building4", glm::vec3(-180.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building1", glm::vec3(-180.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(-180.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(-180.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(-180.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[8], meshObjects[0]));
 		//middle
-		gameObjects.push_back(GameObject("midbuilding1", glm::vec3(50.0f, 1.0f, -190.0f), glm::vec3(30.0f, 30.0f, 150.0f), textures[0], meshObjects[0]));
-		gameObjects.push_back(GameObject("midbuilding2", glm::vec3(-50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("midbuilding1", glm::vec3(50.0f, 1.0f, -190.0f), glm::vec3(30.0f, 30.0f, 150.0f), textures[8], meshObjects[0]));
+		gameObjects.push_back(GameObject("midbuilding2", glm::vec3(-50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[8], meshObjects[0]));
 		gameObjects.push_back(GameObject("fence", glm::vec3(18.0f, 1.0f, -50.0f), glm::vec3(0.09f, 0.01f, 0.1f), textures[0], meshObjects[4]));//middle
 		gameObjects.push_back(GameObject("InvisibleFence", glm::vec3(18.0f, 1.0f, -50.0f), glm::vec3(100.0f, 1.0f, 1.0f), NULL, meshObjects[0]));//middle
 
@@ -746,6 +761,9 @@ void SceneManager::initGameObjects() {
 
 		//water
 		gameObjects.push_back(GameObject("Water", glm::vec3(-100.0f, 0.1f, -70.0f), glm::vec3(50.0f, 0.0f, 30.0f), textures[1], meshObjects[0]));
+
+		//Cars
+		//gameObjects.push_back(GameObject("car1", glm::vec3(-10.0, 0.5f, 34.0), glm::vec3(5.0f, 5.0f, 5.0f), textures[0], meshObjects[4]));
 
 	}
 
