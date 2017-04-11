@@ -8,7 +8,7 @@ SceneManager::SceneManager() {
 	eye = glm::vec3(0.0f, 1.0f, 0.0f);
 	at = glm::vec3(0.0f, 1.0f, -1.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
-	skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
+	skyboxProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/cubeMap.vert", "../FoxholeGroupProjV1_1/cubeMap.frag");
 
 	//lights - initialise first light - can possibly be read in from file using rt3d::load file
 	lights.push_back({
@@ -49,9 +49,11 @@ SceneManager::SceneManager() {
 
 
 	auto scoresDisplay = std::make_tuple("Scores", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto level1Display = std::make_tuple("Level 1", glm::vec3(-0.6f, 0.6f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
+	auto level2Display = std::make_tuple("Level 2", glm::vec3(0.6f, 0.6f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
 	auto mainMenuOption = std::make_tuple("Main menu[Backspace]", glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.1f, 0.0f));
 
-	Menu scores({ scoresDisplay, mainMenuOption });
+	Menu scores({ scoresDisplay, level1Display, level2Display, mainMenuOption });
 
 	menus.insert({ "scores", scores });
 
@@ -76,34 +78,50 @@ SceneManager::SceneManager() {
 
 	menus.insert({ "controls", controls });
 
+
+	auto chooseNameDisplay = std::make_tuple("Choose name", glm::vec3(0.0f, 0.9f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f));
+	auto chooseNameControls1 = std::make_tuple("Use arrows keys to", glm::vec3(-0.5f, 0.6f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f));
+	auto chooseNameControls2 = std::make_tuple("choose name and then press space to play", glm::vec3(-0.25f, 0.3f, 0.0f), glm::vec3(0.75f, 0.2f, 0.0f));
+
+	Menu chooseName({ chooseNameDisplay, chooseNameControls1, chooseNameControls2, mainMenuOption });
+
+	menus.insert({ "chooseName", chooseName });
+
+
 	sceneState = MAIN_MENU;
 }
 
 void SceneManager::play()
 {
-	BASS_Start();
-	if (sceneState != PAUSE) {
-		timer = std::chrono::system_clock::now();
-		pauseTimer = timer;
+	if (playerNameSet) {
+		BASS_Start();
+		if (sceneState != PAUSE) {
+			timer = std::chrono::system_clock::now();
+			pauseTimer = timer;
 
-		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
-		if (!BASS_ChannelPlay(ch, TRUE))
-			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
+			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
+			BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+			if (!BASS_ChannelPlay(ch, TRUE))
+				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 
-		level = 1;
-		initGameObjects();
-		respawnPlayer();
+			level = 2;
+			initGameObjects();
+			respawnPlayer();
+		}
+		else {
+			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
+			BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+			if (!BASS_ChannelPlay(ch, TRUE))
+				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
+
+		}
+
+		if (!inCountdown())
+			sceneState = IN_GAME;
 	}
 	else {
-		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
-		if (!BASS_ChannelPlay(ch, TRUE))
-			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
-
+		chooseName();
 	}
-
-	if (!inCountdown())
-		sceneState = IN_GAME;
-
 }
 
 bool SceneManager::inCountdown()
@@ -131,9 +149,73 @@ void SceneManager::mainMenu()
 		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE);
 		BASS_ChannelPause(ch);
 	}*/
-
+	BASS_Pause();
+	highscoreOnLevel1 = false;
+	highscoreOnLevel2 = false;
 	sceneState = MAIN_MENU;
+	/*if (highscores1.size() == 0 && highscores2.size() == 0)
+		loadScores();*/
 
+}
+
+void SceneManager::loadScores() {
+	//todo syntax = 3 chars then ; then double level time
+	std::ifstream highScores1_STREAM("../FoxholeGroupProjV1_1/highScores1.txt");
+	std::ifstream highScores2_STREAM("../FoxholeGroupProjV1_1/highScores2.txt");
+
+	//todo add error checking
+	if (highScores1_STREAM && highScores2_STREAM) {
+		std::string username;
+		std::string userTimeStr;
+		//std::string blank;
+		std::string hash;
+		double userTime;
+		std::stringstream ss;
+		bool continueReading = true;
+		//char name1, name2, name3;
+		while (continueReading) {
+			std::getline(highScores1_STREAM, username, ':');
+
+			std::getline(highScores1_STREAM, userTimeStr, ';');
+			ss.str(userTimeStr);
+			ss >> userTime;
+
+			highscores1.push_back(std::make_pair(username, userTime));
+
+			ss.str("");
+			ss.clear();
+			//std::getline(highScores1_STREAM, blank);
+			std::getline(highScores1_STREAM, hash, ';');
+			if (hash != "#")
+				continueReading = false;
+		}
+		//ss >> name1 >> name2 >> name3;
+		continueReading = true;
+		while (continueReading) {
+			std::getline(highScores2_STREAM, username, ':');
+
+			std::getline(highScores2_STREAM, userTimeStr, ';');
+			ss.str(userTimeStr);
+			ss >> userTime;
+
+			highscores2.push_back(std::make_pair(username, userTime));
+
+			ss.str("");
+			ss.clear();
+			//std::getline(highScores2_STREAM, blank);
+			std::getline(highScores2_STREAM, hash, ';');
+			if (hash != "#")
+				continueReading = false;
+		}
+		//ss >> name1 >> name2 >> name3;
+
+		highScores1_STREAM.close();
+		highScores2_STREAM.close();
+	}
+
+	if (highscores1.size() != highscores2.size()) {
+		std::cerr << "SOMETHING WRONG YO! highscores1 and 2 have different no of scores\n";
+	}
 }
 
 void SceneManager::renderMenus() {
@@ -161,7 +243,7 @@ void SceneManager::renderMenus() {
 		for (auto menuObj : menu) {
 			renderHUDObject(menuObj);
 		}
-
+		addToScores();
 		break;
 	case CONTROLS:
 		menu = menus.at("controls");
@@ -171,50 +253,210 @@ void SceneManager::renderMenus() {
 		}
 
 		break;
+	case CHOOSE_NAME:
+		menu = menus.at("chooseName");
+
+		for (auto menuObj : menu) {
+			renderHUDObject(menuObj);
+		}
+		renderPlayerChars();
+		break;
 	default://todo maybe add something else here
 		break;
 
 	}
 }
 
+void SceneManager::renderPlayerChars()
+{
+	std::string playerCharStr;
+	playerCharStr += playerName1;
+	auto playerChar1 = std::make_tuple(playerCharStr, glm::vec3(-0.5f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	renderHUDObject(playerChar1);
+
+	playerCharStr.clear();
+	playerCharStr += playerName2;
+	auto playerChar2 = std::make_tuple(playerCharStr, glm::vec3(-0.3f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	renderHUDObject(playerChar2);
+
+	playerCharStr.clear();
+	playerCharStr += playerName3;
+	auto playerChar3 = std::make_tuple(playerCharStr, glm::vec3(-0.1f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	renderHUDObject(playerChar3);
+
+	MenuObject charUnderline;/* = std::make_tuple("_", glm::vec3(-0.1f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+	//renderHUDObject(charUnderline);*/
+
+	switch (activeChar) {
+	case 1:
+		charUnderline = std::make_tuple("_", glm::vec3(-0.5f, -0.15f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+		renderHUDObject(charUnderline);
+		break;
+	case 2:
+		charUnderline = std::make_tuple("_", glm::vec3(-0.3f, -0.15f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+		renderHUDObject(charUnderline);
+		break;
+	case 3:
+		charUnderline = std::make_tuple("_", glm::vec3(-0.1f, -0.15f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
+		renderHUDObject(charUnderline);
+		break;
+	default:
+		break;
+	}
+}
+
+void SceneManager::playerUpdate(bool spaceUp)
+{
+	checkPlayerRespawn();
+	playerFall(spaceUp);
+	detectCollectableCollision();
+	checkEndLevel();
+}
+
+void SceneManager::chooseNameAndPlay() {
+	playerName += playerName1;
+	playerName += playerName2;
+	playerName += playerName3;
+	playerNameSet = true;
+	play();
+}
+
+void SceneManager::changeActiveChar(bool right)
+{
+	if (right) {
+		activeChar++;
+	}
+	else {
+		activeChar--;
+	}
+	if (activeChar > 3) {
+		activeChar = 1;
+	}
+	else if (activeChar < 1) {
+		activeChar = 3;
+	}
+
+}
+
+void SceneManager::changeCurrentChar(bool up)
+{
+	if (up) {
+		switch (activeChar) {
+		case 1:
+			playerName1++;
+			if (playerName1 > 'Z') {
+				playerName1 = 'A';
+			}
+			break;
+		case 2:
+			playerName2++;
+			if (playerName2 > 'Z') {
+				playerName2 = 'A';
+			}
+			break;
+		case 3:
+			playerName3++;
+			if (playerName3 > 'Z') {
+				playerName3 = 'A';
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	else {
+		switch (activeChar) {
+		case 1:
+			playerName1--;
+			if (playerName1 < 'A') {
+				playerName1 = 'Z';
+			}
+			break;
+		case 2:
+			playerName2--;
+			if (playerName2 < 'A') {
+				playerName2 = 'Z';
+			}
+			break;
+		case 3:
+			playerName3--;
+			if (playerName3 < 'A') {
+				playerName3 = 'Z';
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+//todo call this method when player selects scores menu
+//this method gets top five scores and displays
 void SceneManager::addToScores() {
 	//todo addToScores - only top 5?
-	glm::vec3 pos(0.6f, 0.5f, 0.0f);
-	glm::vec3 scale(0.2f, 0.2f, 0.0f);
-	float step = 0.1f;
+	glm::vec3 pos(-0.6f, 0.3f, 0.0f);
+	glm::vec3 scale(0.2f, 0.1f, 0.0f);
+	float step = 0.15f;
+	std::string scoreStr;
+	int scoreCounter = 0;
+
+	if (highscoreOnLevel1)
+		renderHUDObject(std::make_tuple("HIGH SCORE", glm::vec3(-0.6f, -0.6f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+
+	if (highscoreOnLevel2)
+		renderHUDObject(std::make_tuple("HIGH SCORE", glm::vec3(0.6f, -0.6f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
+
+	for (auto score : highscores1) {
+		scoreStr.append(std::to_string(++scoreCounter));
+		scoreStr.append(". " + score.first + "  ");
+		scoreStr.append(std::to_string(score.second));
+		scoreStr.append("s");
+		auto scoreRender = std::make_tuple(scoreStr, pos, scale);
+		//renderHUDObject(nameRender);
+		//pos.x -= 0.2f;
+		//auto scoreRender = std::make_tuple(std::to_string(score.second), pos, scale);
+		renderHUDObject(scoreRender);
+		pos.y -= step;
+		//pos.x += 0.2f;
+		scoreStr.clear();
+	}
+	pos = { 0.6f, 0.3f, 0.0f };
+	scoreCounter = 0;
+	for (auto score : highscores2) {
+		scoreStr.append(std::to_string(++scoreCounter));
+		scoreStr.append(". " + score.first + "  ");
+		scoreStr.append(std::to_string(score.second));
+		scoreStr.append("s");
+		auto scoreRender = std::make_tuple(scoreStr, pos, scale);
+		//renderHUDObject(nameRender);
+		//pos.x -= 0.2f;
+		//auto scoreRender = std::make_tuple(std::to_string(score.second), pos, scale);
+		renderHUDObject(scoreRender);
+		pos.y -= step;
+		//pos.x += 0.2f;
+		scoreStr.clear();
+	}
 }
 
 void SceneManager::renderSkybox(glm::mat4 projection)
 {
 	if (level == 1) {
-		glUseProgram(skyboxProgram);				// skybox as single cube using cube map
-		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
+		// skybox as single cube using cube map
 		glUseProgram(skyboxProgram);
-		glDepthMask(GL_FALSE); // make sure writing to update depth test is off	
 		rt3d::setUniformMatrix4fv(skyboxProgram, "projection", glm::value_ptr(projection));
-		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		glDepthMask(GL_FALSE); // make sure writing to update depth test is off
+		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		mvStack.push(glm::mat4(mvRotOnlyMat3));
-		/*glm::mat3*/ mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		glCullFace(GL_FRONT); // drawing inside of cube!
-		mvStack.push(glm::mat4(mvRotOnlyMat3));
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
-		glCullFace(GL_FRONT); // drawing inside of cube!
 		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[0]);
 		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
-		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
 		mvStack.pop();
-		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 		glCullFace(GL_BACK); // drawing inside of cube!
-		mvStack.pop();
-		// back to remainder of rendering
-		glCullFace(GL_BACK); // drawing inside of cube!
-
-		//glDepthMask(GL_TRUE); // make sure depth test is on									 // back to remainder of rendering
+							 // back to remainder of rendering
 		glDepthMask(GL_TRUE); // make sure depth test is on
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 	else if (level == 2) {
 		// skybox as single cube using cube map
@@ -224,7 +466,7 @@ void SceneManager::renderSkybox(glm::mat4 projection)
 		glm::mat3 mvRotOnlyMat3 = glm::mat3(mvStack.top());
 		mvStack.push(glm::mat4(mvRotOnlyMat3));
 		glCullFace(GL_FRONT); // drawing inside of cube!
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox[1]);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox2[0]);
 		mvStack.top() = glm::scale(mvStack.top(), glm::vec3(1.5f, 1.5f, 1.5f));
 		rt3d::setUniformMatrix4fv(skyboxProgram, "modelview", glm::value_ptr(mvStack.top()));
 		rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
@@ -239,7 +481,7 @@ void SceneManager::clearScreen()
 {
 	// clear the screen
 	glEnable(GL_CULL_FACE);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -271,7 +513,7 @@ void SceneManager::initTTF() {
 	if (TTF_Init() == -1)
 		std::cout << "TTF failed to initialise." << std::endl;
 
-	textFont = TTF_OpenFont("MavenPro-Regular.ttf", 24);
+	textFont = TTF_OpenFont("../FoxholeGroupProjV1_1/MavenPro-Regular.ttf", 24);
 	if (textFont == NULL)
 		std::cout << "Failed to open font." << std::endl;
 }
@@ -283,50 +525,33 @@ void SceneManager::init()
 
 	initSounds(); //todo play menu music - play forest sounds when playing game
 
-	shaderProgram = rt3d::initShaders("phong-tex.vert", "phong-tex.frag");
-	//textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
-	//modelProgram = rt3d::initShaders("modelLoading.vert", "modelLoading.frag");
+	shaderProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/phong-tex.vert", "../FoxholeGroupProjV1_1/phong-tex.frag");
+	textureProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/textured.vert", "../FoxholeGroupProjV1_1/textured.frag");
 
-	//foxModel = new Model("fox.obj");
-
-	rt3d::setLight(shaderProgram, lights[0]);
-	rt3d::setMaterial(shaderProgram, materials[0]);
-
-	////matching textureUnits
-	//GLuint uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit0");
-	//glUniform1i(uniformIndex, 0);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit1");
-	//glUniform1i(uniformIndex, 1);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit2");
-	//glUniform1i(uniformIndex, 2);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit3");
-	//glUniform1i(uniformIndex, 3);
-	//uniformIndex = glGetUniformLocation(shaderProgram, "textureUnit4");
-	//glUniform1i(uniformIndex, 4);
-	//^^ above is nonsense
-
-	//skybox program needed in draw method
-	//GLuint skyboxProgram = rt3d::initShaders("cubeMap.vert", "cubeMap.frag");
-
-	//doesn't appear to be used anywhere else question mark question mark question mark
-	GLuint textureProgram = rt3d::initShaders("textured.vert", "textured.frag");
+	//rt3d::setLight(shaderProgram, lights[0]);
+	//rt3d::setMaterial(shaderProgram, materials[0]);
 
 	//loading skybox
+	//https://opengameart.org/content/forest-skyboxes
 	const char *cubeTexFiles[6] = {
-		"Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp", "Town-skybox/grass1.bmp"
+		"../FoxholeGroupProjV1_1/Brudslojan/posz.bmp", "../FoxholeGroupProjV1_1/Brudslojan/negz.bmp",
+		"../FoxholeGroupProjV1_1/Brudslojan/posx.bmp", "../FoxholeGroupProjV1_1/Brudslojan/negx.bmp", 
+		"../FoxholeGroupProjV1_1/Brudslojan/posy.bmp", "../FoxholeGroupProjV1_1/Brudslojan/posy.bmp"
 	};
 
-	SDLManager::loadCubeMap(cubeTexFiles, skybox);
+	GameManager::loadCubeMap(cubeTexFiles, skybox);
 	const char *cubeTexFiles2[6] = {
-		"Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp", "Town-skybox/Town_up.bmp"
+		"../FoxholeGroupProjV1_1/Town-skybox/Town_bk.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_ft.bmp", 
+		"../FoxholeGroupProjV1_1/Town-skybox/Town_rt.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_lf.bmp",
+		"../FoxholeGroupProjV1_1/Town-skybox/Town_up.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_dn.bmp"
 	};
-	SDLManager::loadCubeMap(cubeTexFiles2, skybox);
+	GameManager::loadCubeMap(cubeTexFiles2, skybox2);
 
 	std::vector<GLfloat> verts;
 	std::vector<GLfloat> norms;
 	std::vector<GLfloat> tex_coords;
 	std::vector<GLuint> indices;
-	rt3d::loadObj("cube.obj", verts, norms, tex_coords, indices);
+	rt3d::loadObj("../FoxholeGroupProjV1_1/cube.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 
 	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
@@ -339,7 +564,7 @@ void SceneManager::init()
 	tex_coords.clear();
 	indices.clear();
 
-	rt3d::loadObj("fox.obj", verts, norms, tex_coords, indices);
+	rt3d::loadObj("../FoxholeGroupProjV1_1/fox.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 	//player.setMeshIndexCount(indices.size());
 
@@ -353,7 +578,7 @@ void SceneManager::init()
 	tex_coords.clear();
 	indices.clear();
 
-	rt3d::loadObj("CartoonTree.obj", verts, norms, tex_coords, indices);
+	rt3d::loadObj("../FoxholeGroupProjV1_1/CartoonTree.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
 
 	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
@@ -361,26 +586,52 @@ void SceneManager::init()
 		tex_coords.data(), meshIndexCount,
 		indices.data()));
 
+	verts.clear();
+	norms.clear();
+	tex_coords.clear();
+	indices.clear();
+
 	//md2model tmpmodel;
-	meshObjects.push_back(foxModel.ReadMD2Model("starfox.md2"));
+	meshObjects.push_back(foxModel.ReadMD2Model("../FoxholeGroupProjV1_1/starfox.md2"));
 	player.setMeshIndexCount(foxModel.getVertDataCount());
+
+
+	verts.clear();
+	norms.clear();
+	tex_coords.clear();
+	indices.clear();
+
+	rt3d::loadObj("../FoxholeGroupProjV1_1/fence.obj", verts, norms, tex_coords, indices);
+	meshIndexCount = indices.size();
+
+	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
+		verts.data(), nullptr, norms.data(),
+		tex_coords.data(), meshIndexCount,
+		indices.data()));
+
+	verts.clear();
+	norms.clear();
+	tex_coords.clear();
+	indices.clear();
 
 	//add more meshes with rt3d::loadObj("*.obj", verts, norms, tex_coords, indices); where * is the obj name
 	//then meshIndexCount = indices.size();
 	//then meshObjects.push_back(rt3d::createMesh(verts.size() / 3, verts.data(), nullptr, norms.data(), tex_coords.data(), meshIndexCount, indices.data()));
 
-	textures.push_back(SDLManager::loadBitmap("fabric.bmp"));
-	textures.push_back(SDLManager::loadBitmap("water.bmp"));
-	textures.push_back(SDLManager::loadBitmap("box.bmp"));
-	textures.push_back(SDLManager::loadBitmap("twigs.bmp"));
-	textures.push_back(SDLManager::loadBitmap("Town-skybox/grass1.bmp"));
-	textures.push_back(SDLManager::loadBitmap("orange-fox.bmp"));
-	textures.push_back(SDLManager::loadBitmap("tree.bmp"));
-	textures.push_back(SDLManager::loadBitmap("starfox.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/fabric.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/water.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/box.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/twigs.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/Town-skybox/grass1.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/orange-fox.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/tree.bmp"));
+	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/starfox.bmp"));
 	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
 	initPlayer();
+
+	loadScores();
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -397,7 +648,13 @@ void SceneManager::initGameObjects() {
 		//level 1
 
 		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(25.0f, 20.0f, 5.0f), NULL, NULL));
-		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(25.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
+
+		gameObjects.push_back(GameObject("InvisibleWallRight", glm::vec3(16.0f, 0.0f, -80.0f), glm::vec3(1.0f, 20.0f, 100.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("InvisibleWallLeft", glm::vec3(-26.0f, 0.0f, -80.0f), glm::vec3(1.0f, 20.0f, 100.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("InvisibleWallBack", glm::vec3(0.0f, 0.0f, -180.f), glm::vec3(30.0f, 20.0f, 1.0f), NULL, NULL));
+		gameObjects.push_back(GameObject("InvisibleWallFront", glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(30.0f, 20.0f, 0.5f), NULL, NULL));
+
+		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(200.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
 		gameObjects.push_back(GameObject("Water", glm::vec3(-5.0f, 0.0f, -100.0f), glm::vec3(20.0f, 0.1f, 50.0f), textures[1], meshObjects[0]));
 
@@ -419,30 +676,78 @@ void SceneManager::initGameObjects() {
 	}
 	else if (level == 2) {
 		// level 2
-		//hole-y ground
-		gameObjects.push_back(GameObject("trap_ground", glm::vec3(0.0f, 0.2f, 1.5f), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
-		for (int a = 0; a < 99; a++) {
 
-			int randomNum1 = rand() % 100 + 1;
-			int randomNum2 = rand() % 100 + 1;
-			gameObjects.push_back(GameObject("trap_ground", glm::vec3(randomNum1, 0.2f, randomNum2), glm::vec3(5.0f, 1.0f, 5.0f), textures[4], meshObjects[0]));
+		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(200.0f, 0.1f, 100.0f), textures[4], meshObjects[0]));
+		gameObjects.push_back(GameObject("Ground2", glm::vec3(-50.0f, -0.1f, -150.0f), glm::vec3(300.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
-		}
+		//right edge
+		gameObjects.push_back(GameObject("building1", glm::vec3(250.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(250.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(250.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(250.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[0], meshObjects[0]));
+		//back edge
+		gameObjects.push_back(GameObject("building1", glm::vec3(200.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(95.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(-10.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(-115.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building5", glm::vec3(-150.0f, 10.0f, -355.0f), glm::vec3(20.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		//left edge
+		gameObjects.push_back(GameObject("building1", glm::vec3(-180.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(-180.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(-180.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(-180.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[0], meshObjects[0]));
+		//middle
+		gameObjects.push_back(GameObject("midbuilding1", glm::vec3(50.0f, 1.0f, -190.0f), glm::vec3(30.0f, 30.0f, 150.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("midbuilding2", glm::vec3(-50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("fence", glm::vec3(18.0f, 1.0f, -50.0f), glm::vec3(0.09f, 0.01f, 0.1f), textures[0], meshObjects[4]));//middle
+		gameObjects.push_back(GameObject("InvisibleFence", glm::vec3(18.0f, 1.0f, -50.0f), glm::vec3(100.0f, 1.0f, 1.0f), NULL, meshObjects[0]));//middle
 
-		//collectables
+
 		std::string collectableId("collectable");
-		for (int b = 0; b < 10; b++) {
-			collectableId.append(std::to_string(b + 1));
-			int randomNum3 = rand() % 100 + 1;
-			int randomNum4 = rand() % 100 + 1;
-			gameObjects.push_back(GameObject(collectableId, glm::vec3(randomNum3, 4.0f, randomNum4), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
-			collectableId = "collectable";
-		}
+		//collectables section front
+		gameObjects.push_back(GameObject("collectable1", glm::vec3(-20.0, 4.0f, 34.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		gameObjects.push_back(GameObject("collectable2", glm::vec3(35.0, 4.0f, -8.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		gameObjects.push_back(GameObject("collectable3", glm::vec3(18.0, 4.0f, -27.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		gameObjects.push_back(GameObject("collectable4", glm::vec3(-25.0, 4.0f, -20.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+
+		//collectables section jumping
+		gameObjects.push_back(GameObject("collectable5", glm::vec3(-100.0f, 5.0f, -50.0f), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0])); //on box
+		gameObjects.push_back(GameObject("collectable6", glm::vec3(-110.0f, 7.0f, -95.0f), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0])); //on box
+		gameObjects.push_back(GameObject("collectable7", glm::vec3(-135, 4.0f, -130.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		gameObjects.push_back(GameObject("collectable8", glm::vec3(-140.0, 4.0f, -160.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+
+		//collectables section taxi
+		//gameObjects.push_back(GameObject("collectable9", glm::vec3(-20.0, 4.0f, 34.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		//gameObjects.push_back(GameObject("collectable10", glm::vec3(35.0, 4.0f, -8.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		//gameObjects.push_back(GameObject("collectable11", glm::vec3(18.0, 4.0f, -27.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		//gameObjects.push_back(GameObject("collectable12", glm::vec3(-25.0, 4.0f, -20.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+
+		//collectables section back
+		gameObjects.push_back(GameObject("collectable13", glm::vec3(-30.0, 4.0f, -250.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		gameObjects.push_back(GameObject("collectable14", glm::vec3(-55.0, 4.0f, -300.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+
 		collectables = 10;
+
+		//Jumping Puzzle
+		gameObjects.push_back(GameObject("fence", glm::vec3(-85.0f, 1.0f, -80.0f), glm::vec3(0.7f, 0.05f, 0.1f), textures[0], meshObjects[4]));//jumping
+		gameObjects.push_back(GameObject("jumpbox1", glm::vec3(-100.0f, 1.0f, -50.0f), glm::vec3(1.5f, 1.5f, 5.0f), textures[2], meshObjects[0])); //front boxes
+		gameObjects.push_back(GameObject("jumpbox2", glm::vec3(-110.0f, 4.0f, -55.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox3", glm::vec3(-120.0f, 8.0f, -60.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox4", glm::vec3(-115.0f, 12.0f, -70.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox5", glm::vec3(-108.0f, 16.0f, -75.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox6", glm::vec3(-101.0f, 20.0f, -75.0f), glm::vec3(1.5f, 1.5f, 4.0f), textures[2], meshObjects[0]));
+
+		gameObjects.push_back(GameObject("jumpbox7", glm::vec3(-130.0f, 1.0f, -95.0f), glm::vec3(1.5f, 1.5f, 5.0f), textures[2], meshObjects[0])); //back boxes
+		gameObjects.push_back(GameObject("jumpbox8", glm::vec3(-120.0f, 3.0f, -90.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox9", glm::vec3(-110.0f, 5.0f, -95.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox10", glm::vec3(-115.0f, 12.0f, -90.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0])); //add collectable on top
+		gameObjects.push_back(GameObject("jumpbo11", glm::vec3(-108.0f, 16.0f, -90.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox12", glm::vec3(-101.0f, 20.0f, -85.0f), glm::vec3(1.5f, 1.5f, 4.0f), textures[2], meshObjects[0]));
+
+		//water
+		gameObjects.push_back(GameObject("Water", glm::vec3(-100.0f, 0.1f, -70.0f), glm::vec3(50.0f, 0.0f, 30.0f), textures[1], meshObjects[0]));
+
 	}
-
-
-
 
 	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
 }
@@ -474,15 +779,24 @@ GLuint SceneManager::textToTexture(const char * str, GLuint textID) {
 	return texture;
 }
 
-void SceneManager::checkSwitchLevel()
+//todo may deprecate
+void SceneManager::checkEndLevel()
 {
 	if (level == 2 && collectables == 0) {
-		level = 1;
-		timer = std::chrono::system_clock::now();
-		pauseTimer = timer;
-		initGameObjects();
-		respawnPlayer();
-		saveScores(levelTime);
+		//level = 1;
+		//timer = std::chrono::system_clock::now();
+		//pauseTimer = timer;
+		//initGameObjects();
+		//respawnPlayer();
+		saveScores(levelTime, 2);
+		playerNameSet = false;
+		playerName = "";
+		activeChar = 1;
+		if (highscoreOnLevel1 || highscoreOnLevel2)
+			scores();
+		else
+			mainMenu();
+		//todo change scene state here ?? maybe wait no - call method that 
 	}
 }
 
@@ -524,6 +838,8 @@ void SceneManager::setShaderProjection(glm::mat4 projection)
 
 void SceneManager::setLights()
 {
+	rt3d::setLight(shaderProgram, lights[0]);
+	rt3d::setMaterial(shaderProgram, materials[0]);
 	glm::vec4 tmp = mvStack.top()*lightPos;
 	lights[0].position[0] = tmp.x;
 	lights[0].position[1] = tmp.y;
@@ -533,11 +849,13 @@ void SceneManager::setLights()
 
 void SceneManager::renderObjects()
 {
+	glUseProgram(shaderProgram);
+	setLights();
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i].getTexture() != NULL && gameObjects[i].getMesh() != NULL)
 			renderObject(gameObjects[i]);
 	}
-	renderPlayer(); //NO DIFFERENCE BETWEEN THIS AND RENDER OBJECT
+	renderPlayer();
 	renderHUD();
 }
 
@@ -591,6 +909,9 @@ void SceneManager::togglePause() {
 }
 
 void SceneManager::renderHUDObject(MenuObject menuObj) {
+
+	glUseProgram(textureProgram);//Use texture-only shader for text rendering
+
 	GLuint label = 0;
 	label = textToTexture(std::get<0>(menuObj).c_str(), label);
 
@@ -599,8 +920,8 @@ void SceneManager::renderHUDObject(MenuObject menuObj) {
 	mvStack.push(glm::mat4(1.0));
 	mvStack.top() = glm::translate(mvStack.top(), std::get<1>(menuObj));
 	mvStack.top() = glm::scale(mvStack.top(), std::get<2>(menuObj));
-	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::setUniformMatrix4fv(textureProgram, "projection", glm::value_ptr(glm::mat4(1.0)));
+	rt3d::setUniformMatrix4fv(textureProgram, "modelview", glm::value_ptr(mvStack.top()));
 
 	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
@@ -613,7 +934,7 @@ void SceneManager::renderHUD()
 	////////////////////////////////////////////////////////////////////
 	//This renders a HUD label
 	////////////////////////////////////////////////////////////////////
-	glUseProgram(shaderProgram);//Use texture-only shader for text rendering
+	//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
 
 	if (sceneState == PAUSE) {
@@ -654,8 +975,10 @@ void SceneManager::renderHUD()
 		}
 		std::string countdownStr(std::to_string(countdownTimer));
 
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(countdownStr, glm::vec3(0.0f, -0.1f, 0.0f), glm::vec3(0.25f, 0.25f, 0.0f)));
 
+		currentAnimation = 0;
 	}
 	else {
 		totalTime -= 3;
@@ -669,6 +992,7 @@ void SceneManager::renderHUD()
 
 		timerStr.append("s");
 
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
 		levelTime = totalTime;
 
@@ -678,6 +1002,7 @@ void SceneManager::renderHUD()
 		std::string collectablesString("Collectables left: ");
 		collectablesString.append(std::to_string(collectables));
 
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(-0.5f, -0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
 
 	}
@@ -685,11 +1010,12 @@ void SceneManager::renderHUD()
 	int respawnTime = std::chrono::duration<double>(temp - respawnTimer).count();
 
 	if (respawnTime > -1 && respawnTime < 2) {
+		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple("Avoid the water!", glm::vec3(0.8f, -0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 	}
 
 	glEnable(GL_DEPTH_TEST);//Re-enable depth test after HUD label
-
+	//setLights();
 }
 
 void SceneManager::renderPlayer()
@@ -706,7 +1032,7 @@ void SceneManager::renderPlayer()
 	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.05f, 0.05f, 0.05f));
 
 	//change r based on current r
-	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR()-90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR() - 90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -734,18 +1060,18 @@ void SceneManager::detectCollectableCollision() {
 	if (level == 2) {
 		std::string playerColl = player.getLastCollision();
 		if (player.getLastCollision().substr(0, 11) == "collectable") {
-			playerColl = playerColl.substr(11);
+			//playerColl = playerColl.substr(11);
 
-			for (GameObject gObj : gameObjects) {
-				if (gObj.getName().substr(0, 11) == "collectable" && gObj.getName().substr(11) == playerColl) {
-					std::cout << "player collided with collectable\n";
-					int index = getGameObjectIndex(player.getLastCollision());
-					player.setLastCollision("");
-					gameObjects.erase(gameObjects.begin() + index);
-					collectables--;
-					break;
-				}
-			}
+			//for (GameObject gObj : gameObjects) {
+				//if (gObj.getName().substr(0, 11) == "collectable" && gObj.getName().substr(11) == playerColl) {
+			std::cout << "player collided with collectable\n";
+			int index = getGameObjectIndex(player.getLastCollision());
+			player.setLastCollision("");
+			gameObjects.erase(gameObjects.begin() + index);
+			collectables--;
+			//break;
+		//}
+	//}
 		}
 	}
 }
@@ -778,10 +1104,10 @@ void SceneManager::initSounds()
 	if (!BASS_Init(-1, 44100, 0, 0, NULL))
 		std::cout << "Can't initialize device";
 
-	sounds.push_back(loadSounds("forest-environment.wav"));
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/forest-environment.wav"));
 	//http://soundbible.com/1818-Rainforest-Ambience.html
 
-	sounds.push_back(loadSounds("splash.wav"));
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/splash.wav"));
 	//http://soundbible.com/2100-Splash-Rock-In-Lake.html
 
 	HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
@@ -855,7 +1181,7 @@ bool SceneManager::checkCollisions(GameObject &specObj) {
 }
 
 void SceneManager::playerJump() {
-	if (player.getJumpCounter() < player.getJumpMax()) {
+	/*if (player.getJumpCounter() < player.getJumpMax()) {
 		player.jump(true);
 		glm::vec3 newPos = player.getPos();
 
@@ -868,47 +1194,68 @@ void SceneManager::playerJump() {
 		player.jump(false);
 		if (player.isOnObject())
 			player.resetJumpCounter();
-	}
+	}*/
+
+	player.playerJump();
+
+	/*if (player.isPlayerJumping()) {
+		player.setPos(glm::vec3(player.getPos().x, player.getPos().y + player.getJumpIncrement(), player.getPos().z));
+	}*/
 }
 
-void SceneManager::playerFall() {
+void SceneManager::playerFall(bool spaceUp) {
 
-	if (CollisionDetector::detectCollision(getGameObject("Cube1"), player))
-		std::cout << "player collided with cube1\n";
+	//if (CollisionDetector::detectCollision(getGameObject("Cube1"), player))
+		//std::cout << "player collided with cube1\n";
+	//if (player.isPlayerFalling()) {
+	//	if (!checkCollisions()) {
+	//		glm::vec3 newPos = player.getPos();
+	//		newPos.y -= player.getFallIncrement();
 
-	if (!checkCollisions()) {
-		glm::vec3 newPos = player.getPos();
-		newPos.y -= player.getFallIncrement();
+	//		GameObject tempObj(player);
 
-		GameObject tempObj(player);
+	//		//tempObj.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+	//		tempObj.setPos(newPos);
+	//		//tempObj.setPos(glm::vec3(tempObj.getPos().x, tempObj.getPos().y+1.0f, tempObj.getPos().z));
 
-		//tempObj.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-		tempObj.setPos(newPos);
-		//tempObj.setPos(glm::vec3(tempObj.getPos().x, tempObj.getPos().y+1.0f, tempObj.getPos().z));
+	//		if (!checkCollisions(tempObj)) { player.setIsOnObj(false); }
+	//	}
 
-		if (!checkCollisions(tempObj)) { player.setIsOnObj(false); }
+	//	//if (!player.isJumping() && !player.isOnObject()) {
+
+	//		glm::vec3 newPos = player.getPos();
+
+	//		if (checkCollisions()) {
+	//			//change player y to y of object y plus object scale
+	//			GameObject gObj = getGameObject(player.getLastCollision());
+	//			std::cout << "player last coll:\t " << player.getLastCollision() << std::endl;
+	//			newPos.y = gObj.getPos().y + gObj.getScale().y + player.getScale().y;
+
+	//			player.setIsOnObj(true);
+	//		}
+	//		else {
+	//			newPos.y -= player.getFallIncrement();
+	//		}
+
+	//		std::cout << "player y:\t" << player.getPos().y << std::endl;
+	//		player.setPos(newPos);
+	//		//CHANGE THIS ^^^^^ CREATE TEMP OBJECT ////MAYBE?????? LOLIDK
+	//	//}
+	//}
+	////
+
+	if (spaceUp) {
+		player.playerFall();
 	}
 
-	if (!player.isJumping() && !player.isOnObject()) {
-
-		glm::vec3 newPos = player.getPos();
+	if (!player.isPlayerJumping()) {
+		player.playerFall();
 
 		if (checkCollisions()) {
-			//change player y to y of object y plus object scale
-			GameObject gObj = getGameObject(player.getLastCollision());
-			std::cout << "player last coll:\t " << player.getLastCollision() << std::endl;
-			newPos.y = gObj.getPos().y + gObj.getScale().y + player.getScale().y;
-
-			player.setIsOnObj(true);
+			player.playerStand();
 		}
-		else {
-			newPos.y -= player.getFallIncrement();
-		}
-
-		std::cout << "player y:\t" << player.getPos().y << std::endl;
-		player.setPos(newPos);
-		//CHANGE THIS ^^^^^ CREATE TEMP OBJECT ////MAYBE?????? LOLIDK
 	}
+
 }
 
 GameObject SceneManager::getGameObject(std::string objName) {
@@ -925,12 +1272,6 @@ int SceneManager::getGameObjectIndex(std::string objName) {
 			return i;
 	}
 	return -1;
-}
-
-void SceneManager::setPlayerJumpFalse()
-{
-	player.jump(false);
-	player.maxJumpCounter();
 }
 
 void SceneManager::respawnPlayer() {
@@ -961,17 +1302,147 @@ void SceneManager::checkPlayerRespawn()
 		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
-		saveScores(levelTime);
+		saveScores(levelTime, 1);
 	}
 	else if (player.getPos().y < -10)
 		respawnPlayer();
 }
 
-void SceneManager::saveScores(double levelTime) {
-	std::ofstream highScores("highscores.txt", std::ios_base::app);
-	highScores << levelTime, /*input name function elsewhere and have the string passed here for use*/"\n";
-	highScores << /*scorevariable here*/ "\n";
+void SceneManager::saveScores(double levelTime, int level) {
+	//std::ofstream highScores1("highScores1.txt", std::ios_base::app);
+	//std::ofstream highScores2("highScores2.txt", std::ios_base::app);
+	//highScores << levelTime, /*input name function elsewhere and have the string passed here for use*/"\n";
+	//highScores << /*scorevariable here*/ "\n";
 
+	//todo change this so that it saves level time in temp score (add param to know whether to store
+	// as first or second)
+	// after level 2 is complete, save to file.
+	// read file and check if either score is in top five
+	// if so, let player choose 3 letters to save score
+	// to do this, add new scene state with accompanying menu
+	// todo figure out later
+
+	switch (level) {
+	case 1:
+		tempScore.first = levelTime;
+		break;
+	case 2:
+		tempScore.second = levelTime;
+		//highScores1 << tempScore.first << "\n";
+		//highScores2 << tempScore.second << "\n";
+
+		//highScores1.close();
+		//highScores2.close();
+
+		//call method to 
+		findHighScores();
+		writeScores();
+		break;
+	default:
+		break;
+	}
+
+	//todo not sure about below
+	//if(highScores1.is_open())
+		//highScores1.close();
+
+	//if (highScores2.is_open())
+		//highScores2.close();
+}
+
+void SceneManager::writeScores() {
+	std::ofstream highScores1_STREAM("../FoxholeGroupProjV1_1/highScores1.txt");
+	std::ofstream highScores2_STREAM("../FoxholeGroupProjV1_1/highScores2.txt");
+
+
+	//highScores1_STREAM << 
+
+	for (int i = 0; i < highscores1.size(); i++) {
+		highScores1_STREAM << highscores1[i].first << ':' << highscores1[i].second;
+		highScores1_STREAM << ';';
+		if (i != highscores1.size() - 1) {
+			highScores1_STREAM << "#;";
+		}
+	}
+
+	for (int i = 0; i < highscores2.size(); i++) {
+		highScores2_STREAM << highscores2[i].first << ':' << highscores2[i].second;
+		highScores2_STREAM << ';';
+		if (i != highscores2.size() - 1) {
+			highScores2_STREAM << "#;";
+		}
+	}
+
+	//todo not sure about below
+	//if (highScores1_STREAM.is_open())
+	highScores1_STREAM.close();
+
+	//if (highScores2_STREAM.is_open())
+	highScores2_STREAM.close();
+}
+
+void SceneManager::findHighScores() {
+	//std::ofstream highScores1_STREAM("highScores1.txt", std::ios_base::app);
+	//std::ofstream highScores2_STREAM("highScores2.txt", std::ios_base::app);
+
+	//if (highScores1.size() == 0 && highScores2.size() == 0) {
+		//loadScores();
+	//}
+
+	/*if (!highScores1) {
+		std::cerr << "highScores1 failed to load\n";
+	}
+
+	if (!highScores2) {
+		std::cerr << "highScores2 failed to load\n";
+	}*/
+
+	//add to temp vectors of scores
+	//sort them
+
+
+	//todo not sure about below
+	//if (highScores1_STREAM.is_open())
+		//highScores1_STREAM.close();
+
+	//if (highScores2_STREAM.is_open())
+		//highScores2_STREAM.close();
+
+	//
+
+	highscores1.push_back(std::make_pair(playerName, tempScore.first));
+	highscores2.push_back(std::make_pair(playerName, tempScore.second));
+
+	std::sort(highscores1.begin(), highscores1.end(), [](const std::pair<std::string, double> &left, const std::pair<std::string, double> &right) {
+		return left.second < right.second;
+	});
+
+	std::sort(highscores2.begin(), highscores2.end(), [](const std::pair<std::string, double> &left, const std::pair<std::string, double> &right) {
+		return left.second < right.second;
+	});
+
+	if (highscores1.size() > 5) {
+		highscores1.erase(highscores1.begin() + 5, highscores1.end());
+	}
+	if (highscores2.size() > 5) {
+		highscores2.erase(highscores2.begin() + 5, highscores2.end());
+	}
+
+	for (int i = 0; i < highscores1.size(); i++) {
+		if (playerName == highscores1[i].first && tempScore.first == highscores1[i].second) {
+			highscoreOnLevel1 = true;
+			break;
+		}
+	}
+
+	for (int i = 0; i < highscores2.size(); i++) {
+		if (playerName == highscores2[i].first && tempScore.second == highscores2[i].second) {
+			highscoreOnLevel2 = true;
+			break;
+		}
+	}
+
+	//todo clear tempscore
 }
 
 void SceneManager::freeBass()

@@ -1,12 +1,12 @@
 
-#include "SDLManager.h"
+#include "GameManager.h"
 
-SDLManager::SDLManager() {
+GameManager::GameManager() {
 	window = nullptr;
 	context = 0;
 };
 
-void SDLManager::SDLInit()
+void GameManager::GameInit()
 {
 	//SDL_Window * window;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) // Initialize video
@@ -40,7 +40,7 @@ void SDLManager::SDLInit()
 	scene->init();
 }
 
-void SDLManager::SDLEnd(void)
+void GameManager::GameEnd(void)
 {
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
@@ -49,11 +49,12 @@ void SDLManager::SDLEnd(void)
 	SDL_Quit();
 }
 
-void SDLManager::SDLRun(void)
+void GameManager::GameRun(void)
 {
 	bool running = true; // set running to true
 	SDL_Event sdlEvent;  // variable to detect SDL events
 	while (running) {	// the event loop
+		bool spaceUp = false;
 		while (SDL_PollEvent(&sdlEvent)) {
 			if (sdlEvent.type == SDL_QUIT || (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE  && scene->inMainMenu()))
 				running = false;
@@ -74,20 +75,35 @@ void SDLManager::SDLRun(void)
 					scene->updatePlayerR(-1.5f);
 			}
 
-
 			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_SPACE) {
-				scene->setPlayerJumpFalse();
+				spaceUp = true;
+			}
+
+			if (scene->inChooseName()) {
+				if (sdlEvent.key.keysym.sym == SDLK_RIGHT && sdlEvent.type == SDL_KEYUP) {
+					scene->changeActiveChar(true);
+				}
+				if (sdlEvent.key.keysym.sym == SDLK_LEFT && sdlEvent.type == SDL_KEYUP) {
+					scene->changeActiveChar(false);
+				}
+				if (sdlEvent.key.keysym.sym == SDLK_UP && sdlEvent.type == SDL_KEYUP) {
+					scene->changeCurrentChar(true);
+				}
+				if (sdlEvent.key.keysym.sym == SDLK_DOWN && sdlEvent.type == SDL_KEYUP) {
+					scene->changeCurrentChar(false);
+				}
+
 			}
 
 		}
-		SDLDraw();
-		SDLUpdate(sdlEvent);
+		GameDraw();
+		GameUpdate(spaceUp);
 	}
 
 }
 
 //todo move into scenemanager???
-GLuint SDLManager::loadCubeMap(const char * fname[6], GLuint * texID)
+GLuint GameManager::loadCubeMap(const char * fname[6], GLuint * texID)
 {
 	glGenTextures(1, texID); // generate texture ID
 	GLenum sides[6] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
@@ -128,7 +144,7 @@ GLuint SDLManager::loadCubeMap(const char * fname[6], GLuint * texID)
 	return *texID;	// return value of texure ID, redundant really
 }
 
-GLuint SDLManager::loadBitmap(char * fname)
+GLuint GameManager::loadBitmap(char * fname)
 {
 	GLuint texID;
 	glGenTextures(1, &texID); // generate texture ID
@@ -168,12 +184,12 @@ GLuint SDLManager::loadBitmap(char * fname)
 }
 
 //todo refactor in some fashion
-void SDLManager::SDLDraw()
+void GameManager::GameDraw()
 {
 	//call scene manager
 	scene->clearScreen();
 
-	if (scene->inMainMenu() || scene->inControls() || scene->inScores()) {
+	if (scene->inMainMenu() || scene->inControls() || scene->inScores() || scene->inChooseName()) {
 		glm::mat4 projection = scene->initRendering();
 
 		scene->setShaderProjection(projection);
@@ -187,9 +203,6 @@ void SDLManager::SDLDraw()
 
 		scene->setShaderProjection(projection);
 
-		//set lights
-		scene->setLights();
-
 		//render objects
 		scene->renderObjects();
 
@@ -200,7 +213,7 @@ void SDLManager::SDLDraw()
 	SDL_GL_SwapWindow(window); // swap buffers
 }
 
-void SDLManager::SDLUpdate(SDL_Event sdlEvent)
+void GameManager::GameUpdate(bool spaceUp)
 {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -228,6 +241,14 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 	else if (scene->paused()) {
 		if (keys[SDL_SCANCODE_BACKSPACE]) {
 			scene->mainMenu();
+		}
+	}
+	else if (scene->inChooseName()) {
+		if (keys[SDL_SCANCODE_BACKSPACE]) {
+			scene->mainMenu();
+		}
+		if (keys[SDL_SCANCODE_SPACE]) {
+			scene->chooseNameAndPlay();
 		}
 	}
 	else if (scene->inGame()) {
@@ -261,10 +282,7 @@ void SDLManager::SDLUpdate(SDL_Event sdlEvent)
 
 		if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
 
-		scene->playerFall();
-		scene->checkPlayerRespawn();
-		scene->detectCollectableCollision();
-		scene->checkSwitchLevel();
+		scene->playerUpdate(spaceUp);
 	}
 
 }
