@@ -676,16 +676,32 @@ void SceneManager::initGameObjects() {
 	}
 	else if (level == 2) {
 		// level 2
-		
+
 		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(200.0f, 0.1f, 100.0f), textures[4], meshObjects[0]));
 		gameObjects.push_back(GameObject("Ground2", glm::vec3(-50.0f, -0.1f, -150.0f), glm::vec3(300.0f, 0.1f, 200.0f), textures[4], meshObjects[0]));
 
-
-		gameObjects.push_back(GameObject("building1", glm::vec3(50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[0], meshObjects[0]));//middle-1
-		gameObjects.push_back(GameObject("building2", glm::vec3(-50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[0], meshObjects[0]));//middle-2
-
+		//right edge
+		gameObjects.push_back(GameObject("building1", glm::vec3(250.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(250.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(250.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(250.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[0], meshObjects[0]));
+		//back edge
+		gameObjects.push_back(GameObject("building1", glm::vec3(200.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(95.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(-10.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(-115.0f, 10.0f, -355.0f), glm::vec3(50.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building5", glm::vec3(-150.0f, 10.0f, -355.0f), glm::vec3(20.0f, 10.0f, 5.0f), textures[0], meshObjects[0]));
+		//left edge
+		gameObjects.push_back(GameObject("building1", glm::vec3(-180.0f, 10.0f, -10.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building2", glm::vec3(-180.0f, 10.0f, -120.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building3", glm::vec3(-180.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("building4", glm::vec3(-180.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[0], meshObjects[0]));
+		//middle
+		gameObjects.push_back(GameObject("midbuilding1", glm::vec3(50.0f, 1.0f, -190.0f), glm::vec3(30.0f, 30.0f, 150.0f), textures[0], meshObjects[0]));
+		gameObjects.push_back(GameObject("midbuilding2", glm::vec3(-50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[0], meshObjects[0]));
 		gameObjects.push_back(GameObject("fence", glm::vec3(18.0f, 1.0f, -50.0f), glm::vec3(0.09f, 0.01f, 0.1f), textures[0], meshObjects[4]));//middle
-		gameObjects.push_back(GameObject("fence", glm::vec3(-85.0f, 1.0f, -80.0f), glm::vec3(0.7f, 0.05f, 0.1f), textures[0], meshObjects[4]));//jumping
+		gameObjects.push_back(GameObject("InvisibleFence", glm::vec3(18.0f, 1.0f, -50.0f), glm::vec3(100.0f, 1.0f, 1.0f), NULL, meshObjects[0]));//middle
+
 
 		std::string collectableId("collectable");
 		//collectables section front
@@ -707,17 +723,18 @@ void SceneManager::initGameObjects() {
 		//gameObjects.push_back(GameObject("collectable12", glm::vec3(-25.0, 4.0f, -20.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
 
 		//collectables section back
-		//gameObjects.push_back(GameObject("collectable13", glm::vec3(-20.0, 4.0f, 34.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
-		//gameObjects.push_back(GameObject("collectable14", glm::vec3(35.0, 4.0f, -8.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
-		
+		gameObjects.push_back(GameObject("collectable13", glm::vec3(-30.0, 4.0f, -250.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+		gameObjects.push_back(GameObject("collectable14", glm::vec3(-55.0, 4.0f, -300.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[3], meshObjects[0]));
+
 		collectables = 10;
 
 		//Jumping Puzzle
+		gameObjects.push_back(GameObject("fence", glm::vec3(-85.0f, 1.0f, -80.0f), glm::vec3(0.7f, 0.05f, 0.1f), textures[0], meshObjects[4]));//jumping
 		gameObjects.push_back(GameObject("jumpbox1", glm::vec3(-100.0f, 1.0f, -50.0f), glm::vec3(1.5f, 1.5f, 5.0f), textures[2], meshObjects[0])); //front boxes
 		gameObjects.push_back(GameObject("jumpbox2", glm::vec3(-110.0f, 4.0f, -55.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
 		gameObjects.push_back(GameObject("jumpbox3", glm::vec3(-120.0f, 8.0f, -60.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
-		gameObjects.push_back(GameObject("jumpbox4", glm::vec3(-115.0f, 12.0f, -70.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0])); 
-		gameObjects.push_back(GameObject("jumpbox5", glm::vec3(-108.0f, 16.0f, -75.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0])); 
+		gameObjects.push_back(GameObject("jumpbox4", glm::vec3(-115.0f, 12.0f, -70.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
+		gameObjects.push_back(GameObject("jumpbox5", glm::vec3(-108.0f, 16.0f, -75.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0]));
 		gameObjects.push_back(GameObject("jumpbox6", glm::vec3(-101.0f, 20.0f, -75.0f), glm::vec3(1.5f, 1.5f, 4.0f), textures[2], meshObjects[0]));
 
 		gameObjects.push_back(GameObject("jumpbox7", glm::vec3(-130.0f, 1.0f, -95.0f), glm::vec3(1.5f, 1.5f, 5.0f), textures[2], meshObjects[0])); //back boxes
@@ -730,12 +747,7 @@ void SceneManager::initGameObjects() {
 		//water
 		gameObjects.push_back(GameObject("Water", glm::vec3(-100.0f, 0.1f, -70.0f), glm::vec3(50.0f, 0.0f, 30.0f), textures[1], meshObjects[0]));
 
-		
-
 	}
-
-
-
 
 	//add more game objects with gameObjects.push_back(GameObject("Name", position, scale, texture from textures, mesh from meshObjects)); 
 }
