@@ -173,7 +173,6 @@
     <ClInclude Include="SceneManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="classDiagram_b4_remodel.cd" />
     <None Include="cubeMap.frag" />
     <None Include="cubeMap.vert" />
     <None Include="minimal.frag" />

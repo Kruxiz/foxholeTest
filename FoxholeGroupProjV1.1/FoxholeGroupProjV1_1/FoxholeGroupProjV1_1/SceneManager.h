@@ -105,6 +105,7 @@ private:
 	//Model *foxModel;
 
 	Player player;
+	GLfloat cameraR = 0.0f;
 	md2model foxModel;
 	int currentAnimation = 0;
 
@@ -116,6 +117,8 @@ private:
 	const GLuint gravity = 1.1; // needed?
 
 	std::vector<HSAMPLE> sounds;
+	HCHANNEL backgroundNoise;
+	HCHANNEL walkingNoise = NULL;
 
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
@@ -147,7 +150,9 @@ private:
 public:
 	SceneManager();
 	void togglePause();
-	void standingAnimation();
+	void playBloop();
+	void playBleep();
+	void stand();
 	void renderSkybox(glm::mat4 projection);
 	void clearScreen();
 	glm::mat4 initRendering();

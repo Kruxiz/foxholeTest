@@ -1,5 +1,5 @@
-#ifndef SDLMANAGER_H
-#define SDLMANAGER_H
+#ifndef GAMEMANAGER_H
+#define GAMEMANAGER_H
 
 #include <SDL.h>
 #include <gl/glew.h>

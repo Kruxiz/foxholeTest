@@ -99,9 +99,16 @@ void SceneManager::play()
 			timer = std::chrono::system_clock::now();
 			pauseTimer = timer;
 
-			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
-			BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-			if (!BASS_ChannelPlay(ch, TRUE))
+			//HCHANNEL ch;
+			//if (level == 1)
+			backgroundNoise = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
+		//else if (level == 2) {
+			//HCHANNEL lvl1ch = BASS_SampleGetChannel(sounds[0], FALSE);
+			//BASS_SampleStop(lvl1ch);
+			//backgroundNoise = BASS_SampleGetChannel(sounds[2], TRUE);
+		//}
+			BASS_ChannelFlags(backgroundNoise, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+			if (!BASS_ChannelPlay(backgroundNoise, FALSE))
 				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 
 			level = 2;
@@ -109,9 +116,19 @@ void SceneManager::play()
 			respawnPlayer();
 		}
 		else {
-			HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE); //todo true i think??
-			BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-			if (!BASS_ChannelPlay(ch, TRUE))
+			//HCHANNEL ch;
+			//if (level == 1)
+			backgroundNoise = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
+		//else if (level == 2) {
+			//HCHANNEL lvl1ch = BASS_SampleGetChannel(sounds[0], TRUE);
+			//if (!BASS_ChannelStop(lvl1ch)) {
+				//std::cout << "error stopping forest sounds " << BASS_ErrorGetCode() << std::endl;
+			//}
+			//BASS_ChannelStop(backgroundNoise);
+			//backgroundNoise = BASS_SampleGetChannel(sounds[2], TRUE);
+		//}
+			BASS_ChannelFlags(backgroundNoise, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+			if (!BASS_ChannelPlay(backgroundNoise, FALSE))
 				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 
 		}
@@ -149,7 +166,8 @@ void SceneManager::mainMenu()
 		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE);
 		BASS_ChannelPause(ch);
 	}*/
-	BASS_Pause();
+	//BASS_Pause();
+	BASS_ChannelStop(backgroundNoise);
 	highscoreOnLevel1 = false;
 	highscoreOnLevel2 = false;
 	sceneState = MAIN_MENU;
@@ -307,6 +325,10 @@ void SceneManager::renderPlayerChars()
 
 void SceneManager::playerUpdate(bool spaceUp)
 {
+	//if (player.isPlayerStanding()) {
+	//	BASS_ChannelStop(walkingNoise);
+	//	//walkingNoise = NULL;
+	//}
 	checkPlayerRespawn();
 	playerFall(spaceUp);
 	detectCollectableCollision();
@@ -504,7 +526,14 @@ glm::mat4 SceneManager::initRendering()
 void SceneManager::initCamera() {
 	//init camera???
 	at = player.getPos();
-	eye = moveForward(at, -player.getPlayerR(), -8.0f);
+	//if (currentAnimation != 0) {
+		eye = moveForward(at, -cameraR, -8.0f);
+	//}
+	//else {
+		//cameraR = player.getPlayerR();
+		//player.setPlayerR(cameraR);
+		//eye = moveForward(at, -player.getPlayerR(), -8.0f);
+	//}
 	eye.y += 3.0;
 	mvStack.top() = glm::lookAt(eye, at, up);
 }
@@ -536,13 +565,13 @@ void SceneManager::init()
 	//https://opengameart.org/content/forest-skyboxes
 	const char *cubeTexFiles[6] = {
 		"../FoxholeGroupProjV1_1/Brudslojan/posz.bmp", "../FoxholeGroupProjV1_1/Brudslojan/negz.bmp",
-		"../FoxholeGroupProjV1_1/Brudslojan/posx.bmp", "../FoxholeGroupProjV1_1/Brudslojan/negx.bmp", 
+		"../FoxholeGroupProjV1_1/Brudslojan/posx.bmp", "../FoxholeGroupProjV1_1/Brudslojan/negx.bmp",
 		"../FoxholeGroupProjV1_1/Brudslojan/posy.bmp", "../FoxholeGroupProjV1_1/Brudslojan/posy.bmp"
 	};
 
 	GameManager::loadCubeMap(cubeTexFiles, skybox);
 	const char *cubeTexFiles2[6] = {
-		"../FoxholeGroupProjV1_1/Town-skybox/Town_bk.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_ft.bmp", 
+		"../FoxholeGroupProjV1_1/Town-skybox/Town_bk.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_ft.bmp",
 		"../FoxholeGroupProjV1_1/Town-skybox/Town_rt.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_lf.bmp",
 		"../FoxholeGroupProjV1_1/Town-skybox/Town_up.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_dn.bmp"
 	};
@@ -867,10 +896,10 @@ void SceneManager::checkEndLevel()
 
 void SceneManager::buildTrees() {
 
-	glm::vec3 treePos(16.0f, 1.0f, 1.0f);
+	glm::vec3 treePos(16.0f, 1.0f, 5.0f);
 	glm::vec3 treeScale(1.0f, 5.0f, 1.0f);
 	std::string treeName("Tree");
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < 40; i++) {
 		treeName.append(std::to_string((i * 1) + 1));
 
 		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[6], meshObjects[2], objMeshIndexCounts.at("CartoonTree.obj")));
@@ -878,7 +907,7 @@ void SceneManager::buildTrees() {
 		treeName = "Tree";
 		treeName.append(std::to_string((i * 2) + 2));
 		treePos.x = -26.0f;
-		treePos.z -= (i + 1);
+		treePos.z -= 6.0f;
 
 		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[6], meshObjects[2], objMeshIndexCounts.at("CartoonTree.obj")));
 
@@ -886,7 +915,17 @@ void SceneManager::buildTrees() {
 		treePos.x = 16.0f;
 
 	}
+	treePos = { 16.0f, 1.0f, 5.0f };
+	treeName = "Tree";
+	for (int i = 40; i < 51; i++) {
+		treeName.append(std::to_string((i * 1) + 1));
 
+		gameObjects.push_back(GameObject(treeName, treePos, treeScale, textures[6], meshObjects[2]));
+
+		treePos.x -= 4.0f;
+
+		treeName = "Tree";
+	}
 
 }
 
@@ -1097,10 +1136,19 @@ void SceneManager::renderPlayer()
 	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.05f, 0.05f, 0.05f));
 
 	//change r based on current r
-	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR() - 90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	//if (currentAnimation == 0) {
+		//mvStack.top() = glm::rotate(mvStack.top(), float((cameraR - 90.0f)* DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+		//mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
+		//mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
+	//}
+	//else {
+		mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR() - 90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	//}
+
 	mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
-
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 	//rt3d::setMaterial(shaderProgram, materials[1]);
 	rt3d::drawMesh(player.getMesh(), player.getMeshIndexCount(), GL_TRIANGLES);
@@ -1117,7 +1165,17 @@ void SceneManager::renderPlayer()
 
 void SceneManager::updatePlayerR(GLfloat deltaR)
 {
-	player.setPlayerR(player.getPlayerR() + deltaR);
+	if (currentAnimation != 0) {
+		player.setPlayerR(player.getPlayerR() + deltaR);
+	}
+	cameraR += deltaR;
+	//if (currentAnimation != 0) {
+		//cameraR = player.getPlayerR();
+	//}
+	//else {
+		//cameraR -= player.getPlayerR();
+	//}
+
 }
 
 void SceneManager::detectCollectableCollision() {
@@ -1125,6 +1183,15 @@ void SceneManager::detectCollectableCollision() {
 	if (level == 2) {
 		std::string playerColl = player.getLastCollision();
 		if (player.getLastCollision().substr(0, 11) == "collectable") {
+
+			HCHANNEL ch = BASS_SampleGetChannel(sounds[6], FALSE);
+			BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
+			BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
+			BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
+
+			if (!BASS_ChannelPlay(ch, FALSE))
+				std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
+
 			//playerColl = playerColl.substr(11);
 
 			//for (GameObject gObj : gameObjects) {
@@ -1175,17 +1242,57 @@ void SceneManager::initSounds()
 	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/splash.wav"));
 	//http://soundbible.com/2100-Splash-Rock-In-Lake.html
 
-	HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
-	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
-	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
-	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
-	int flag = BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-	std::cout << flag << std::endl;
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/city_environment.wav"));
+	//http://soundbible.com/1266-City-Ambiance.html
+
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/bleep.wav"));
+	//http://soundbible.com/1682-Robot-Blip.html
+
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/bloop.wav"));
+	//http://soundbible.com/1669-Robot-Blip-2.html
+
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/walk.wav"));
+	//http://soundbible.com/1796-Cowboy-With-Spurs.html
+
+	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/pickup.wav"));
+	//http://soundbible.com/1601-Mario-Jumping.html
+
+	//HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
+	//BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
+	//BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
+	//BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
+	//int flag = BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+	//std::cout << flag << std::endl;
 	/*if (!BASS_ChannelPlay(ch, FALSE))
 		std::cout << "Can't play sample" << std::endl;*/
+		//backgroundNoise = BASS_SampleGetChannel(sounds[0], FALSE);
 }
 
-void SceneManager::standingAnimation() {
+void SceneManager::playBleep() {
+	BASS_Start();
+	HCHANNEL ch = BASS_SampleGetChannel(sounds[3], FALSE);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.1);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
+
+	if (!BASS_ChannelPlay(ch, FALSE))
+		std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
+}
+
+void SceneManager::playBloop() {
+	BASS_Start();
+	HCHANNEL ch = BASS_SampleGetChannel(sounds[4], FALSE);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.1);
+	BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
+
+	if (!BASS_ChannelPlay(ch, FALSE))
+		std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
+}
+
+void SceneManager::stand() {
+	//player.playerStand();
+	//if (!player.isPlayerFalling())
 	currentAnimation = 0;
 }
 
@@ -1193,10 +1300,29 @@ void SceneManager::movePlayerForward(GLfloat delta) {
 
 	glm::vec3 temp = player.getPos();
 
+	player.setPlayerR(cameraR);
+
 	player.setPos(moveForward(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
 
 	if (checkCollisions())
 		player.setPos(temp);
+
+	if (!player.isPlayerFalling() && !player.isPlayerJumping() && walkingNoise == NULL) {
+		BASS_Start();
+		//if (BASS_C) {
+		walkingNoise = BASS_SampleGetChannel(sounds[5], FALSE);
+		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_FREQ, 0);
+		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_VOL, 0.5);
+		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_PAN, -1);
+		//}
+		if (!BASS_ChannelPlay(walkingNoise, FALSE))
+			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
+	}
+	else if (!player.isPlayerJumping() && !player.isPlayerFalling()) {
+		//walkingNoise = NULL;
+		if (!BASS_ChannelPlay(walkingNoise, FALSE))
+			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
+	}
 
 	currentAnimation = 1;
 }
@@ -1205,10 +1331,29 @@ void SceneManager::movePlayerRight(GLfloat delta) {
 
 	glm::vec3 temp = player.getPos();
 
+	player.setPlayerR(cameraR);
+
 	player.setPos(moveRight(player.getPos(), -player.getPlayerR(), delta / getTimeScalar()));
 
 	if (checkCollisions())
 		player.setPos(temp);
+
+	if (!player.isPlayerFalling() && !player.isPlayerJumping() && walkingNoise == NULL) {
+		BASS_Start();
+		//if (BASS_C) {
+		walkingNoise = BASS_SampleGetChannel(sounds[5], FALSE);
+		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_FREQ, 0);
+		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_VOL, 0.5);
+		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_PAN, -1);
+		//}
+		if (!BASS_ChannelPlay(walkingNoise, FALSE))
+			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
+	}
+	else if (!player.isPlayerJumping() && !player.isPlayerFalling()) {
+		//walkingNoise = NULL;
+		if (!BASS_ChannelPlay(walkingNoise, FALSE))
+			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
+	}
 
 	currentAnimation = 1;
 }
@@ -1262,6 +1407,7 @@ void SceneManager::playerJump() {
 	}*/
 
 	player.playerJump();
+	currentAnimation = 6;
 
 	/*if (player.isPlayerJumping()) {
 		player.setPos(glm::vec3(player.getPos().x, player.getPos().y + player.getJumpIncrement(), player.getPos().z));
@@ -1318,6 +1464,7 @@ void SceneManager::playerFall(bool spaceUp) {
 
 		if (checkCollisions()) {
 			player.playerStand();
+			//currentAnimation = 0;
 		}
 	}
 
@@ -1367,6 +1514,15 @@ void SceneManager::checkPlayerRespawn()
 		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
+		//HCHANNEL lvl1ch = BASS_SampleGetChannel(sounds[0], TRUE);
+		//if (!BASS_ChannelStop(lvl1ch)) {
+		//std::cout << "error stopping forest sounds " << BASS_ErrorGetCode() << std::endl;
+		//}
+		BASS_ChannelStop(backgroundNoise);
+		backgroundNoise = BASS_SampleGetChannel(sounds[2], TRUE);
+		BASS_ChannelFlags(backgroundNoise, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+		if (!BASS_ChannelPlay(backgroundNoise, FALSE))
+			std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
 		saveScores(levelTime, 1);
 	}
 	else if (player.getPos().y < -10)
