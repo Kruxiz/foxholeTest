@@ -110,6 +110,7 @@ private:
 	int currentAnimation = 0;
 
 	std::vector<GameObject> gameObjects;
+	std::unordered_map<std::string, int> objMeshIndexCounts;
 
 	int level; // probs better as struct
 
@@ -124,6 +125,7 @@ private:
 	void initCamera();
 	void initTTF();
 	void initGameObjects();
+	void updateCar();
 	void buildTrees();
 	void initPlayer();
 	void renderObject(GameObject gObj);
