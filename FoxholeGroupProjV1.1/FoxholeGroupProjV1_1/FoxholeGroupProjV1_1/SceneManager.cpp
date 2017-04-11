@@ -956,7 +956,7 @@ GLuint SceneManager::textToTexture(const char * str, GLuint textID) {
 //todo may deprecate
 void SceneManager::checkEndLevel()
 {
-	if (level == 2 && collectables == 0 && player.getLastCollision() == "LevelEnd") {
+	if (level == 2 && collectables <= 0 && player.getLastCollision() == "LevelEnd") {
 		//level = 1;
 		//timer = std::chrono::system_clock::now();
 		//pauseTimer = timer;
