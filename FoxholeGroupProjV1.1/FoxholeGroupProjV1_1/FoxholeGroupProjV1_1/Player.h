@@ -31,6 +31,7 @@ public:
 	bool isPlayerFalling() { return playerState == FALLING; }
 	bool isPlayerRunning() { return playerState == RUNNING; } //not sure if needed
 	bool isPlayerStanding() { return playerState == STANDING; }
+	void playerReset() { position = playerRespawnPos; lastCollisionObjName = ""; }
 private:
 	GLfloat r = 0.0f;
 	GLuint jumpCounter = 0;
@@ -43,6 +44,7 @@ private:
 	GLfloat accnValue = 1.1f; // needed
 	GLuint playerMeshIndexCount = 0;
 	PlayerState playerState = STANDING;
+	glm::vec3 playerRespawnPos;
 
 };
 
