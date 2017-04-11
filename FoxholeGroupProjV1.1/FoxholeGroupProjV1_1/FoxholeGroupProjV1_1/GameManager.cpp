@@ -82,15 +82,19 @@ void GameManager::GameRun(void)
 			if (scene->inChooseName()) {
 				if (sdlEvent.key.keysym.sym == SDLK_RIGHT && sdlEvent.type == SDL_KEYUP) {
 					scene->changeActiveChar(true);
+					scene->playBleep();
 				}
 				if (sdlEvent.key.keysym.sym == SDLK_LEFT && sdlEvent.type == SDL_KEYUP) {
 					scene->changeActiveChar(false);
+					scene->playBleep();
 				}
 				if (sdlEvent.key.keysym.sym == SDLK_UP && sdlEvent.type == SDL_KEYUP) {
 					scene->changeCurrentChar(true);
+					scene->playBleep();
 				}
 				if (sdlEvent.key.keysym.sym == SDLK_DOWN && sdlEvent.type == SDL_KEYUP) {
 					scene->changeCurrentChar(false);
+					scene->playBleep();
 				}
 
 			}
@@ -220,35 +224,43 @@ void GameManager::GameUpdate(bool spaceUp)
 	if (scene->inMainMenu()) {
 		if (keys[SDL_SCANCODE_RETURN]) {
 			scene->play();
+			scene->playBloop();
 		}
 		if (keys[SDL_SCANCODE_S]) {
 			scene->scores();
+			scene->playBloop();
 		}
 		if (keys[SDL_SCANCODE_C]) {
 			scene->controls();
+			scene->playBloop();
 		}
 	}
 	else if (scene->inControls()) {
 		if (keys[SDL_SCANCODE_BACKSPACE]) {
 			scene->mainMenu();
+			scene->playBloop();
 		}
 	}
 	else if (scene->inScores()) {
 		if (keys[SDL_SCANCODE_BACKSPACE]) {
 			scene->mainMenu();
+			scene->playBloop();
 		}
 	}
 	else if (scene->paused()) {
 		if (keys[SDL_SCANCODE_BACKSPACE]) {
 			scene->mainMenu();
+			scene->playBloop();
 		}
 	}
 	else if (scene->inChooseName()) {
 		if (keys[SDL_SCANCODE_BACKSPACE]) {
 			scene->mainMenu();
+			scene->playBloop();
 		}
 		if (keys[SDL_SCANCODE_SPACE]) {
 			scene->chooseNameAndPlay();
+			scene->playBloop();
 		}
 	}
 	else if (scene->inGame()) {
@@ -274,7 +286,7 @@ void GameManager::GameUpdate(bool spaceUp)
 			if (keys[SDL_SCANCODE_D]) scene->movePlayerRight(0.1f);
 		}
 		else {
-			scene->standingAnimation();
+			scene->stand();
 		}
 		if (keys[SDL_SCANCODE_SPACE]) {
 			scene->playerJump();
