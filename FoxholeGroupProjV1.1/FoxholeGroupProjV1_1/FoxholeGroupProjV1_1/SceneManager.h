@@ -70,7 +70,8 @@ private:
 	double time = 0;
 	std::chrono::time_point<std::chrono::system_clock> pauseTimer;
 	double pauseTime = 0;
-	std::chrono::time_point<std::chrono::system_clock> respawnTimer;
+	std::chrono::time_point<std::chrono::system_clock> waterRespawnTimer;
+	std::chrono::time_point<std::chrono::system_clock> carRespawnTimer;
 	double levelTime = 0;
 
 	//could change to tuple to accomodate more levels
@@ -125,7 +126,7 @@ private:
 	void initCamera();
 	void initTTF();
 	void initGameObjects();
-	void updateCar();
+	void updateCar(int carIndex);
 	void buildTrees();
 	void initPlayer();
 	void renderObject(GameObject gObj);
@@ -147,6 +148,7 @@ private:
 	void renderPlayerChars();
 	void writeScores();
 	void chooseName() { sceneState = CHOOSE_NAME; }
+	void updateCollectables();
 public:
 	SceneManager();
 	void togglePause();
