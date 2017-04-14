@@ -21,12 +21,6 @@
     <ClCompile Include="rt3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SDLManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GLEWManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rt3dObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -42,15 +36,12 @@
     <ClCompile Include="md2model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rt3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SDLManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEWManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rt3dObjLoader.h">
@@ -75,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="md2model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -109,7 +103,7 @@
     <None Include="modelLoading.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="classDiagram_b4_remodel.cd" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="tree.bmp">

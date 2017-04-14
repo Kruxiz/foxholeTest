@@ -6,6 +6,12 @@
 #include <string>
 #include "GameObject.h"
 
+enum PlayerState {
+	STANDING,
+	JUMPING,
+	FALLING
+};
+
 class Player : public GameObject {
 public:
 	Player();
@@ -14,46 +20,25 @@ public:
 	void setPlayerMesh(GLuint mesh) { meshId = mesh; }
 	void setPlayerTexture(GLuint tex) { textureId = tex; }
 	void setPlayerScale(glm::vec3 newScale) { scale = newScale; }
-	GLfloat getBaseJumpIncrement() { return baseJumpAndFallIncrement; }
-	GLfloat getMaxJumpIncrement() { return maxJumpIncrement; }
-	GLfloat getMaxFallIncrement() { return maxFallIncrement; }
-	GLuint getJumpMax() { return jumpMax; }
-	GLfloat getAccnValue() { return accnValue; } // needed?
-	bool isFalling() { return falling; }
-	void fall(bool newBool) { falling = newBool; }
-	bool isJumping() { return jumping; }
-	void jump(bool newBool) { jumping = newBool; }
-	bool isJumpIncrementSet() { return jumpIncrementSet; }
-	GLuint getJumpCounter() { return jumpCounter; }
-	void incrementJumpCounter() { jumpCounter++; }
-	void decrementJumpCounter() { jumpCounter--; } // needed?
-	void resetJumpCounter() { jumpCounter = 0; }
-	GLfloat getJumpIncrement() { return jumpIncrement; }
-	void increaseJumpIncrement() { jumpIncrement *= accnValue; }
-	void resetJumpIncrement() { jumpIncrement = baseJumpAndFallIncrement; }
-	GLfloat getFallIncrement() { return fallIncrement; }
-	void increaseFallIncrement() { fallIncrement *= accnValue; }
-	void resetFallIncrement() { fallIncrement = baseJumpAndFallIncrement; }
-	void setIsOnObj(bool onObj) { isOnObj = onObj; }
-	bool isOnObject() { return isOnObj; }
-	void maxJumpCounter() { jumpCounter = jumpMax; }
 	void setMeshIndexCount(GLuint newCount) { playerMeshIndexCount = newCount; }
 	GLuint getMeshIndexCount() { return playerMeshIndexCount; }
+	void playerJump();
+	void playerStand();
+	void playerFall();
+	bool isPlayerJumping() { return playerState == JUMPING; }
+	bool isPlayerFalling() { return playerState == FALLING; }
+	bool isPlayerStanding() { return playerState == STANDING; }
+	void playerReset() { position = playerRespawnPos; lastCollisionObjName = ""; }
 private:
 	GLfloat r = 0.0f;
 	GLuint jumpCounter = 0;
-	GLfloat jumpIncrement = 0.1f;
-	GLfloat fallIncrement = 0.1f;
-	GLfloat baseJumpAndFallIncrement = 0.1f;
-	GLfloat maxJumpIncrement = 0.5f;
-	GLfloat maxFallIncrement = 0.5f;
-	GLuint jumpMax = 50;
-	GLfloat accnValue = 1.1f; // needed
-	bool falling = false;
-	bool jumping = false;
-	bool jumpIncrementSet = false;
-	bool isOnObj = false;
+	GLfloat jumpIncrement = 0.2f;
+	GLfloat fallIncrement = 0.2f;
+	GLuint jumpMax = 25;
 	GLuint playerMeshIndexCount = 0;
+	PlayerState playerState = STANDING;
+	glm::vec3 playerRespawnPos;
+
 };
 
 #endif

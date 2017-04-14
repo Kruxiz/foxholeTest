@@ -6,29 +6,30 @@
 #include <stack>
 #include <unordered_map>
 #include <tuple>
+#include <sstream>
 #include <chrono>
+#include <algorithm>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "rt3d.h"
 #include "rt3dObjLoader.h"
-#include "SDLManager.h"
 #include "Player.h"
 #include "CollisionDetector.h"
 #include <random>
 #include "bass.h"  //sound library
 #include "SDL_ttf.h" //text library
 #include "md2model.h"
-//#include "Model.h"
 
 enum SceneState {
-	PAUSE, //todo possibly add 'countdown' state
+	PAUSE,
 	IN_GAME,
 	MAIN_MENU,
 	SCORES,
 	CONTROLS,
-	COUNTDOWN
+	COUNTDOWN,
+	CHOOSE_NAME
 };
 
 typedef std::tuple<std::string, glm::vec3, glm::vec3> MenuObject;
@@ -44,24 +45,36 @@ private:
 	std::stack<glm::mat4> mvStack;
 	std::vector<GLuint> textures;
 	GLuint skybox[5];
+	GLuint skybox2[5];
 
 	int collectables;
 
-	//hud
-	//GLuint labels[5];
 	TTF_Font * textFont;
 
 	std::unordered_map<std::string, Menu> menus;
 	SceneState sceneState;
 
-	//bool pause = false; //todo deprecate
 
 	std::chrono::time_point<std::chrono::system_clock> timer;
 	double time = 0;
 	std::chrono::time_point<std::chrono::system_clock> pauseTimer;
 	double pauseTime = 0;
-	std::chrono::time_point<std::chrono::system_clock> respawnTimer;
+	std::chrono::time_point<std::chrono::system_clock> waterRespawnTimer;
+	std::chrono::time_point<std::chrono::system_clock> carRespawnTimer;
 	double levelTime = 0;
+
+	std::vector<std::pair<std::string, double>> highscores1;
+	std::vector<std::pair<std::string, double>> highscores2;
+
+	std::pair<double, double> tempScore;
+	std::string playerName;
+	bool playerNameSet = false;
+	char playerName1 = 'A';
+	char playerName2 = 'A';
+	char playerName3 = 'A';
+	int activeChar = 1;
+	bool highscoreOnLevel1 = false;
+	bool highscoreOnLevel2 = false;
 
 	GLuint textToTexture(const char * str, GLuint textID);
 
@@ -75,77 +88,91 @@ private:
 	GLuint textureProgram;
 	GLuint modelProgram;
 
-	//Model *foxModel;
 
 	Player player;
+	GLfloat cameraR = 0.0f;
 	md2model foxModel;
 	int currentAnimation = 0;
 
 	std::vector<GameObject> gameObjects;
+	std::unordered_map<std::string, int> objMeshIndexCounts;
 
-	int level; // probs better as struct
-
-	const GLuint gravity = 1.1; // needed?
+	int level; 
 
 	std::vector<HSAMPLE> sounds;
+	HCHANNEL backgroundNoise;
+	HCHANNEL walkingNoise = NULL;
 
 	static glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d);
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
 	void initTTF();
 	void initGameObjects();
+	void updateCar(int carIndex);
 	void buildTrees();
 	void initPlayer();
 	void renderObject(GameObject gObj);
 	void renderHUD();
 	void renderPlayer();
 	double getTimeScalar();
-	int countCollectables();
 	HSAMPLE loadSounds(char * filename);
 	void initSounds();
 	void renderHUDObject(MenuObject menuObj);
 	void addToScores();
-	void saveScores(double levelTime);
-
+	void saveScores(double levelTime, int level);
+	void playerFall(bool spaceUp);
+	void checkPlayerRespawn();
+	void detectCollectableCollision();
+	void checkEndLevel();
+	void findHighScores();
+	void loadScores();
+	void renderPlayerChars();
+	void writeScores();
+	void chooseName() { sceneState = CHOOSE_NAME; }
+	void updateCollectables();
+	GLuint loadCubeMap(const char * fname[6], GLuint * texID);
+	GLuint loadBitmap(char * fname);
+	bool checkCollisions();
+	bool checkCollisions(GameObject &specObj);
+	GameObject getGameObject(std::string objName);
+	int getGameObjectIndex(std::string objName);
 public:
 	SceneManager();
 	void togglePause();
-	void checkSwitchLevel();
-	void standingAnimation();
+	void playBloop();
+	void playBleep();
+	void stand();
 	void renderSkybox(glm::mat4 projection);
 	void clearScreen();
 	glm::mat4 initRendering();
+	void respawnPlayer();
 	void init();
 	void popMatrixStack() { mvStack.pop(); }
 	void setShaderProjection(glm::mat4 projection);
 	void setLights();
 	void renderObjects();
 	void updatePlayerR(GLfloat deltaR);
-	void detectCollectableCollision();
 	void movePlayerForward(GLfloat delta);
 	void movePlayerRight(GLfloat delta);
-	bool checkCollisions();
-	bool checkCollisions(GameObject &specObj);
 	void playerJump();
-	void playerFall();
-	GameObject getGameObject(std::string objName);
-	int getGameObjectIndex(std::string objName);
-	void setPlayerJumpFalse();
-	void respawnPlayer();
-	void checkPlayerRespawn();
 	void freeBass();
 	bool inGame() { return sceneState == IN_GAME; }
 	bool inMainMenu() { return sceneState == MAIN_MENU; }
 	bool inControls() { return sceneState == CONTROLS; }
 	bool inScores() { return sceneState == SCORES; }
 	bool paused() { return sceneState == PAUSE; }
+	bool inChooseName() { return sceneState == CHOOSE_NAME; }
 	bool inCountdown();
 	void play();
 	void mainMenu();
 	void controls() { sceneState = CONTROLS; }
-	void scores() { sceneState = SCORES; }
+	void scores() { BASS_Pause(); sceneState = SCORES; }
 	void countdown() { sceneState = COUNTDOWN; }
 	void renderMenus();
+	void playerUpdate(bool spaceUp);
+	void changeActiveChar(bool right);
+	void changeCurrentChar(bool up);
+	void chooseNameAndPlay();
 };
 
 #endif

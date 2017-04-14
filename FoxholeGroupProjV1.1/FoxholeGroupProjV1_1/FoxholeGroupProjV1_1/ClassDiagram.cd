@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CollisionDetector">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CollisionDetector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GameManager">
+    <Position X="9.75" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAICAAAAAAIAAEABAAAAAIAAAAAEAAAMAAAAAABIAAA=</HashCode>
+      <FileName>GameManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GameObject">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <Members>
+      <Method Name="getLastCollision" Hidden="true" />
+      <Method Name="getMesh" Hidden="true" />
+      <Method Name="getMeshIndexCount" Hidden="true" />
+      <Method Name="getName" Hidden="true" />
+      <Method Name="getPos" Hidden="true" />
+      <Method Name="getRotation" Hidden="true" />
+      <Method Name="getScale" Hidden="true" />
+      <Method Name="getStartPos" Hidden="true" />
+      <Method Name="getTexture" Hidden="true" />
+      <Method Name="setLastCollision" Hidden="true" />
+      <Method Name="setMeshIndexCount" Hidden="true" />
+      <Method Name="setPos" Hidden="true" />
+      <Method Name="setRotation" Hidden="true" />
+      <Method Name="setScale" Hidden="true" />
+      <Method Name="setStartPos" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAICEAAAEAgAAAYKAIAASCAAoYBACAAAkAAIBABI=</HashCode>
+      <FileName>GameObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Player">
+    <Position X="3" Y="2.25" Width="1.5" />
+    <Members>
+      <Field Name="accnValue" Hidden="true" />
+      <Field Name="baseJumpAndFallIncrement" Hidden="true" />
+      <Method Name="getMeshIndexCount" Hidden="true" />
+      <Method Name="getPlayerR" Hidden="true" />
+      <Method Name="isPlayerStanding" Hidden="true" />
+      <Field Name="maxFallIncrement" Hidden="true" />
+      <Field Name="maxJumpIncrement" Hidden="true" />
+      <Field Name="playerRespawnPos" Hidden="true" />
+      <Method Name="playerRun" Hidden="true" />
+      <Field Name="playerState" Hidden="true" />
+      <Method Name="setMeshIndexCount" Hidden="true" />
+      <Method Name="setPlayerMesh" Hidden="true" />
+      <Method Name="setPlayerR" Hidden="true" />
+      <Method Name="setPlayerScale" Hidden="true" />
+      <Method Name="setPlayerTexture" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>ACAgAAAAEAAAKkAEggJAAAAQAAwAQgABEAAJIUoJAAA=</HashCode>
+      <FileName>Player.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SceneManager">
+    <Position X="5.5" Y="0.5" Width="2.5" />
+    <Members>
+      <Method Name="addToScores" Hidden="true" />
+      <Field Name="at" Hidden="true" />
+      <Method Name="buildTrees" Hidden="true" />
+      <Method Name="changeActiveChar" Hidden="true" />
+      <Method Name="changeCurrentChar" Hidden="true" />
+      <Method Name="chooseName" Hidden="true" />
+      <Method Name="clearScreen" Hidden="true" />
+      <Method Name="controls" Hidden="true" />
+      <Method Name="countCollectables" Hidden="true" />
+      <Field Name="eye" Hidden="true" />
+      <Field Name="foxModel" Hidden="true" />
+      <Method Name="freeBass" Hidden="true" />
+      <Method Name="getGameObject" Hidden="true" />
+      <Method Name="getGameObjectIndex" Hidden="true" />
+      <Method Name="getTimeScalar" Hidden="true" />
+      <Field Name="gravity" Hidden="true" />
+      <Method Name="inChooseName" Hidden="true" />
+      <Method Name="inControls" Hidden="true" />
+      <Method Name="inCountdown" Hidden="true" />
+      <Method Name="inGame" Hidden="true" />
+      <Method Name="init" Hidden="true" />
+      <Method Name="initCamera" Hidden="true" />
+      <Method Name="initPlayer" Hidden="true" />
+      <Method Name="initRendering" Hidden="true" />
+      <Method Name="initTTF" Hidden="true" />
+      <Method Name="inMainMenu" Hidden="true" />
+      <Method Name="inScores" Hidden="true" />
+      <Field Name="lightPos" Hidden="true" />
+      <Field Name="lights" Hidden="true" />
+      <Field Name="materials" Hidden="true" />
+      <Field Name="meshIndexCount" Hidden="true" />
+      <Field Name="modelProgram" Hidden="true" />
+      <Method Name="moveForward" Hidden="true" />
+      <Method Name="movePlayerForward" Hidden="true" />
+      <Method Name="movePlayerRight" Hidden="true" />
+      <Method Name="moveRight" Hidden="true" />
+      <Method Name="playBleep" Hidden="true" />
+      <Method Name="playBloop" Hidden="true" />
+      <Field Name="playerName1" Hidden="true" />
+      <Field Name="playerName2" Hidden="true" />
+      <Field Name="playerName3" Hidden="true" />
+      <Method Name="popMatrixStack" Hidden="true" />
+      <Field Name="shaderProgram" Hidden="true" />
+      <Field Name="skyboxProgram" Hidden="true" />
+      <Field Name="textFont" Hidden="true" />
+      <Method Name="textToTexture" Hidden="true" />
+      <Field Name="textureProgram" Hidden="true" />
+      <Field Name="up" Hidden="true" />
+      <Method Name="updatePlayerR" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>QQxBZChwHFLCbxDSmAkYASCAA6uFmrZRzwwYMsBlabw=</HashCode>
+      <FileName>SceneManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
