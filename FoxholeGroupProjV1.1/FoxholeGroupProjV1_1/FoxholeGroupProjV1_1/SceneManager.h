@@ -107,32 +107,52 @@ private:
 	static glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d);
 	void initCamera();
 	void initTTF();
+	//holds the game objects for the levels - only loads particular objects based on current level
 	void initGameObjects();
+	//update specific car in game objects vector to make it drive back and forth
 	void updateCar(int carIndex);
+	//build trees round first level
 	void buildTrees();
 	void initPlayer();
+	//render specific game object
 	void renderObject(GameObject gObj);
+	//render timer, collectables left, countdown display, level messages
 	void renderHUD();
+	//separate render method for player as player needs different call to rt3d
 	void renderPlayer();
 	double getTimeScalar();
 	HSAMPLE loadSounds(char * filename);
 	void initSounds();
+	//render specific hud object
 	void renderHUDObject(MenuObject menuObj);
+	//render scores in score vector as hud objects
 	void addToScores();
+	//if finished first level, save score in temp score
+	//if finished second level, save score in temp score and add to score vectors
 	void saveScores(double levelTime, int level);
+	//fall if not colliding with objects
 	void playerFall(bool spaceUp);
+	//respawn if colliding with cars, water or level end on level 1
 	void checkPlayerRespawn();
+	//if player collided with collectables, erase collectable from game objects vector
 	void detectCollectableCollision();
+	//check if finished level 2
 	void checkEndLevel();
+	//sort and erase score vectors so only contains top 5
 	void findHighScores();
+	//load scores from txt
 	void loadScores();
 	void renderPlayerChars();
+	//write scores to txt
 	void writeScores();
 	void chooseName() { sceneState = CHOOSE_NAME; }
+	//rotate all collectables
 	void updateCollectables();
 	GLuint loadCubeMap(const char * fname[6], GLuint * texID);
 	GLuint loadBitmap(char * fname);
+	//check player collision with every other object in level
 	bool checkCollisions();
+	//check specific object with every other object in level
 	bool checkCollisions(GameObject &specObj);
 	GameObject getGameObject(std::string objName);
 	int getGameObjectIndex(std::string objName);
