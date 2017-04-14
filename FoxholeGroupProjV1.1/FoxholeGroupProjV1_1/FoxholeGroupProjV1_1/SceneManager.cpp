@@ -149,7 +149,8 @@ void SceneManager::mainMenu()
 void SceneManager::loadScores() {
 	std::ifstream highScores1_STREAM("../FoxholeGroupProjV1_1/highScores1.txt");
 	std::ifstream highScores2_STREAM("../FoxholeGroupProjV1_1/highScores2.txt");
-
+	
+	//read both txts
 	if (highScores1_STREAM && highScores2_STREAM) {
 		std::string username;
 		std::string userTimeStr;
@@ -284,6 +285,7 @@ void SceneManager::renderPlayerChars()
 	}
 }
 
+//if anything needs to be checked every update loop - call method here
 void SceneManager::playerUpdate(bool spaceUp)
 {
 	checkPlayerRespawn();
