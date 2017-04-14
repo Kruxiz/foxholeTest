@@ -25,7 +25,7 @@ void GameManager::GameInit()
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4); // Turn on x4 multisampling anti-aliasing (MSAA)
 
 													   // Create 800x600 window
-	window = SDL_CreateWindow("SDL/GLM/OpenGL Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	window = SDL_CreateWindow("Foxhole", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if (!window) // Check window was created OK
 		rt3d::exitFatalError("Unable to create window");
@@ -33,7 +33,14 @@ void GameManager::GameInit()
 	context = SDL_GL_CreateContext(window); // Create opengl context and attach to window
 	SDL_GL_SetSwapInterval(1); // set swap buffers to sync with monitor's vertical refresh rate
 
-	GLEWManager::GLEWInitialise();
+	// Required on Windows *only* init GLEW to access OpenGL beyond 1.1
+	glewExperimental = GL_TRUE;
+	GLenum err = glewInit();
+	if (GLEW_OK != err) { // glewInit failed, something is seriously wrong
+		std::cout << "glewInit failed, aborting." << std::endl;
+		exit(1);
+	}
+	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	scene = new SceneManager();
 
@@ -106,91 +113,8 @@ void GameManager::GameRun(void)
 
 }
 
-//todo move into scenemanager???
-GLuint GameManager::loadCubeMap(const char * fname[6], GLuint * texID)
-{
-	glGenTextures(1, texID); // generate texture ID
-	GLenum sides[6] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y };
-	SDL_Surface *tmpSurface;
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, *texID); // bind texture and set parameters
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	GLuint externalFormat;
-	for (int i = 0;i < 6;i++)
-	{
-		// load file - using core SDL library
-		tmpSurface = SDL_LoadBMP(fname[i]);
-		if (!tmpSurface)
-		{
-			std::cout << "Error loading bitmap" << std::endl;
-			return *texID;
-		}
-
-		// skybox textures should not have alpha (assuming this is true!)
-		SDL_PixelFormat *format = tmpSurface->format;
-		externalFormat = (format->Rmask < format->Bmask) ? GL_RGB : GL_BGR;
-
-		glTexImage2D(sides[i], 0, GL_RGB, tmpSurface->w, tmpSurface->h, 0,
-			externalFormat, GL_UNSIGNED_BYTE, tmpSurface->pixels);
-		// texture loaded, free the temporary buffer
-		SDL_FreeSurface(tmpSurface);
-	}
-	return *texID;	// return value of texure ID, redundant really
-}
-
-GLuint GameManager::loadBitmap(char * fname)
-{
-	GLuint texID;
-	glGenTextures(1, &texID); // generate texture ID
-
-							  // load file - using core SDL library
-	SDL_Surface *tmpSurface;
-	tmpSurface = SDL_LoadBMP(fname);
-	if (!tmpSurface) {
-		std::cout << "Error loading bitmap" << std::endl;
-	}
-
-	// bind texture and set parameters
-	glBindTexture(GL_TEXTURE_2D, texID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	SDL_PixelFormat *format = tmpSurface->format;
-
-	GLuint externalFormat, internalFormat;
-	if (format->Amask) {
-		internalFormat = GL_RGBA;
-		externalFormat = (format->Rmask < format->Bmask) ? GL_RGBA : GL_BGRA;
-	}
-	else {
-		internalFormat = GL_RGB;
-		externalFormat = (format->Rmask < format->Bmask) ? GL_RGB : GL_BGR;
-	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, tmpSurface->w, tmpSurface->h, 0,
-		externalFormat, GL_UNSIGNED_BYTE, tmpSurface->pixels);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	SDL_FreeSurface(tmpSurface); // texture loaded, free the temporary buffer
-	return texID;	// return value of texture ID
-}
-
-//todo refactor in some fashion
 void GameManager::GameDraw()
 {
-	//call scene manager
 	scene->clearScreen();
 
 	if (scene->inMainMenu() || scene->inControls() || scene->inScores() || scene->inChooseName()) {
@@ -274,11 +198,6 @@ void GameManager::GameUpdate(bool spaceUp)
 			glEnable(GL_CULL_FACE);
 		}
 
-		//if using <> - update playerR through scene->updatePlayerR();
-
-		if (keys[SDL_SCANCODE_COMMA]) scene->updatePlayerR(0.50f);
-		if (keys[SDL_SCANCODE_PERIOD]) scene->updatePlayerR(-0.50f);
-
 		if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_D]) {
 			if (keys[SDL_SCANCODE_W]) scene->movePlayerForward(0.1f);
 			if (keys[SDL_SCANCODE_S]) scene->movePlayerForward(-0.1f);
@@ -291,8 +210,6 @@ void GameManager::GameUpdate(bool spaceUp)
 		if (keys[SDL_SCANCODE_SPACE]) {
 			scene->playerJump();
 		}
-
-		if (keys[SDL_SCANCODE_R]) scene->respawnPlayer();
 
 		scene->playerUpdate(spaceUp);
 	}

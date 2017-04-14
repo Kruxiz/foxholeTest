@@ -33,8 +33,6 @@ public:
 	void setMeshIndexCount(int newCount) { meshIndexCount = newCount; }
 	float getRotation() { return rotation; }
 	void setRotation(float newRot) { rotation = newRot; }
-	//getDimensions??
-	//meshIndexCount getters and setters
 protected:
 	GLuint meshId;
 	GLuint textureId;

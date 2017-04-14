@@ -5,9 +5,7 @@
 #include <gl/glew.h>
 #include "SceneManager.h"
 #include "rt3d.h"
-#include "GLEWManager.h"
 
-class SceneManager;
 
 class GameManager {
 private:
@@ -21,9 +19,6 @@ public:
 	void GameInit(void);
 	void GameEnd(void);
 	void GameRun(void);
-	static GLuint loadCubeMap(const char * fname[6], GLuint * texID);
-	static GLuint loadBitmap(char * fname);
-	//static Uint8 
 };
 
 #endif

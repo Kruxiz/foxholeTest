@@ -21,9 +21,6 @@
     <ClCompile Include="rt3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLEWManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rt3dObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rt3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEWManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rt3dObjLoader.h">
@@ -109,6 +103,7 @@
     <None Include="modelLoading.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="tree.bmp">

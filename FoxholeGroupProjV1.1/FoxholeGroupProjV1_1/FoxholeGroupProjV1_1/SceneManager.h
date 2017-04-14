@@ -15,14 +15,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "rt3d.h"
 #include "rt3dObjLoader.h"
-#include "GameManager.h"
 #include "Player.h"
 #include "CollisionDetector.h"
 #include <random>
 #include "bass.h"  //sound library
 #include "SDL_ttf.h" //text library
 #include "md2model.h"
-//#include "Model.h"
 
 enum SceneState {
 	PAUSE,
@@ -33,12 +31,6 @@ enum SceneState {
 	COUNTDOWN,
 	CHOOSE_NAME
 };
-
-//enum ActivePlayerChar {
-//	FIRST,
-//	SECOND,
-//	THIRD
-//};
 
 typedef std::tuple<std::string, glm::vec3, glm::vec3> MenuObject;
 typedef std::vector<MenuObject> Menu;
@@ -57,14 +49,11 @@ private:
 
 	int collectables;
 
-	//hud
-	//GLuint labels[5];
 	TTF_Font * textFont;
 
 	std::unordered_map<std::string, Menu> menus;
 	SceneState sceneState;
 
-	//bool pause = false; //todo deprecate
 
 	std::chrono::time_point<std::chrono::system_clock> timer;
 	double time = 0;
@@ -74,9 +63,6 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> carRespawnTimer;
 	double levelTime = 0;
 
-	//could change to tuple to accomodate more levels
-	//std::unordered_map<std::string, double> highScores1;
-	//std::unordered_map<std::string, double> highScores2;
 	std::vector<std::pair<std::string, double>> highscores1;
 	std::vector<std::pair<std::string, double>> highscores2;
 
@@ -89,7 +75,6 @@ private:
 	int activeChar = 1;
 	bool highscoreOnLevel1 = false;
 	bool highscoreOnLevel2 = false;
-	//double tempScore;
 
 	GLuint textToTexture(const char * str, GLuint textID);
 
@@ -103,7 +88,6 @@ private:
 	GLuint textureProgram;
 	GLuint modelProgram;
 
-	//Model *foxModel;
 
 	Player player;
 	GLfloat cameraR = 0.0f;
@@ -113,9 +97,7 @@ private:
 	std::vector<GameObject> gameObjects;
 	std::unordered_map<std::string, int> objMeshIndexCounts;
 
-	int level; // probs better as struct
-
-	const GLuint gravity = 1.1; // needed?
+	int level; 
 
 	std::vector<HSAMPLE> sounds;
 	HCHANNEL backgroundNoise;
@@ -133,7 +115,6 @@ private:
 	void renderHUD();
 	void renderPlayer();
 	double getTimeScalar();
-	int countCollectables();
 	HSAMPLE loadSounds(char * filename);
 	void initSounds();
 	void renderHUDObject(MenuObject menuObj);
@@ -149,6 +130,12 @@ private:
 	void writeScores();
 	void chooseName() { sceneState = CHOOSE_NAME; }
 	void updateCollectables();
+	GLuint loadCubeMap(const char * fname[6], GLuint * texID);
+	GLuint loadBitmap(char * fname);
+	bool checkCollisions();
+	bool checkCollisions(GameObject &specObj);
+	GameObject getGameObject(std::string objName);
+	int getGameObjectIndex(std::string objName);
 public:
 	SceneManager();
 	void togglePause();
@@ -167,11 +154,7 @@ public:
 	void updatePlayerR(GLfloat deltaR);
 	void movePlayerForward(GLfloat delta);
 	void movePlayerRight(GLfloat delta);
-	bool checkCollisions();
-	bool checkCollisions(GameObject &specObj);
 	void playerJump();
-	GameObject getGameObject(std::string objName);
-	int getGameObjectIndex(std::string objName);
 	void freeBass();
 	bool inGame() { return sceneState == IN_GAME; }
 	bool inMainMenu() { return sceneState == MAIN_MENU; }

@@ -10,7 +10,7 @@ SceneManager::SceneManager() {
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
 	skyboxProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/cubeMap.vert", "../FoxholeGroupProjV1_1/cubeMap.frag");
 
-	//lights - initialise first light - can possibly be read in from file using rt3d::load file
+	//lights - initialise first light
 	lights.push_back({
 		{ 0.3f, 0.3f, 0.3f, 1.0f },
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
@@ -99,14 +99,7 @@ void SceneManager::play()
 			timer = std::chrono::system_clock::now();
 			pauseTimer = timer;
 
-			//HCHANNEL ch;
-			//if (level == 1)
-			backgroundNoise = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
-		//else if (level == 2) {
-			//HCHANNEL lvl1ch = BASS_SampleGetChannel(sounds[0], FALSE);
-			//BASS_SampleStop(lvl1ch);
-			//backgroundNoise = BASS_SampleGetChannel(sounds[2], TRUE);
-		//}
+			backgroundNoise = BASS_SampleGetChannel(sounds[0], TRUE);
 			BASS_ChannelFlags(backgroundNoise, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
 			if (!BASS_ChannelPlay(backgroundNoise, FALSE))
 				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
@@ -114,23 +107,6 @@ void SceneManager::play()
 			level = 1;
 			initGameObjects();
 			respawnPlayer();
-		}
-		else {
-			//HCHANNEL ch;
-			//if (level == 1)
-			backgroundNoise = BASS_SampleGetChannel(sounds[0], TRUE); //todo true i think??
-		//else if (level == 2) {
-			//HCHANNEL lvl1ch = BASS_SampleGetChannel(sounds[0], TRUE);
-			//if (!BASS_ChannelStop(lvl1ch)) {
-				//std::cout << "error stopping forest sounds " << BASS_ErrorGetCode() << std::endl;
-			//}
-			//BASS_ChannelStop(backgroundNoise);
-			//backgroundNoise = BASS_SampleGetChannel(sounds[2], TRUE);
-		//}
-			BASS_ChannelFlags(backgroundNoise, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-			if (!BASS_ChannelPlay(backgroundNoise, FALSE))
-				std::cout << "Can't play sample - " << BASS_ErrorGetCode() << std::endl;
-
 		}
 
 		if (!inCountdown())
@@ -151,7 +127,6 @@ bool SceneManager::inCountdown()
 			countdown();
 		}
 		else {
-			//;//sceneState = IN_GAME; //todo make mechanism to end countdown
 			if (sceneState == COUNTDOWN) {
 				sceneState = IN_GAME;
 			}
@@ -162,35 +137,26 @@ bool SceneManager::inCountdown()
 
 void SceneManager::mainMenu()
 {
-	/*if (sceneState == PAUSE) {
-		HCHANNEL ch = BASS_SampleGetChannel(sounds[0], TRUE);
-		BASS_ChannelPause(ch);
-	}*/
-	//BASS_Pause();
 	BASS_ChannelStop(backgroundNoise);
 	highscoreOnLevel1 = false;
 	highscoreOnLevel2 = false;
+	playerNameSet = false;
+	playerName = "";
 	sceneState = MAIN_MENU;
-	/*if (highscores1.size() == 0 && highscores2.size() == 0)
-		loadScores();*/
 
 }
 
 void SceneManager::loadScores() {
-	//todo syntax = 3 chars then ; then double level time
 	std::ifstream highScores1_STREAM("../FoxholeGroupProjV1_1/highScores1.txt");
 	std::ifstream highScores2_STREAM("../FoxholeGroupProjV1_1/highScores2.txt");
 
-	//todo add error checking
 	if (highScores1_STREAM && highScores2_STREAM) {
 		std::string username;
 		std::string userTimeStr;
-		//std::string blank;
 		std::string hash;
 		double userTime;
 		std::stringstream ss;
 		bool continueReading = true;
-		//char name1, name2, name3;
 		while (continueReading) {
 			std::getline(highScores1_STREAM, username, ':');
 
@@ -202,12 +168,10 @@ void SceneManager::loadScores() {
 
 			ss.str("");
 			ss.clear();
-			//std::getline(highScores1_STREAM, blank);
 			std::getline(highScores1_STREAM, hash, ';');
 			if (hash != "#")
 				continueReading = false;
 		}
-		//ss >> name1 >> name2 >> name3;
 		continueReading = true;
 		while (continueReading) {
 			std::getline(highScores2_STREAM, username, ':');
@@ -220,12 +184,10 @@ void SceneManager::loadScores() {
 
 			ss.str("");
 			ss.clear();
-			//std::getline(highScores2_STREAM, blank);
 			std::getline(highScores2_STREAM, hash, ';');
 			if (hash != "#")
 				continueReading = false;
 		}
-		//ss >> name1 >> name2 >> name3;
 
 		highScores1_STREAM.close();
 		highScores2_STREAM.close();
@@ -279,7 +241,7 @@ void SceneManager::renderMenus() {
 		}
 		renderPlayerChars();
 		break;
-	default://todo maybe add something else here
+	default:
 		break;
 
 	}
@@ -302,8 +264,7 @@ void SceneManager::renderPlayerChars()
 	auto playerChar3 = std::make_tuple(playerCharStr, glm::vec3(-0.1f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
 	renderHUDObject(playerChar3);
 
-	MenuObject charUnderline;/* = std::make_tuple("_", glm::vec3(-0.1f, -0.1f, 0.0f), glm::vec3(0.1f, 0.1f, 0.0f));
-	//renderHUDObject(charUnderline);*/
+	MenuObject charUnderline;
 
 	switch (activeChar) {
 	case 1:
@@ -325,16 +286,11 @@ void SceneManager::renderPlayerChars()
 
 void SceneManager::playerUpdate(bool spaceUp)
 {
-	//if (player.isPlayerStanding()) {
-	//	BASS_ChannelStop(walkingNoise);
-	//	//walkingNoise = NULL;
-	//}
 	checkPlayerRespawn();
 	checkEndLevel();
 	playerFall(spaceUp);
 	detectCollectableCollision();
 
-	//updateCar();
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i].getName() == "Car") {
 			updateCar(i);
@@ -345,6 +301,7 @@ void SceneManager::playerUpdate(bool spaceUp)
 }
 
 void SceneManager::chooseNameAndPlay() {
+	playerName = "";
 	playerName += playerName1;
 	playerName += playerName2;
 	playerName += playerName3;
@@ -421,10 +378,8 @@ void SceneManager::changeCurrentChar(bool up)
 	}
 }
 
-//todo call this method when player selects scores menu
 //this method gets top five scores and displays
 void SceneManager::addToScores() {
-	//todo addToScores - only top 5?
 	glm::vec3 pos(-0.6f, 0.3f, 0.0f);
 	glm::vec3 scale(0.2f, 0.1f, 0.0f);
 	float step = 0.15f;
@@ -443,12 +398,8 @@ void SceneManager::addToScores() {
 		scoreStr.append(std::to_string(score.second));
 		scoreStr.append("s");
 		auto scoreRender = std::make_tuple(scoreStr, pos, scale);
-		//renderHUDObject(nameRender);
-		//pos.x -= 0.2f;
-		//auto scoreRender = std::make_tuple(std::to_string(score.second), pos, scale);
 		renderHUDObject(scoreRender);
 		pos.y -= step;
-		//pos.x += 0.2f;
 		scoreStr.clear();
 	}
 	pos = { 0.6f, 0.3f, 0.0f };
@@ -459,12 +410,8 @@ void SceneManager::addToScores() {
 		scoreStr.append(std::to_string(score.second));
 		scoreStr.append("s");
 		auto scoreRender = std::make_tuple(scoreStr, pos, scale);
-		//renderHUDObject(nameRender);
-		//pos.x -= 0.2f;
-		//auto scoreRender = std::make_tuple(std::to_string(score.second), pos, scale);
 		renderHUDObject(scoreRender);
 		pos.y -= step;
-		//pos.x += 0.2f;
 		scoreStr.clear();
 	}
 }
@@ -521,8 +468,6 @@ glm::mat4 SceneManager::initRendering()
 	glm::mat4 projection(1.0);
 	projection = glm::perspective(float(60.0f*DEG_TO_RADIAN), 800.0f / 600.0f, 1.0f, 300.0f);
 
-	//GLfloat scale(1.0f); // just to allow easy scaling of complete scene
-
 	glm::mat4 modelview(1.0); // set base position for scene
 	mvStack.push(modelview);
 
@@ -532,16 +477,8 @@ glm::mat4 SceneManager::initRendering()
 }
 
 void SceneManager::initCamera() {
-	//init camera???
 	at = player.getPos();
-	//if (currentAnimation != 0) {
 	eye = moveForward(at, -cameraR, -8.0f);
-	//}
-	//else {
-		//cameraR = player.getPlayerR();
-		//player.setPlayerR(cameraR);
-		//eye = moveForward(at, -player.getPlayerR(), -8.0f);
-	//}
 	eye.y += 3.0;
 	mvStack.top() = glm::lookAt(eye, at, up);
 }
@@ -561,13 +498,10 @@ void SceneManager::init()
 
 	initTTF();
 
-	initSounds(); //todo play menu music - play forest sounds when playing game
+	initSounds();
 
 	shaderProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/phong-tex.vert", "../FoxholeGroupProjV1_1/phong-tex.frag");
 	textureProgram = rt3d::initShaders("../FoxholeGroupProjV1_1/textured.vert", "../FoxholeGroupProjV1_1/textured.frag");
-
-	//rt3d::setLight(shaderProgram, lights[0]);
-	//rt3d::setMaterial(shaderProgram, materials[0]);
 
 	//loading skybox
 	//https://opengameart.org/content/forest-skyboxes
@@ -577,13 +511,13 @@ void SceneManager::init()
 		"../FoxholeGroupProjV1_1/Brudslojan/posy.bmp", "../FoxholeGroupProjV1_1/Brudslojan/posy.bmp"
 	};
 
-	GameManager::loadCubeMap(cubeTexFiles, skybox);
+	loadCubeMap(cubeTexFiles, skybox);
 	const char *cubeTexFiles2[6] = {
 		"../FoxholeGroupProjV1_1/Town-skybox/Town_bk.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_ft.bmp",
 		"../FoxholeGroupProjV1_1/Town-skybox/Town_rt.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_lf.bmp",
 		"../FoxholeGroupProjV1_1/Town-skybox/Town_up.bmp", "../FoxholeGroupProjV1_1/Town-skybox/Town_dn.bmp"
 	};
-	GameManager::loadCubeMap(cubeTexFiles2, skybox2);
+	loadCubeMap(cubeTexFiles2, skybox2);
 
 	std::vector<GLfloat> verts;
 	std::vector<GLfloat> norms;
@@ -606,7 +540,6 @@ void SceneManager::init()
 
 	rt3d::loadObj("../FoxholeGroupProjV1_1/fox.obj", verts, norms, tex_coords, indices);
 	meshIndexCount = indices.size();
-	//player.setMeshIndexCount(indices.size());
 
 	meshObjects.push_back(rt3d::createMesh(verts.size() / 3,
 		verts.data(), nullptr, norms.data(),
@@ -635,7 +568,6 @@ void SceneManager::init()
 	tex_coords.clear();
 	indices.clear();
 
-	//md2model tmpmodel;
 	meshObjects.push_back(foxModel.ReadMD2Model("../FoxholeGroupProjV1_1/starfox.md2"));
 	player.setMeshIndexCount(foxModel.getVertDataCount());
 
@@ -695,20 +627,20 @@ void SceneManager::init()
 	//then meshIndexCount = indices.size();
 	//then meshObjects.push_back(rt3d::createMesh(verts.size() / 3, verts.data(), nullptr, norms.data(), tex_coords.data(), meshIndexCount, indices.data()));
 
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/fabric.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/water.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/box.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/twigs.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/Town-skybox/grass1.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/orange-fox.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/tree.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/starfox.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/building.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/city_ground.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/chicken_diffuse.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/car.bmp"));
-	textures.push_back(GameManager::loadBitmap("../FoxholeGroupProjV1_1/metal-texture.bmp"));
-	//add more textures with textures.push_back(SDLManager::loadBitmap("*.bmp")); where * is the bitmap name
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/fabric.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/water.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/box.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/twigs.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/Town-skybox/grass1.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/orange-fox.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/tree.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/starfox.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/building.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/city_ground.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/chicken_diffuse.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/car.bmp"));
+	textures.push_back(loadBitmap("../FoxholeGroupProjV1_1/metal-texture.bmp"));
+	//add more textures with textures.push_back(loadBitmap("*.bmp")); where * is the bitmap name
 
 	initGameObjects();
 	initPlayer();
@@ -723,8 +655,6 @@ void SceneManager::init()
 void SceneManager::initGameObjects() {
 	gameObjects.clear();
 	gameObjects.shrink_to_fit();
-	//timer = std::chrono::system_clock::now(); //todo init timer when starting to actually play game
-	//pauseTimer = timer;
 
 	if (level == 1) {
 		//level 1
@@ -752,7 +682,6 @@ void SceneManager::initGameObjects() {
 		gameObjects.push_back(GameObject("Cube10", glm::vec3(-5.0f, 2.0f, -137.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("Cube11", glm::vec3(-1.0f, 1.0f, -145.0f), glm::vec3(2.0f, 2.0f, 1.0f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 
-		//gameObjects.push_back(GameObject("Tree1", glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), textures[6], meshObjects[2]));
 		buildTrees();
 
 	}
@@ -760,8 +689,7 @@ void SceneManager::initGameObjects() {
 		// level 2
 
 		gameObjects.push_back(GameObject("Ground", glm::vec3(-5.0f, -0.1f, -100.0f), glm::vec3(500.0f, 0.1f, 300.0f), textures[9], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		//gameObjects.push_back(GameObject("Ground2", glm::vec3(-50.0f, -0.1f, -150.0f), glm::vec3(300.0f, 0.1f, 200.0f), textures[9], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-
+		
 		gameObjects.push_back(GameObject("LevelEnd", glm::vec3(0.0f, 0.0f, -355.f), glm::vec3(250.0f, 200.0f, 50.0f), NULL, NULL, 0));
 
 		//right edge
@@ -781,13 +709,11 @@ void SceneManager::initGameObjects() {
 		gameObjects.push_back(GameObject("building3", glm::vec3(-180.0f, 10.0f, -230.0f), glm::vec3(5.0f, 10.0f, 50.0f), textures[8], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("building4", glm::vec3(-180.0f, 10.0f, -320.0f), glm::vec3(5.0f, 10.0f, 30.0f), textures[8], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		//middle
-		gameObjects.push_back(GameObject("midbuilding1", glm::vec3(50.0f, 1.0f, -190.0f), glm::vec3(30.0f, 30.0f, 150.0f), textures[8], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("midbuilding1", glm::vec3(50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[8], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("midbuilding2", glm::vec3(-50.0f, 1.0f, -140.0f), glm::vec3(30.0f, 30.0f, 100.0f), textures[8], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("fence", glm::vec3(18.0f, 1.0f, -50.0f), glm::vec3(0.09f, 0.015f, 0.1f), textures[12], meshObjects[4], objMeshIndexCounts.at("fence.obj")));//middle
 		gameObjects.push_back(GameObject("InvisibleFence", glm::vec3(18.0f, 0.95f, -50.0f), glm::vec3(70.0f, 10.0f, 1.0f), NULL, NULL, 0));//middle
 
-
-		std::string collectableId("collectable");
 		//collectables section front
 		gameObjects.push_back(GameObject("collectable1", glm::vec3(-20.0, 4.0f, 34.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[10], meshObjects[6], objMeshIndexCounts.at("chickenleg.obj")));
 		gameObjects.push_back(GameObject("collectable2", glm::vec3(35.0, 4.0f, -8.0), glm::vec3(0.5f, 0.5f, 0.5f), textures[10], meshObjects[6], objMeshIndexCounts.at("chickenleg.obj")));
@@ -821,17 +747,15 @@ void SceneManager::initGameObjects() {
 
 		gameObjects.push_back(GameObject("jumpbox2a", glm::vec3(-110.0f, 4.0f, -55.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("jumpbox2b", glm::vec3(-110.0f, 1.25f, -55.0f), glm::vec3(1.5f, 1.25f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		//gameObjects.push_back(GameObject("jumpbox2c", glm::vec3(-110.0f, 2.0f, -55.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		//gameObjects.push_back(GameObject("jumpbox2d", glm::vec3(-110.0f, 1.0f, -55.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-
+		
 		gameObjects.push_back(GameObject("jumpbox3a", glm::vec3(-120.0f, 8.0f, -60.0f), glm::vec3(1.5f, 1.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox3b", glm::vec3(-120.0f, 5.0f, -60.0f), glm::vec3(1.5f, 2.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox3c", glm::vec3(-120.0f, 1.0f, -60.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox3b", glm::vec3(-120.0f, 5.0f, -60.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox3c", glm::vec3(-120.0f, 0.25f, -60.0f), glm::vec3(1.5f, 3.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 
 		gameObjects.push_back(GameObject("jumpbox4a", glm::vec3(-115.0f, 12.0f, -70.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox4b", glm::vec3(-115.0f, 9.0f, -70.0f), glm::vec3(1.5f, 3.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox4c", glm::vec3(-115.0f, 5.0f, -70.0f), glm::vec3(1.5f, 2.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox4d", glm::vec3(-115.0f, 1.0f, -70.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox4b", glm::vec3(-115.0f, 8.0f, -70.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox4c", glm::vec3(-115.0f, 4.0f, -70.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox4d", glm::vec3(-115.0f, 0.0f, -70.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 
 		gameObjects.push_back(GameObject("jumpbox5a", glm::vec3(-108.0f, 16.0f, -75.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("jumpbox5b", glm::vec3(-108.0f, 13.0f, -75.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
@@ -855,9 +779,9 @@ void SceneManager::initGameObjects() {
 		gameObjects.push_back(GameObject("jumpbox9b", glm::vec3(-110.0f, 2.0f, -95.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 
 		gameObjects.push_back(GameObject("jumpbox10a", glm::vec3(-115.0f, 12.0f, -90.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox10b", glm::vec3(-115.0f, 9.0f, -90.0f), glm::vec3(1.5f, 3.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox10c", glm::vec3(-115.0f, 5.0f, -90.0f), glm::vec3(1.5f, 2.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-		gameObjects.push_back(GameObject("jumpbox10d", glm::vec3(-115.0f, 2.0f, -90.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox10b", glm::vec3(-115.0f, 8.0f, -90.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox10c", glm::vec3(-115.0f, 4.0f, -90.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
+		gameObjects.push_back(GameObject("jumpbox10d", glm::vec3(-115.0f, 0.0f, -90.0f), glm::vec3(1.5f, 2.0f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 
 		gameObjects.push_back(GameObject("jumpbox11a", glm::vec3(-108.0f, 16.0f, -90.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("jumpbox11b", glm::vec3(-108.0f, 13.0f, -90.0f), glm::vec3(1.5f, 1.5f, 1.5f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
@@ -873,16 +797,11 @@ void SceneManager::initGameObjects() {
 		gameObjects.push_back(GameObject("jumpbox12f", glm::vec3(-101.0f, 5.0f, -85.0f), glm::vec3(1.5f, 1.5f, 4.0f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 		gameObjects.push_back(GameObject("jumpbox12g", glm::vec3(-101.0f, 2.0f, -85.0f), glm::vec3(1.5f, 1.5f, 4.0f), textures[2], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
 
-		//water
-		//gameObjects.push_back(GameObject("Water", glm::vec3(-100.0f, 0.1f, -70.0f), glm::vec3(50.0f, 0.0f, 30.0f), textures[1], meshObjects[0], objMeshIndexCounts.at("cube.obj")));
-
-		//car
-		//gameObjects.push_back(GameObject("Car", glm::vec3(-30.0f, 1.0f, 34.0f), glm::vec3(5.0f, 5.0f, 2.0f), textures[11], meshObjects[5], objMeshIndexCounts.at("car2.obj")));
+		//cars
 		gameObjects.push_back(GameObject("Car", glm::vec3(100.0f, 1.0f, -50.0f), glm::vec3(5.0f, 5.0f, 2.0f), textures[11], meshObjects[5], objMeshIndexCounts.at("car2.obj")));
 		gameObjects.push_back(GameObject("Car", glm::vec3(90.0f, 1.0f, -80.0f), glm::vec3(5.0f, 5.0f, 2.0f), textures[11], meshObjects[5], objMeshIndexCounts.at("car2.obj")));
 		gameObjects.push_back(GameObject("Car", glm::vec3(120.0f, 1.0f, -130.0f), glm::vec3(5.0f, 5.0f, 2.0f), textures[11], meshObjects[5], objMeshIndexCounts.at("car2.obj")));
 		gameObjects.push_back(GameObject("Car", glm::vec3(150.0f, 1.0f, -180.0f), glm::vec3(5.0f, 5.0f, 2.0f), textures[11], meshObjects[5], objMeshIndexCounts.at("car2.obj")));
-		//gameObjects.push_back(GameObject("Car", glm::vec3(180.0f, 1.0f, 34.0f), glm::vec3(5.0f, 5.0f, 2.0f), textures[11], meshObjects[5], objMeshIndexCounts.at("car2.obj")));
 
 
 	}
@@ -892,10 +811,7 @@ void SceneManager::initGameObjects() {
 
 void SceneManager::updateCar(int carIndex)
 {
-	//int carIndex = getGameObjectIndex("Car");
 	glm::vec3 newCarPos = gameObjects[carIndex].getPos();
-
-	//std::cout << gameObjects[carIndex].getStartPos().x
 
 	//car drives between two buildings
 	if ((newCarPos.x - gameObjects[carIndex].getStartPos().x) >= 0) {
@@ -953,15 +869,9 @@ GLuint SceneManager::textToTexture(const char * str, GLuint textID) {
 	return texture;
 }
 
-//todo may deprecate
 void SceneManager::checkEndLevel()
 {
 	if (level == 2 && collectables <= 0 && player.getLastCollision() == "LevelEnd") {
-		//level = 1;
-		//timer = std::chrono::system_clock::now();
-		//pauseTimer = timer;
-		//initGameObjects();
-		//respawnPlayer();
 		saveScores(levelTime, 2);
 		playerNameSet = false;
 		playerName = "";
@@ -970,7 +880,6 @@ void SceneManager::checkEndLevel()
 			scores();
 		else
 			mainMenu();
-		//todo change scene state here ?? maybe wait no - call method that 
 	}
 }
 
@@ -1053,7 +962,6 @@ void SceneManager::renderObject(GameObject gObj)
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	//rt3d::setMaterial(shaderProgram, materials[0]); // don't use materials??????
 	rt3d::drawIndexedMesh(gObj.getMesh(), gObj.getMeshIndexCount(), GL_TRIANGLES);
 	mvStack.pop();
 
@@ -1063,7 +971,6 @@ void SceneManager::renderObject(GameObject gObj)
 void SceneManager::togglePause() {
 
 	if (sceneState == PAUSE) {
-		//sceneState = IN_GAME;
 		play();
 	}
 	else if (sceneState == IN_GAME ^ sceneState == COUNTDOWN) {
@@ -1075,20 +982,11 @@ void SceneManager::togglePause() {
 		pauseTimer = std::chrono::system_clock::now();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
 		BASS_Pause();
-		/*HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
-		if (!BASS_ChannelPause(ch))
-			std::cout << "Can't pause sample - " << BASS_ErrorGetCode() << std::endl;
-		else
-			std::cout << "Pausing sample\n";*/
 	}
 	else if (sceneState == IN_GAME) {
 		pauseTime = std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer).count();
 		std::cout << std::chrono::duration<double>(pauseTimer - timer).count() << std::endl;
 		timer += std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::duration<double>(std::chrono::system_clock::now() - pauseTimer));
-
-		//BASS_Start();
-		//HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
-		//BASS_ChannelPlay(ch, FALSE);
 	}
 }
 
@@ -1113,12 +1011,6 @@ void SceneManager::renderHUDObject(MenuObject menuObj) {
 
 void SceneManager::renderHUD()
 {
-	//todo add countdown for death respawn and initial play
-
-	////////////////////////////////////////////////////////////////////
-	//This renders a HUD label
-	////////////////////////////////////////////////////////////////////
-	//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 	glDisable(GL_DEPTH_TEST);//Disable depth test for HUD label
 
 	if (sceneState == PAUSE) {
@@ -1159,7 +1051,6 @@ void SceneManager::renderHUD()
 		}
 		std::string countdownStr(std::to_string(countdownTimer));
 
-		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(countdownStr, glm::vec3(0.0f, -0.1f, 0.0f), glm::vec3(0.25f, 0.25f, 0.0f)));
 
 		currentAnimation = 0;
@@ -1184,7 +1075,6 @@ void SceneManager::renderHUD()
 
 		timerStr.append("s");
 
-		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(timerStr, glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.0f)));
 		levelTime = totalTime;
 
@@ -1194,7 +1084,6 @@ void SceneManager::renderHUD()
 		std::string collectablesString("Chicken pieces left: ");
 		collectablesString.append(std::to_string(collectables));
 
-		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple(collectablesString, glm::vec3(-0.5f, -0.8f, 0.0f), glm::vec3(0.5f, 0.2f, 0.0f)));
 
 	}
@@ -1202,19 +1091,16 @@ void SceneManager::renderHUD()
 	int respawnTime = std::chrono::duration<double>(temp - waterRespawnTimer).count();
 
 	if (respawnTime > -1 && respawnTime < 2) {
-		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple("Avoid the water!", glm::vec3(0.8f, -0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 	}
 
 	respawnTime = std::chrono::duration<double>(temp - carRespawnTimer).count();
 
 	if (respawnTime > -1 && respawnTime < 2) {
-		//glUseProgram(textureProgram);//Use texture-only shader for text rendering
 		renderHUDObject(std::make_tuple("Avoid the cars!", glm::vec3(0.8f, -0.8f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 	}
 
 	glEnable(GL_DEPTH_TEST);//Re-enable depth test after HUD label
-	//setLights();
 }
 
 void SceneManager::renderPlayer()
@@ -1223,39 +1109,20 @@ void SceneManager::renderPlayer()
 		foxModel.Animate(currentAnimation, 0.1);
 		rt3d::updateMesh(player.getMesh(), RT3D_VERTEX, foxModel.getAnimVerts(), foxModel.getVertDataSize());
 	}
-	//player cube
 	glCullFace(GL_FRONT);
 	glBindTexture(GL_TEXTURE_2D, player.getTexture());
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(player.getPos().x, player.getPos().y, player.getPos().z));
 	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(0.05f, 0.05f, 0.05f));
 
-	//change r based on current r
-
-	//if (currentAnimation == 0) {
-		//mvStack.top() = glm::rotate(mvStack.top(), float((cameraR - 90.0f)* DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
-		//mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
-		//mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
-	//}
-	//else {
 	mvStack.top() = glm::rotate(mvStack.top(), float((player.getPlayerR() - 90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	//}
 
 	mvStack.top() = glm::rotate(mvStack.top(), float(270 * DEG_TO_RADIAN), glm::vec3(1.0f, 0.0f, 0.0f));
 	mvStack.top() = glm::rotate(mvStack.top(), float(180 * DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, 1.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	//rt3d::setMaterial(shaderProgram, materials[1]);
 	rt3d::drawMesh(player.getMesh(), player.getMeshIndexCount(), GL_TRIANGLES);
 	mvStack.pop();
 	glCullFace(GL_BACK);
-
-	//foxModel->Draw(modelProgram);
-	/*
-	// Animate the md2 model, and update the mesh with new vertex data
-	foxModel.Animate(currentAnim,0.1);
-	rt3d::updateMesh(player.getMesh(),RT3D_VERTEX,foxModel.getAnimVerts(),foxModel.getVertDataSize());
-	*/
 }
 
 void SceneManager::updatePlayerR(GLfloat deltaR)
@@ -1264,12 +1131,6 @@ void SceneManager::updatePlayerR(GLfloat deltaR)
 		player.setPlayerR(player.getPlayerR() + deltaR);
 	}
 	cameraR += deltaR;
-	//if (currentAnimation != 0) {
-		//cameraR = player.getPlayerR();
-	//}
-	//else {
-		//cameraR -= player.getPlayerR();
-	//}
 
 }
 
@@ -1287,29 +1148,13 @@ void SceneManager::detectCollectableCollision() {
 			if (!BASS_ChannelPlay(ch, FALSE))
 				std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
 
-			//playerColl = playerColl.substr(11);
-
-			//for (GameObject gObj : gameObjects) {
-				//if (gObj.getName().substr(0, 11) == "collectable" && gObj.getName().substr(11) == playerColl) {
 			std::cout << "player collided with " << player.getLastCollision() << "\n";
 			int index = getGameObjectIndex(player.getLastCollision());
 			player.setLastCollision("");
 			gameObjects.erase(gameObjects.begin() + index);
 			collectables--;
-			//break;
-		//}
-	//}
 		}
 	}
-}
-
-int SceneManager::countCollectables() {
-	int count = 0;
-	for (GameObject obj : gameObjects) {
-		if (obj.getName().substr(0, 11) == "collectable")
-			count++;
-	}
-	return count;
 }
 
 HSAMPLE SceneManager::loadSounds(char * filename)
@@ -1354,16 +1199,6 @@ void SceneManager::initSounds()
 
 	sounds.push_back(loadSounds("../FoxholeGroupProjV1_1/car_crash.wav"));
 	//http://soundbible.com/454-Sound-Of-Tires-Screeching-1.html
-
-	//HCHANNEL ch = BASS_SampleGetChannel(sounds[0], FALSE);
-	//BASS_ChannelSetAttribute(ch, BASS_ATTRIB_FREQ, 0);
-	//BASS_ChannelSetAttribute(ch, BASS_ATTRIB_VOL, 0.5);
-	//BASS_ChannelSetAttribute(ch, BASS_ATTRIB_PAN, -1);
-	//int flag = BASS_ChannelFlags(ch, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-	//std::cout << flag << std::endl;
-	/*if (!BASS_ChannelPlay(ch, FALSE))
-		std::cout << "Can't play sample" << std::endl;*/
-		//backgroundNoise = BASS_SampleGetChannel(sounds[0], FALSE);
 }
 
 void SceneManager::playBleep() {
@@ -1389,8 +1224,6 @@ void SceneManager::playBloop() {
 }
 
 void SceneManager::stand() {
-	//player.playerStand();
-	//if (!player.isPlayerFalling())
 	currentAnimation = 0;
 }
 
@@ -1407,17 +1240,14 @@ void SceneManager::movePlayerForward(GLfloat delta) {
 
 	if (!player.isPlayerFalling() && !player.isPlayerJumping() && walkingNoise == NULL) {
 		BASS_Start();
-		//if (BASS_C) {
 		walkingNoise = BASS_SampleGetChannel(sounds[5], FALSE);
 		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_FREQ, 0);
 		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_VOL, 0.5);
 		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_PAN, -1);
-		//}
 		if (!BASS_ChannelPlay(walkingNoise, FALSE))
 			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
 	}
 	else if (!player.isPlayerJumping() && !player.isPlayerFalling()) {
-		//walkingNoise = NULL;
 		if (!BASS_ChannelPlay(walkingNoise, FALSE))
 			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
 	}
@@ -1440,17 +1270,14 @@ void SceneManager::movePlayerRight(GLfloat delta) {
 
 	if (!player.isPlayerFalling() && !player.isPlayerJumping() && walkingNoise == NULL) {
 		BASS_Start();
-		//if (BASS_C) {
 		walkingNoise = BASS_SampleGetChannel(sounds[5], FALSE);
 		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_FREQ, 0);
 		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_VOL, 0.5);
 		BASS_ChannelSetAttribute(walkingNoise, BASS_ATTRIB_PAN, -1);
-		//}
 		if (!BASS_ChannelPlay(walkingNoise, FALSE))
 			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
 	}
 	else if (!player.isPlayerJumping() && !player.isPlayerFalling()) {
-		//walkingNoise = NULL;
 		if (!BASS_ChannelPlay(walkingNoise, FALSE))
 			std::cout << "Can't play sample " << BASS_ErrorGetCode() << std::endl;
 	}
@@ -1470,13 +1297,12 @@ glm::vec3 SceneManager::moveRight(glm::vec3 pos, GLfloat angle, GLfloat d)
 
 bool SceneManager::checkCollisions()
 {
-	//Player tempPlayer = player;
-	//tempPlayer.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//tempPlayer.setPos(glm::vec3(tempPlayer.getPos().x, tempPlayer.getPos().y + 1.0f, tempPlayer.getPos().z));
 	bool collided = false;
 	for (int i = 0; i < gameObjects.size(); i++) {
-		if (CollisionDetector::detectCollision(gameObjects[i], player))
+		if (CollisionDetector::detectCollision(gameObjects[i], player)) {
 			collided = true;
+			break;
+		}
 	}
 	return collided;
 }
@@ -1484,76 +1310,22 @@ bool SceneManager::checkCollisions()
 bool SceneManager::checkCollisions(GameObject &specObj) {
 	bool collided = false;
 	for (int i = 0; i < gameObjects.size(); i++) {
-		if (CollisionDetector::detectCollision(gameObjects[i], specObj))
+		if (CollisionDetector::detectCollision(gameObjects[i], specObj)) {
 			collided = true;
+			break;
+		}
 	}
 	return collided;
 }
 
 void SceneManager::playerJump() {
-	/*if (player.getJumpCounter() < player.getJumpMax()) {
-		player.jump(true);
-		glm::vec3 newPos = player.getPos();
-
-		newPos.y += player.getJumpIncrement();
-
-		player.incrementJumpCounter();
-		player.setPos(newPos);
-	}
-	else if (player.getJumpCounter() >= player.getJumpMax()) {
-		player.jump(false);
-		if (player.isOnObject())
-			player.resetJumpCounter();
-	}*/
 
 	player.playerJump();
 	currentAnimation = 6;
 
-	/*if (player.isPlayerJumping()) {
-		player.setPos(glm::vec3(player.getPos().x, player.getPos().y + player.getJumpIncrement(), player.getPos().z));
-	}*/
 }
 
 void SceneManager::playerFall(bool spaceUp) {
-
-	//if (CollisionDetector::detectCollision(getGameObject("Cube1"), player))
-		//std::cout << "player collided with cube1\n";
-	//if (player.isPlayerFalling()) {
-	//	if (!checkCollisions()) {
-	//		glm::vec3 newPos = player.getPos();
-	//		newPos.y -= player.getFallIncrement();
-
-	//		GameObject tempObj(player);
-
-	//		//tempObj.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//		tempObj.setPos(newPos);
-	//		//tempObj.setPos(glm::vec3(tempObj.getPos().x, tempObj.getPos().y+1.0f, tempObj.getPos().z));
-
-	//		if (!checkCollisions(tempObj)) { player.setIsOnObj(false); }
-	//	}
-
-	//	//if (!player.isJumping() && !player.isOnObject()) {
-
-	//		glm::vec3 newPos = player.getPos();
-
-	//		if (checkCollisions()) {
-	//			//change player y to y of object y plus object scale
-	//			GameObject gObj = getGameObject(player.getLastCollision());
-	//			std::cout << "player last coll:\t " << player.getLastCollision() << std::endl;
-	//			newPos.y = gObj.getPos().y + gObj.getScale().y + player.getScale().y;
-
-	//			player.setIsOnObj(true);
-	//		}
-	//		else {
-	//			newPos.y -= player.getFallIncrement();
-	//		}
-
-	//		std::cout << "player y:\t" << player.getPos().y << std::endl;
-	//		player.setPos(newPos);
-	//		//CHANGE THIS ^^^^^ CREATE TEMP OBJECT ////MAYBE?????? LOLIDK
-	//	//}
-	//}
-	////
 
 	if (spaceUp) {
 		player.playerFall();
@@ -1564,7 +1336,6 @@ void SceneManager::playerFall(bool spaceUp) {
 
 		if (checkCollisions()) {
 			player.playerStand();
-			//currentAnimation = 0;
 		}
 	}
 
@@ -1607,17 +1378,13 @@ void SceneManager::checkPlayerRespawn()
 
 		waterRespawnTimer = std::chrono::system_clock::now();
 		respawnPlayer();
-	}//for demonstration purposes
-	else if (player.getLastCollision() == "LevelEnd" && level == 1 /*|| (!inCountdown() && */) {
+	}
+	else if (player.getLastCollision() == "LevelEnd" && level == 1) {
 		level = 2;
 		timer = std::chrono::system_clock::now();
 		pauseTimer = timer;
 		initGameObjects();
 		respawnPlayer();
-		//HCHANNEL lvl1ch = BASS_SampleGetChannel(sounds[0], TRUE);
-		//if (!BASS_ChannelStop(lvl1ch)) {
-		//std::cout << "error stopping forest sounds " << BASS_ErrorGetCode() << std::endl;
-		//}
 		BASS_ChannelStop(backgroundNoise);
 		backgroundNoise = BASS_SampleGetChannel(sounds[2], TRUE);
 		BASS_ChannelFlags(backgroundNoise, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
@@ -1642,18 +1409,6 @@ void SceneManager::checkPlayerRespawn()
 }
 
 void SceneManager::saveScores(double levelTime, int level) {
-	//std::ofstream highScores1("highScores1.txt", std::ios_base::app);
-	//std::ofstream highScores2("highScores2.txt", std::ios_base::app);
-	//highScores << levelTime, /*input name function elsewhere and have the string passed here for use*/"\n";
-	//highScores << /*scorevariable here*/ "\n";
-
-	//todo change this so that it saves level time in temp score (add param to know whether to store
-	// as first or second)
-	// after level 2 is complete, save to file.
-	// read file and check if either score is in top five
-	// if so, let player choose 3 letters to save score
-	// to do this, add new scene state with accompanying menu
-	// todo figure out later
 
 	switch (level) {
 	case 1:
@@ -1661,34 +1416,17 @@ void SceneManager::saveScores(double levelTime, int level) {
 		break;
 	case 2:
 		tempScore.second = levelTime;
-		//highScores1 << tempScore.first << "\n";
-		//highScores2 << tempScore.second << "\n";
-
-		//highScores1.close();
-		//highScores2.close();
-
-		//call method to 
 		findHighScores();
 		writeScores();
 		break;
 	default:
 		break;
 	}
-
-	//todo not sure about below
-	//if(highScores1.is_open())
-		//highScores1.close();
-
-	//if (highScores2.is_open())
-		//highScores2.close();
 }
 
 void SceneManager::writeScores() {
 	std::ofstream highScores1_STREAM("../FoxholeGroupProjV1_1/highScores1.txt");
 	std::ofstream highScores2_STREAM("../FoxholeGroupProjV1_1/highScores2.txt");
-
-
-	//highScores1_STREAM << 
 
 	for (int i = 0; i < highscores1.size(); i++) {
 		highScores1_STREAM << highscores1[i].first << ':' << highscores1[i].second;
@@ -1706,11 +1444,8 @@ void SceneManager::writeScores() {
 		}
 	}
 
-	//todo not sure about below
-	//if (highScores1_STREAM.is_open())
 	highScores1_STREAM.close();
 
-	//if (highScores2_STREAM.is_open())
 	highScores2_STREAM.close();
 }
 
@@ -1725,34 +1460,87 @@ void SceneManager::updateCollectables()
 	}
 }
 
-void SceneManager::findHighScores() {
-	//std::ofstream highScores1_STREAM("highScores1.txt", std::ios_base::app);
-	//std::ofstream highScores2_STREAM("highScores2.txt", std::ios_base::app);
+GLuint SceneManager::loadCubeMap(const char * fname[6], GLuint * texID)
+{
+	glGenTextures(1, texID); // generate texture ID
+	GLenum sides[6] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y };
+	SDL_Surface *tmpSurface;
 
-	//if (highScores1.size() == 0 && highScores2.size() == 0) {
-		//loadScores();
-	//}
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *texID); // bind texture and set parameters
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	/*if (!highScores1) {
-		std::cerr << "highScores1 failed to load\n";
+	GLuint externalFormat;
+	for (int i = 0; i < 6; i++)
+	{
+		// load file - using core SDL library
+		tmpSurface = SDL_LoadBMP(fname[i]);
+		if (!tmpSurface)
+		{
+			std::cout << "Error loading bitmap" << std::endl;
+			return *texID;
+		}
+
+		// skybox textures should not have alpha (assuming this is true!)
+		SDL_PixelFormat *format = tmpSurface->format;
+		externalFormat = (format->Rmask < format->Bmask) ? GL_RGB : GL_BGR;
+
+		glTexImage2D(sides[i], 0, GL_RGB, tmpSurface->w, tmpSurface->h, 0,
+			externalFormat, GL_UNSIGNED_BYTE, tmpSurface->pixels);
+		// texture loaded, free the temporary buffer
+		SDL_FreeSurface(tmpSurface);
+	}
+	return *texID;	// return value of texure ID, redundant really
+}
+
+GLuint SceneManager::loadBitmap(char * fname)
+{
+	GLuint texID;
+	glGenTextures(1, &texID); // generate texture ID
+
+							  // load file - using core SDL library
+	SDL_Surface *tmpSurface;
+	tmpSurface = SDL_LoadBMP(fname);
+	if (!tmpSurface) {
+		std::cout << "Error loading bitmap" << std::endl;
 	}
 
-	if (!highScores2) {
-		std::cerr << "highScores2 failed to load\n";
-	}*/
+	// bind texture and set parameters
+	glBindTexture(GL_TEXTURE_2D, texID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	//add to temp vectors of scores
-	//sort them
+	SDL_PixelFormat *format = tmpSurface->format;
 
+	GLuint externalFormat, internalFormat;
+	if (format->Amask) {
+		internalFormat = GL_RGBA;
+		externalFormat = (format->Rmask < format->Bmask) ? GL_RGBA : GL_BGRA;
+	}
+	else {
+		internalFormat = GL_RGB;
+		externalFormat = (format->Rmask < format->Bmask) ? GL_RGB : GL_BGR;
+	}
 
-	//todo not sure about below
-	//if (highScores1_STREAM.is_open())
-		//highScores1_STREAM.close();
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, tmpSurface->w, tmpSurface->h, 0,
+		externalFormat, GL_UNSIGNED_BYTE, tmpSurface->pixels);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
-	//if (highScores2_STREAM.is_open())
-		//highScores2_STREAM.close();
+	SDL_FreeSurface(tmpSurface); // texture loaded, free the temporary buffer
+	return texID;	// return value of texture ID
+}
 
-	//
+void SceneManager::findHighScores() {
 
 	highscores1.push_back(std::make_pair(playerName, tempScore.first));
 	highscores2.push_back(std::make_pair(playerName, tempScore.second));
@@ -1785,8 +1573,6 @@ void SceneManager::findHighScores() {
 			break;
 		}
 	}
-
-	//todo clear tempscore
 }
 
 void SceneManager::freeBass()

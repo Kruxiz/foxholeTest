@@ -9,8 +9,7 @@
 enum PlayerState {
 	STANDING,
 	JUMPING,
-	FALLING,
-	RUNNING //todo not sure needed
+	FALLING
 };
 
 class Player : public GameObject {
@@ -26,22 +25,16 @@ public:
 	void playerJump();
 	void playerStand();
 	void playerFall();
-	void playerRun() { playerState = RUNNING; } //not sure if needed
 	bool isPlayerJumping() { return playerState == JUMPING; }
 	bool isPlayerFalling() { return playerState == FALLING; }
-	bool isPlayerRunning() { return playerState == RUNNING; } //not sure if needed
 	bool isPlayerStanding() { return playerState == STANDING; }
 	void playerReset() { position = playerRespawnPos; lastCollisionObjName = ""; }
 private:
 	GLfloat r = 0.0f;
 	GLuint jumpCounter = 0;
-	GLfloat jumpIncrement = 0.1f;
-	GLfloat fallIncrement = 0.1f;
-	GLfloat baseJumpAndFallIncrement = 0.1f;
-	GLfloat maxJumpIncrement = 0.5f;
-	GLfloat maxFallIncrement = 0.5f;
-	GLuint jumpMax = 50;
-	GLfloat accnValue = 1.1f; // needed
+	GLfloat jumpIncrement = 0.2f;
+	GLfloat fallIncrement = 0.2f;
+	GLuint jumpMax = 25;
 	GLuint playerMeshIndexCount = 0;
 	PlayerState playerState = STANDING;
 	glm::vec3 playerRespawnPos;
