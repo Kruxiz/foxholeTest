@@ -1303,7 +1303,6 @@ bool SceneManager::checkCollisions()
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (CollisionDetector::detectCollision(gameObjects[i], player)) {
 			collided = true;
-			break;
 		}
 	}
 	return collided;
@@ -1314,7 +1313,6 @@ bool SceneManager::checkCollisions(GameObject &specObj) {
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (CollisionDetector::detectCollision(gameObjects[i], specObj)) {
 			collided = true;
-			break;
 		}
 	}
 	return collided;
